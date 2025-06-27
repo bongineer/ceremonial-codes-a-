@@ -19,7 +19,7 @@ BEGIN
     SELECT 1 FROM information_schema.columns
     WHERE table_name = 'food_menu' AND column_name = 'guest_category'
   ) THEN
-    ALTER TABLE food_menu ADD COLUMN guest_category TEXT DEFAULT 'regular' CHECK (guest_category IN ('regular', 'premium', 'family'));
+    ALTER TABLE food_menu ADD COLUMN guest_category TEXT DEFAULT 'VVIP' CHECK (guest_category IN ('VVIP', 'premium', 'family'));
   END IF;
 END $$;
 
@@ -30,7 +30,7 @@ BEGIN
     SELECT 1 FROM information_schema.columns
     WHERE table_name = 'drink_menu' AND column_name = 'guest_category'
   ) THEN
-    ALTER TABLE drink_menu ADD COLUMN guest_category TEXT DEFAULT 'regular' CHECK (guest_category IN ('regular', 'premium', 'family'));
+    ALTER TABLE drink_menu ADD COLUMN guest_category TEXT DEFAULT 'VVIP' CHECK (guest_category IN ('VVIP', 'premium', 'family'));
   END IF;
 END $$;
 
@@ -100,9 +100,9 @@ BEGIN
   END IF;
 END $$;
 
--- Update existing menu items to have 'regular' guest_category if null
-UPDATE food_menu SET guest_category = 'regular' WHERE guest_category IS NULL;
-UPDATE drink_menu SET guest_category = 'regular' WHERE guest_category IS NULL;
+-- Update existing menu items to have 'VVIP' guest_category if null
+UPDATE food_menu SET guest_category = 'VVIP' WHERE guest_category IS NULL;
+UPDATE drink_menu SET guest_category = 'VVIP' WHERE guest_category IS NULL;
 
 -- Update existing items to have 'NGN' currency if null
 UPDATE asoebi_items SET currency = 'NGN' WHERE currency IS NULL;
