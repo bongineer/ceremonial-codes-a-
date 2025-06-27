@@ -14,14 +14,14 @@ const MenuTab: React.FC = () => {
   const [foodDescription, setFoodDescription] = useState('');
   const [foodImage, setFoodImage] = useState('');
   const [foodCategory, setFoodCategory] = useState<'main' | 'appetizer' | 'dessert'>('main');
-  const [foodGuestCategory, setFoodGuestCategory] = useState<'regular' | 'premium' | 'family'>('regular');
+  const [foodGuestCategory, setFoodGuestCategory] = useState<'VVIP' | 'premium' | 'family'>('VVIP');
   
   // Drink form state
   const [drinkName, setDrinkName] = useState('');
   const [drinkDescription, setDrinkDescription] = useState('');
   const [drinkImage, setDrinkImage] = useState('');
   const [drinkCategory, setDrinkCategory] = useState<'alcoholic' | 'non-alcoholic' | 'water'>('alcoholic');
-  const [drinkGuestCategory, setDrinkGuestCategory] = useState<'regular' | 'premium' | 'family'>('regular');
+  const [drinkGuestCategory, setDrinkGuestCategory] = useState<'VVIP' | 'premium' | 'family'>('VVIP');
 
   // Edit modal state
   const [showEditModal, setShowEditModal] = useState(false);
@@ -229,13 +229,13 @@ const MenuTab: React.FC = () => {
             onChange={(e) => setFoodGuestCategory(e.target.value as any)}
             className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-rose-300"
           >
-            <option value="regular">Regular</option>
+            <option value="VVIP">VVIP</option>
             <option value="premium">Premium</option>
             <option value="family">Family</option>
           </select>
           <p className="text-sm text-gray-500 mt-1">
-            Regular: Only regular guests can see this item<br/>
-            Premium: Regular and premium guests can see this item<br/>
+            VVIP: Only VVIP guests can see this item<br/>
+            Premium: VVIP and premium guests can see this item<br/>
             Family: All guests can see this item
           </p>
         </div>
@@ -328,13 +328,13 @@ const MenuTab: React.FC = () => {
             onChange={(e) => setDrinkGuestCategory(e.target.value as any)}
             className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-rose-300"
           >
-            <option value="regular">Regular</option>
+            <option value="VVIP">VVIP</option>
             <option value="premium">Premium</option>
             <option value="family">Family</option>
           </select>
           <p className="text-sm text-gray-500 mt-1">
-            Regular: Only regular guests can see this item<br/>
-            Premium: Regular and premium guests can see this item<br/>
+            VVIP: Only VVIP guests can see this item<br/>
+            Premium: VVIP and premium guests can see this item<br/>
             Family: All guests can see this item
           </p>
         </div>
@@ -434,7 +434,7 @@ const MenuTab: React.FC = () => {
                 onChange={(e) => setEditItem({...editItem, guestCategory: e.target.value})}
                 className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-rose-300"
               >
-                <option value="regular">Regular</option>
+                <option value="VVIP">VVIP</option>
                 <option value="premium">Premium</option>
                 <option value="family">Family</option>
               </select>
