@@ -127,7 +127,7 @@ export const useSupabase = () => {
           drinkServed: guest.drink_served,
           selectedFood: guest.selected_food,
           selectedDrink: guest.selected_drink,
-          category: guest.category || 'regular'
+          category: guest.category || 'VVIP'
         };
       });
       
@@ -145,7 +145,7 @@ export const useSupabase = () => {
         .insert({
           access_code: accessCode,
           name: name,
-          category: 'regular'
+          category: 'VVIP'
         });
       
       if (error) throw error;
@@ -261,7 +261,7 @@ export const useSupabase = () => {
         description: item.description,
         imageUrl: item.image_url,
         category: item.category as 'main' | 'appetizer' | 'dessert',
-        guestCategory: item.guest_category as 'regular' | 'premium' | 'family' || 'regular'
+        guestCategory: item.guest_category as 'VVIP' | 'premium' | 'family' || 'VVIP'
       }));
     } catch (err) {
       console.error('Error fetching food menu:', err);
@@ -330,7 +330,7 @@ export const useSupabase = () => {
         description: item.description,
         imageUrl: item.image_url,
         category: item.category as 'alcoholic' | 'non-alcoholic' | 'water',
-        guestCategory: item.guest_category as 'regular' | 'premium' | 'family' || 'regular'
+        guestCategory: item.guest_category as 'VVIP' | 'premium' | 'family' || 'VVIP'
       }));
     } catch (err) {
       console.error('Error fetching drink menu:', err);
