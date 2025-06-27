@@ -43,7 +43,7 @@ const WelcomeTab: React.FC = () => {
             <div className="md:w-2/3">
               <WelcomeSlideshow 
                 images={welcomeImages}
-                className="w-full h-80 md:h-full"
+                className="w-full h-85 md:h-full"
                 interval={4000}
               />
             </div>
