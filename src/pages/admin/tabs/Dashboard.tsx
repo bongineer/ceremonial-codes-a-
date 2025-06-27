@@ -111,6 +111,7 @@ const Dashboard: React.FC = () => {
         </div>
       </div>
       
+      {/* Quick Settings Card */}
       <div className="bg-theme-card-bg p-6 rounded-lg shadow-md mb-8 hover:shadow-lg transition-shadow duration-300">
         <h3 className="text-xl mb-4 font-semibold">Quick Settings</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -123,35 +124,6 @@ const Dashboard: React.FC = () => {
               onChange={(e) => setEventDate(e.target.value)}
               className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-theme-accent"
             />
-          </div>
-          
-          <div>
-            <label htmlFor="max-seats" className="block text-theme-text mb-2">Total Seats (max 300)</label>
-            <input 
-              type="number" 
-              id="max-seats" 
-              min="1" 
-              max="300" 
-              value={maxSeats}
-              onChange={(e) => setMaxSeats(parseInt(e.target.value) || 300)}
-              className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-theme-accent"
-            />
-          </div>
-          
-          <div>
-            <label htmlFor="seats-per-table" className="block text-theme-text mb-2">Seats Per Table</label>
-            <input 
-              type="number" 
-              id="seats-per-table" 
-              min="1" 
-              max="20" 
-              value={seatsPerTable}
-              onChange={(e) => setSeatsPerTable(parseInt(e.target.value) || 10)}
-              className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-theme-accent"
-            />
-            <p className="text-sm text-theme-text mt-1">
-              Table mapping: Seats 1-{seatsPerTable} = Table 1, Seats {seatsPerTable + 1}-{seatsPerTable * 2} = Table 2, etc.
-            </p>
           </div>
           
           <div>
@@ -175,31 +147,43 @@ const Dashboard: React.FC = () => {
               className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-theme-accent"
             />
           </div>
-          
-          <div className="md:col-span-2">
-            <label htmlFor="welcome-image" className="block text-theme-text mb-2">Primary Welcome Image URL</label>
-            <input 
-              type="text" 
-              id="welcome-image" 
-              value={welcomeImage}
-              onChange={(e) => setWelcomeImage(e.target.value)}
-              className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-theme-accent"
-              placeholder="Enter primary image URL for welcome page"
-            />
-            {welcomeImage && (
-              <div className="mt-2">
-                <img 
-                  src={welcomeImage} 
-                  alt="Welcome preview" 
-                  className="w-full max-w-md h-48 object-cover rounded-lg border"
-                />
-              </div>
-            )}
-          </div>
+        </div>
+        
+        <button 
+          onClick={handleSaveSettings}
+          className="mt-6 bg-theme-primary text-theme-button-text py-2 px-6 rounded-lg hover:bg-theme-accent transition duration-300"
+        >
+          Save Settings
+        </button>
+      </div>
+      
+      {/* Welcome Images Card */}
+      <div className="bg-theme-card-bg p-6 rounded-lg shadow-md mb-8 hover:shadow-lg transition-shadow duration-300">
+        <h3 className="text-xl mb-4 font-semibold">Welcome Images</h3>
+        
+        <div className="mb-6">
+          <label htmlFor="welcome-image" className="block text-theme-text mb-2">Primary Welcome Image URL</label>
+          <input 
+            type="text" 
+            id="welcome-image" 
+            value={welcomeImage}
+            onChange={(e) => setWelcomeImage(e.target.value)}
+            className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-theme-accent"
+            placeholder="Enter primary image URL for welcome page"
+          />
+          {welcomeImage && (
+            <div className="mt-2">
+              <img 
+                src={welcomeImage} 
+                alt="Welcome preview" 
+                className="w-full max-w-md h-48 object-cover rounded-lg border"
+              />
+            </div>
+          )}
         </div>
 
         {/* Welcome Images Slider Section */}
-        <div className="mt-8">
+        <div>
           <div className="flex items-center justify-between mb-4">
             <h4 className="text-lg font-semibold text-theme-text">Welcome Page Photo Slider (Max 6 photos)</h4>
             <button
@@ -251,17 +235,44 @@ const Dashboard: React.FC = () => {
             )}
           </div>
         </div>
-        
-        <button 
-          onClick={handleSaveSettings}
-          className="mt-6 bg-theme-primary text-theme-button-text py-2 px-6 rounded-lg hover:bg-theme-accent transition duration-300"
-        >
-          Save Settings
-        </button>
       </div>
       
+      {/* Seating and Access Codes Card */}
       <div className="bg-theme-card-bg p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300">
-        <h3 className="text-xl mb-4 font-semibold">Generate Access Codes</h3>
+        <h3 className="text-xl mb-4 font-semibold">Seating Configuration</h3>
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+          <div>
+            <label htmlFor="max-seats" className="block text-theme-text mb-2">Total Seats (max 300)</label>
+            <input 
+              type="number" 
+              id="max-seats" 
+              min="1" 
+              max="300" 
+              value={maxSeats}
+              onChange={(e) => setMaxSeats(parseInt(e.target.value) || 300)}
+              className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-theme-accent"
+            />
+          </div>
+          
+          <div>
+            <label htmlFor="seats-per-table" className="block text-theme-text mb-2">Seats Per Table</label>
+            <input 
+              type="number" 
+              id="seats-per-table" 
+              min="1" 
+              max="20" 
+              value={seatsPerTable}
+              onChange={(e) => setSeatsPerTable(parseInt(e.target.value) || 10)}
+              className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-theme-accent"
+            />
+            <p className="text-sm text-theme-text mt-1">
+              Table mapping: Seats 1-{seatsPerTable} = Table 1, Seats {seatsPerTable + 1}-{seatsPerTable * 2} = Table 2, etc.
+            </p>
+          </div>
+        </div>
+        
+        <h3 className="text-xl mb-4 font-semibold mt-8">Generate Access Codes</h3>
         <p className="mb-4 text-theme-text">Generate unique 5-character alphanumeric codes for your guests.</p>
         
         <div className="mb-4">
