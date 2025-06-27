@@ -3,7 +3,7 @@
 
   1. Changes
     - Add welcome_image column to settings table
-    - Add category column to guests table with default 'regular'
+    - Add category column to guests table with default 'VVIP'
 
   2. Security
     - No changes to existing RLS policies
@@ -27,9 +27,9 @@ BEGIN
     SELECT 1 FROM information_schema.columns
     WHERE table_name = 'guests' AND column_name = 'category'
   ) THEN
-    ALTER TABLE guests ADD COLUMN category TEXT DEFAULT 'regular' CHECK (category IN ('regular', 'premium', 'family'));
+    ALTER TABLE guests ADD COLUMN category TEXT DEFAULT 'VVIP' CHECK (category IN ('VVIP', 'premium', 'family'));
   END IF;
 END $$;
 
--- Update existing guests to have 'regular' category if null
-UPDATE guests SET category = 'regular' WHERE category IS NULL;
+-- Update existing guests to have 'VVIP' category if null
+UPDATE guests SET category = 'VVIP' WHERE category IS NULL;
