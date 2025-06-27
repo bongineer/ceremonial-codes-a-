@@ -96,7 +96,7 @@ const GuestsTab: React.FC = () => {
         return;
       }
 
-      const guestsToAdd: Array<{name: string, category: 'regular' | 'premium' | 'family'}> = [];
+      const guestsToAdd: Array<{name: string, category: 'VVIP' | 'premium' | 'family'}> = [];
       
       for (let i = 1; i < lines.length; i++) {
         const line = lines[i].trim();
@@ -105,8 +105,8 @@ const GuestsTab: React.FC = () => {
         const values = line.split(',').map(v => v.trim());
         const name = values[nameIndex];
         const category = categoryIndex !== -1 ? 
-          (values[categoryIndex]?.toLowerCase() as 'regular' | 'premium' | 'family') || 'regular' : 
-          'regular';
+          (values[categoryIndex]?.toLowerCase() as 'VVIP' | 'premium' | 'family') || 'VVIP' : 
+          'VVIP';
         
         if (name) {
           guestsToAdd.push({ name, category });
@@ -175,10 +175,10 @@ const GuestsTab: React.FC = () => {
       </td>
       <td className="py-3 px-4 border-b border-gray-200">
         <EditableCell
-          value={guest.category || 'regular'}
+          value={guest.category || 'VVIP'}
           onSave={(newValue) => handleUpdateGuest(code, 'category', newValue)}
           type="select"
-          options={['regular', 'premium', 'family']}
+          options={['VVIP', 'premium', 'family']}
         />
       </td>
       {showSeatAssignment && (
@@ -276,7 +276,7 @@ const GuestsTab: React.FC = () => {
         
         <div className="mb-4 p-4 bg-blue-50 rounded-lg">
           <p className="text-sm text-blue-700 mb-2">
-            <strong>CSV Upload Format:</strong> Your CSV file should have columns: "name" (required), "category" (optional: regular, premium, family)
+            <strong>CSV Upload Format:</strong> Your CSV file should have columns: "name" (required), "category" (optional: VVIP, premium, family)
           </p>
           <p className="text-sm text-blue-600">
             Example: name,category<br/>
