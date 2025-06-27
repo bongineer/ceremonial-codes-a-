@@ -9,16 +9,16 @@ const MenuTab: React.FC = () => {
   const { state, updateGuestFood, updateGuestDrink } = useAppContext();
   const guestCode = state.currentUser || '';
   const guest = guestCode ? state.guests[guestCode] : null;
-  const guestCategory = guest?.category || 'regular';
+  const guestCategory = guest?.category || 'VVIP';
   
   // Filter menu items based on guest category
   const getAvailableItems = (items: any[]) => {
     return items.filter(item => {
-      const itemGuestCategory = item.guestCategory || 'regular';
+      const itemGuestCategory = item.guestCategory || 'VVIP';
       
       if (guestCategory === 'family') return true; // Family can access all
-      if (guestCategory === 'premium') return itemGuestCategory === 'regular' || itemGuestCategory === 'premium';
-      return itemGuestCategory === 'regular'; // Regular only gets regular
+      if (guestCategory === 'premium') return itemGuestCategory === 'VVIP' || itemGuestCategory === 'premium';
+      return itemGuestCategory === 'VVIP'; // VVIP only gets VVIP
     });
   };
   
