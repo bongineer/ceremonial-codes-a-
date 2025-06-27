@@ -21,7 +21,7 @@ export interface Guest {
   drinkServed: boolean;
   selectedFood?: string | null;
   selectedDrink?: string | null;
-  category?: 'regular' | 'premium' | 'family';
+  category?: 'VVIP' | 'premium' | 'family';
 }
 
 export interface Seat {
@@ -48,7 +48,7 @@ export interface FoodItem {
   description: string;
   imageUrl: string;
   category: 'main' | 'appetizer' | 'dessert';
-  guestCategory: 'regular' | 'premium' | 'family';
+  guestCategory: 'VVIP' | 'premium' | 'family';
 }
 
 export interface DrinkItem {
@@ -56,7 +56,7 @@ export interface DrinkItem {
   description: string;
   imageUrl: string;
   category: 'alcoholic' | 'non-alcoholic' | 'water';
-  guestCategory: 'regular' | 'premium' | 'family';
+  guestCategory: 'VVIP' | 'premium' | 'family';
 }
 
 export interface AsoebiItem {
