@@ -272,7 +272,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
             arrived: false,
             mealServed: false,
             drinkServed: false,
-            category: 'regular'
+            category: 'VVIP'
           };
           updatedAccessCodes.push(code);
         });
