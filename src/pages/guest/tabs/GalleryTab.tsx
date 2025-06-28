@@ -9,7 +9,7 @@ const GalleryTab: React.FC = () => {
   return (
     <BackgroundImage imageUrl={state.settings.welcomeImage}>
       <div>
-        <h2 className="text-3xl md:text-4xl text-center mb-8 text-rose-700 font-dancing">Photo Gallery</h2>
+        <h2 className="text-3xl md:text-4xl text-center mb-8 text-theme-primary font-dancing">Photo Gallery</h2>
         
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {state.gallery.map((photo, index) => (
@@ -35,8 +35,8 @@ const GalleryTab: React.FC = () => {
           ))}
           
           {state.gallery.length === 0 && (
-            <div className="col-span-full text-center py-10 text-gray-500">
-              No photos available yet.
+            <div className="col-span-full text-center py-10 bg-theme-card-bg rounded-lg shadow-md">
+              <p className="text-theme-text">No photos available yet.</p>
             </div>
           )}
         </div>
@@ -47,7 +47,7 @@ const GalleryTab: React.FC = () => {
               href={state.settings.guestPhotosLink}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center px-6 py-3 bg-rose-600 text-white rounded-lg hover:bg-rose-700 transition duration-300 shadow-md"
+              className="inline-flex items-center px-6 py-3 bg-theme-primary text-theme-button-text rounded-lg hover:bg-theme-accent transition duration-300 shadow-md"
             >
               <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />

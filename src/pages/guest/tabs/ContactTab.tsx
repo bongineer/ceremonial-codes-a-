@@ -9,11 +9,11 @@ const ContactTab: React.FC = () => {
   return (
     <BackgroundImage imageUrl={state.settings.welcomeImage}>
       <div>
-        <h2 className="text-3xl md:text-4xl text-center mb-8 text-rose-700 font-dancing">Contact Us</h2>
+        <h2 className="text-3xl md:text-4xl text-center mb-8 text-theme-primary font-dancing">Contact Us</h2>
         
-        <div className="bg-white rounded-lg shadow-md p-8 hover:shadow-lg transition-shadow duration-300">
+        <div className="bg-theme-card-bg rounded-lg shadow-md p-8 hover:shadow-lg transition-shadow duration-300">
           <div className="text-center mb-8">
-            <p className="mb-4">If you have any questions or need assistance, please don't hesitate to contact us.</p>
+            <p className="mb-4 text-theme-text">If you have any questions or need assistance, please don't hesitate to contact us.</p>
             
             <a 
               href={`https://wa.me/${state.paymentDetails.whatsappNumber}`}
@@ -30,30 +30,30 @@ const ContactTab: React.FC = () => {
           
           <div className="md:flex md:space-x-8">
             <div className="md:w-1/2 mb-6 md:mb-0">
-              <h3 className="text-xl mb-4 font-semibold">Venue Information</h3>
+              <h3 className="text-xl mb-4 font-semibold text-theme-text">Venue Information</h3>
               
-              <p className="mb-2">{state.settings.venue}</p>
-              <p className="mb-4">123 Wedding Lane, Celebration City</p>
+              <p className="mb-2 text-theme-text">{state.settings.venue}</p>
+              <p className="mb-4 text-theme-text">123 Wedding Lane, Celebration City</p>
               
-              <div className="bg-gray-100 p-4 rounded-lg">
-                <p className="mb-2 font-semibold">Directions:</p>
-                <p>From the airport, take the main highway north for 15 minutes. Turn right at Wedding Boulevard and continue for 2 miles. The venue will be on your right.</p>
+              <div className="bg-theme-secondary p-4 rounded-lg">
+                <p className="mb-2 font-semibold text-theme-text">Directions:</p>
+                <p className="text-theme-text">From the airport, take the main highway north for 15 minutes. Turn right at Wedding Boulevard and continue for 2 miles. The venue will be on your right.</p>
               </div>
             </div>
             
             <div className="md:w-1/2">
-              <h3 className="text-xl mb-4 font-semibold">Accommodation</h3>
+              <h3 className="text-xl mb-4 font-semibold text-theme-text">Accommodation</h3>
               
               <div className="mb-4">
-                <p className="font-semibold">Royal Hotel</p>
-                <p className="mb-1">10% discount for wedding guests</p>
-                <p>Booking Code: JSWED2024</p>
+                <p className="font-semibold text-theme-text">Royal Hotel</p>
+                <p className="mb-1 text-theme-text">10% discount for wedding guests</p>
+                <p className="text-theme-text">Booking Code: JSWED2024</p>
               </div>
               
               <div>
-                <p className="font-semibold">Luxury Suites</p>
-                <p className="mb-1">15% discount for wedding guests</p>
-                <p>Booking Code: JSCOUPLE24</p>
+                <p className="font-semibold text-theme-text">Luxury Suites</p>
+                <p className="mb-1 text-theme-text">15% discount for wedding guests</p>
+                <p className="text-theme-text">Booking Code: JSCOUPLE24</p>
               </div>
             </div>
           </div>

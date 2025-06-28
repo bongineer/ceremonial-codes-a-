@@ -51,8 +51,8 @@ const MenuTab: React.FC = () => {
 
     if (filteredItems.length === 0) {
       return (
-        <div className="text-center py-8 text-gray-500 bg-white rounded-lg shadow-md">
-          No items available in this category.
+        <div className="text-center py-8 bg-theme-card-bg rounded-lg shadow-md">
+          <p className="text-theme-text">No items available in this category.</p>
         </div>
       );
     }
@@ -93,19 +93,19 @@ const MenuTab: React.FC = () => {
   return (
     <BackgroundImage imageUrl={state.settings.welcomeImage}>
       <div>
-        <h2 className="text-3xl md:text-4xl text-center mb-8 text-rose-700 font-dancing">Food & Drinks</h2>
+        <h2 className="text-3xl md:text-4xl text-center mb-8 text-theme-primary font-dancing">Food & Drinks</h2>
         
         {guest && (
-          <div className="bg-white rounded-lg shadow-md p-6 mb-8">
-            <h3 className="text-xl font-semibold mb-4 text-center">Your Selections</h3>
+          <div className="bg-theme-card-bg rounded-lg shadow-md p-6 mb-8">
+            <h3 className="text-xl font-semibold mb-4 text-center text-theme-text">Your Selections</h3>
             <div className="flex flex-col md:flex-row md:justify-around">
               <div className="mb-4 md:mb-0">
-                <p className="font-medium">Selected Food:</p>
-                <p className="text-rose-600">{guest.selectedFood || 'No selection yet'}</p>
+                <p className="font-medium text-theme-text">Selected Food:</p>
+                <p className="text-theme-primary">{guest.selectedFood || 'No selection yet'}</p>
               </div>
               <div>
-                <p className="font-medium">Selected Drink:</p>
-                <p className="text-rose-600">{guest.selectedDrink || 'No selection yet'}</p>
+                <p className="font-medium text-theme-text">Selected Drink:</p>
+                <p className="text-theme-primary">{guest.selectedDrink || 'No selection yet'}</p>
               </div>
             </div>
             <div className="text-center mt-4">
@@ -119,7 +119,7 @@ const MenuTab: React.FC = () => {
             </div>
             
             {/* Access Level Indicator */}
-            <div className="text-center mt-2 text-sm text-gray-600">
+            <div className="text-center mt-2 text-sm text-theme-text">
               {guestCategory === 'VVIP' && 'You have access to all menu items'}
               {guestCategory === 'premium' && 'You have access to premium and family menu items'}
               {guestCategory === 'family' && 'You have access to family menu items'}
@@ -128,10 +128,10 @@ const MenuTab: React.FC = () => {
         )}
         
         <div className="mb-12">
-          <h3 className="text-2xl mb-6 text-center font-semibold">Food Menu</h3>
+          <h3 className="text-2xl mb-6 text-center font-semibold text-theme-text">Food Menu</h3>
           
           <div className="mb-8">
-            <h4 className="text-xl mb-4 border-b pb-2 font-medium">Main Course</h4>
+            <h4 className="text-xl mb-4 border-b pb-2 font-medium text-theme-text">Main Course</h4>
             <HorizontalMenuItems 
               items={availableFoodItems} 
               category="main" 
@@ -140,7 +140,7 @@ const MenuTab: React.FC = () => {
           </div>
           
           <div className="mb-8">
-            <h4 className="text-xl mb-4 border-b pb-2 font-medium">Appetizers</h4>
+            <h4 className="text-xl mb-4 border-b pb-2 font-medium text-theme-text">Appetizers</h4>
             <HorizontalMenuItems 
               items={availableFoodItems} 
               category="appetizer" 
@@ -149,7 +149,7 @@ const MenuTab: React.FC = () => {
           </div>
           
           <div className="mb-8">
-            <h4 className="text-xl mb-4 border-b pb-2 font-medium">Desserts</h4>
+            <h4 className="text-xl mb-4 border-b pb-2 font-medium text-theme-text">Desserts</h4>
             <HorizontalMenuItems 
               items={availableFoodItems} 
               category="dessert" 
@@ -159,10 +159,10 @@ const MenuTab: React.FC = () => {
         </div>
         
         <div className="mb-8">
-          <h3 className="text-2xl mb-6 text-center font-semibold">Drinks</h3>
+          <h3 className="text-2xl mb-6 text-center font-semibold text-theme-text">Drinks</h3>
           
           <div className="mb-8">
-            <h4 className="text-xl mb-4 border-b pb-2 font-medium">Alcoholic Beverages</h4>
+            <h4 className="text-xl mb-4 border-b pb-2 font-medium text-theme-text">Alcoholic Beverages</h4>
             <HorizontalMenuItems 
               items={availableDrinkItems} 
               category="alcoholic" 
@@ -171,7 +171,7 @@ const MenuTab: React.FC = () => {
           </div>
           
           <div className="mb-8">
-            <h4 className="text-xl mb-4 border-b pb-2 font-medium">Non-Alcoholic Beverages</h4>
+            <h4 className="text-xl mb-4 border-b pb-2 font-medium text-theme-text">Non-Alcoholic Beverages</h4>
             <HorizontalMenuItems 
               items={availableDrinkItems} 
               category="non-alcoholic" 
@@ -180,7 +180,7 @@ const MenuTab: React.FC = () => {
           </div>
           
           <div className="mb-8">
-            <h4 className="text-xl mb-4 border-b pb-2 font-medium">Water</h4>
+            <h4 className="text-xl mb-4 border-b pb-2 font-medium text-theme-text">Water</h4>
             <HorizontalMenuItems 
               items={availableDrinkItems} 
               category="water" 

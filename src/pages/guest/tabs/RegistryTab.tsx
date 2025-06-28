@@ -20,25 +20,25 @@ const RegistryTab: React.FC = () => {
   return (
     <BackgroundImage imageUrl={state.settings.welcomeImage}>
       <div>
-        <h2 className="text-3xl md:text-4xl text-center mb-8 text-rose-700 font-dancing">Wedding Registry</h2>
+        <h2 className="text-3xl md:text-4xl text-center mb-8 text-theme-primary font-dancing">Wedding Registry</h2>
         
-        <div className="bg-white rounded-lg shadow-md p-8 mb-8 hover:shadow-lg transition-shadow duration-300">
-          <p className="text-center mb-6">If you would like to contribute to our wedding registry, you can select from the items below or make a cash gift to the provided account details.</p>
+        <div className="bg-theme-card-bg rounded-lg shadow-md p-8 mb-8 hover:shadow-lg transition-shadow duration-300">
+          <p className="text-center mb-6 text-theme-text">If you would like to contribute to our wedding registry, you can select from the items below or make a cash gift to the provided account details.</p>
           
-          <div className="md:flex md:justify-center md:space-x-8 p-6 bg-gray-50 rounded-lg">
+          <div className="md:flex md:justify-center md:space-x-8 p-6 bg-theme-secondary rounded-lg">
             <div className="mb-4 md:mb-0">
-              <h4 className="font-semibold mb-2">Account Details:</h4>
-              <p>Account Name: {state.paymentDetails.accountName}</p>
-              <p>Account Number: {state.paymentDetails.accountNumber}</p>
-              <p>Bank: {state.paymentDetails.bankName}</p>
+              <h4 className="font-semibold mb-2 text-theme-text">Account Details:</h4>
+              <p className="text-theme-text">Account Name: {state.paymentDetails.accountName}</p>
+              <p className="text-theme-text">Account Number: {state.paymentDetails.accountNumber}</p>
+              <p className="text-theme-text">Bank: {state.paymentDetails.bankName}</p>
             </div>
             
             <div>
-              <h4 className="font-semibold mb-2">Contact:</h4>
-              <p>For any questions about gifts or contributions</p>
+              <h4 className="font-semibold mb-2 text-theme-text">Contact:</h4>
+              <p className="text-theme-text">For any questions about gifts or contributions</p>
               <a 
                 href={`https://wa.me/${state.paymentDetails.whatsappNumber}`} 
-                className="text-green-600 flex items-center mt-2 hover:text-green-700 transition-colors duration-200" 
+                className="text-theme-primary flex items-center mt-2 hover:text-theme-accent transition-colors duration-200" 
                 target="_blank"
                 rel="noopener noreferrer"
               >
@@ -55,7 +55,7 @@ const RegistryTab: React.FC = () => {
           {state.registryItems.map((item, index) => (
             <div 
               key={index} 
-              className="bg-white rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-all duration-300 hover:-translate-y-2"
+              className="bg-theme-card-bg rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-all duration-300 hover:-translate-y-2"
             >
               <div className="aspect-[4/5] overflow-hidden">
                 <img 
@@ -65,9 +65,9 @@ const RegistryTab: React.FC = () => {
                 />
               </div>
               <div className="p-3">
-                <h3 className="font-semibold mb-1 text-sm">{item.item}</h3>
-                <p className="text-gray-600 mb-2 text-xs line-clamp-2">{item.description}</p>
-                <p className="text-rose-600 font-semibold mb-3 text-sm">
+                <h3 className="font-semibold mb-1 text-sm text-theme-text">{item.item}</h3>
+                <p className="text-theme-text mb-2 text-xs line-clamp-2">{item.description}</p>
+                <p className="text-theme-primary font-semibold mb-3 text-sm">
                   ₦{item.price}
                 </p>
                 
@@ -77,7 +77,7 @@ const RegistryTab: React.FC = () => {
                       href={item.link} 
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="px-3 py-2 bg-rose-600 text-white rounded-lg hover:bg-rose-700 transition duration-300 text-center text-xs"
+                      className="px-3 py-2 bg-theme-primary text-theme-button-text rounded-lg hover:bg-theme-accent transition duration-300 text-center text-xs"
                     >
                       Purchase
                     </a>
@@ -85,7 +85,7 @@ const RegistryTab: React.FC = () => {
                   
                   <button 
                     onClick={() => handleContribute(item.item, item.price)}
-                    className="px-3 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition duration-300 text-xs"
+                    className="px-3 py-2 bg-theme-accent text-theme-button-text rounded-lg hover:bg-theme-primary transition duration-300 text-xs"
                   >
                     Contribute
                   </button>
@@ -95,8 +95,8 @@ const RegistryTab: React.FC = () => {
           ))}
           
           {state.registryItems.length === 0 && (
-            <div className="col-span-full text-center py-10 text-gray-500 bg-white rounded-lg shadow-md">
-              No registry items available yet.
+            <div className="col-span-full text-center py-10 bg-theme-card-bg rounded-lg shadow-md">
+              <p className="text-theme-text">No registry items available yet.</p>
             </div>
           )}
         </div>
@@ -109,19 +109,19 @@ const RegistryTab: React.FC = () => {
         >
           {selectedItem && (
             <div>
-              <p className="mb-6">
+              <p className="mb-6 text-theme-text">
                 To contribute to this gift ({selectedItem.item}), please use the payment details below:
               </p>
               
-              <div className="p-4 bg-gray-50 rounded-lg mb-6">
-                <p className="mb-2"><strong>Account Name:</strong> {state.paymentDetails.accountName}</p>
-                <p className="mb-2"><strong>Account Number:</strong> {state.paymentDetails.accountNumber}</p>
-                <p className="mb-2"><strong>Bank:</strong> {state.paymentDetails.bankName}</p>
-                <p className="mb-2"><strong>Amount:</strong> ₦{selectedItem.price}</p>
-                <p className="mb-2"><strong>Payment Reference:</strong> {selectedItem.item} Gift</p>
+              <div className="p-4 bg-theme-secondary rounded-lg mb-6">
+                <p className="mb-2 text-theme-text"><strong>Account Name:</strong> {state.paymentDetails.accountName}</p>
+                <p className="mb-2 text-theme-text"><strong>Account Number:</strong> {state.paymentDetails.accountNumber}</p>
+                <p className="mb-2 text-theme-text"><strong>Bank:</strong> {state.paymentDetails.bankName}</p>
+                <p className="mb-2 text-theme-text"><strong>Amount:</strong> ₦{selectedItem.price}</p>
+                <p className="mb-2 text-theme-text"><strong>Payment Reference:</strong> {selectedItem.item} Gift</p>
               </div>
               
-              <p className="mb-4">
+              <p className="mb-4 text-theme-text">
                 After making the payment, please contact us to notify us of your contribution:
               </p>
               
