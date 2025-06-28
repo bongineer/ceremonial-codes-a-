@@ -38,23 +38,23 @@ const GuestsTab: React.FC = () => {
     }
   }, [totalTables, state.settings.tableNames, updateSettings]);
 
-  const handleSaveSeatingSettings = () => {
-    const oldMaxSeats = state.settings.maxSeats;
-    const oldSeatsPerTable = state.settings.seatsPerTable;
-    
-    updateSettings({
-      maxSeats: totalGuests,
-      seatsPerTable: seatsPerTable
-    });
-    
-    // If settings changed, auto-assign seats
-    if (oldMaxSeats !== totalGuests || oldSeatsPerTable !== seatsPerTable) {
+  const handleSaveSeatingSettings = async () => {
+    try {
+      // Update settings first
+      await updateSettings({
+        maxSeats: totalGuests,
+        seatsPerTable: seatsPerTable
+      });
+      
+      // Wait a moment for settings to be saved, then auto-assign seats
       setTimeout(() => {
         autoAssignAllSeats();
         toast.success('Seating settings saved and all guests auto-assigned to seats!');
-      }, 500);
-    } else {
-      toast.success('Seating settings saved!');
+      }, 1000);
+      
+    } catch (error) {
+      console.error('Error saving seating settings:', error);
+      toast.error('Failed to save seating settings');
     }
   };
 
@@ -69,12 +69,17 @@ const GuestsTab: React.FC = () => {
       return;
     }
     
-    // Generate access codes and create guests
-    const newCodes = generateAccessCodes(numGuestsToCreate);
-    
-    // Show success message
-    toast.success(`Created ${numGuestsToCreate} new guests with automatic seat assignment!`);
-    setNumGuestsToCreate(10); // Reset to default
+    try {
+      // Generate access codes and create guests
+      const newCodes = generateAccessCodes(numGuestsToCreate);
+      
+      // Show success message
+      toast.success(`Created ${numGuestsToCreate} new guests with automatic seat assignment!`);
+      setNumGuestsToCreate(10); // Reset to default
+    } catch (error) {
+      console.error('Error creating guests:', error);
+      toast.error('Failed to create guests');
+    }
   };
   
   // Filter guests based on search term
@@ -330,9 +335,9 @@ const GuestsTab: React.FC = () => {
 
         <button 
           onClick={handleSaveSeatingSettings}
-          className="bg-blue-600 text-white py-2 px-6 rounded-lg hover:bg-blue-700 transition duration-300 flex items-center gap-2"
+          className="bg-blue-600 text-white py-3 px-8 rounded-lg hover:bg-blue-700 transition duration-300 flex items-center gap-2 font-medium"
         >
-          <Settings className="w-4 h-4" />
+          <Settings className="w-5 h-5" />
           Save Settings & Auto-Assign Seats
         </button>
       </div>
@@ -370,7 +375,7 @@ const GuestsTab: React.FC = () => {
             <button 
               onClick={handleCreateGuests}
               disabled={remainingCapacity === 0 || numGuestsToCreate <= 0}
-              className="w-full px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+              className="w-full px-4 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 font-medium"
             >
               <UserPlus size={16} />
               Create Guests
