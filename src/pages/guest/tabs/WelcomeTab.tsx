@@ -63,35 +63,31 @@ const WelcomeTab: React.FC = () => {
               <p className="mb-4 text-theme-text">Your access code: <span className="font-semibold text-theme-primary">{guestCode}</span></p>
               
               <div className="mt-6">
-  <h4 className="text-lg font-semibold mb-2 text-theme-text">Your Details:</h4>
-  
-  {/* Guest Category */}
-  <p className="text-theme-text">
-    Guest Category: <span className="font-semibold capitalize text-theme-primary">{guest?.category || 'VVIP'}</span>
-  </p>
-  
-  {guest?.seatNumber && (
-    <>
-      {/* Table Name */}
-      <p className="text-theme-text">
-        Table Name: <span className="font-semibold" style={{ color: 'var(--color-primary)' }}>
-          {getTableName(getTableNumber(guest.seatNumber))}
-        </span>
-      </p>
-      
-      {/* Table Number */}
-      <p className="text-theme-text">
-        Table Number: <span className="font-semibold text-theme-primary">{getTableNumber(guest.seatNumber)}</span>
-      </p>
-      
-      {/* Seat Number */}
-      <p className="text-theme-text">
-        Seat Number: <span className="font-semibold text-theme-primary">{guest.seatNumber}</span>
-      </p>
-    </>
-  )}
-</div>
-                    </span></p>
+                <h4 className="text-lg font-semibold mb-2 text-theme-text">Your Details:</h4>
+                
+                {/* Guest Category */}
+                <p className="text-theme-text">
+                  Guest Category: <span className="font-semibold capitalize text-theme-primary">{guest?.category || 'VVIP'}</span>
+                </p>
+                
+                {guest?.seatNumber && (
+                  <>
+                    {/* Table Name */}
+                    <p className="text-theme-text">
+                      Table Name: <span className="font-semibold" style={{ color: 'var(--color-primary)' }}>
+                        {getTableName(getTableNumber(guest.seatNumber))}
+                      </span>
+                    </p>
+                    
+                    {/* Table Number */}
+                    <p className="text-theme-text">
+                      Table Number: <span className="font-semibold text-theme-primary">{getTableNumber(guest.seatNumber)}</span>
+                    </p>
+                    
+                    {/* Seat Number */}
+                    <p className="text-theme-text">
+                      Seat Number: <span className="font-semibold text-theme-primary">{guest.seatNumber}</span>
+                    </p>
                   </>
                 )}
               </div>
