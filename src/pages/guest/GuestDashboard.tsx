@@ -18,6 +18,7 @@ const GuestDashboard: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const navRef = useRef<HTMLDivElement>(null);
+  const hasInitialScrolled = useRef(false);
 
   useEffect(() => {
     // Redirect to login if not logged in or is admin
@@ -31,39 +32,54 @@ const GuestDashboard: React.FC = () => {
     }
   }, [state.currentUser, navigate, location.pathname]);
 
-  // Auto-scroll animation for navigation in responsive mode
+  // Initial gentle scroll animation on dashboard load
   useEffect(() => {
-    const autoScrollNav = () => {
-      if (navRef.current) {
-        const navElement = navRef.current;
-        const isScrollable = navElement.scrollWidth > navElement.clientWidth;
-        
-        if (isScrollable) {
-          // Wait a moment after page load
-          setTimeout(() => {
-            // Scroll right slowly
-            navElement.scrollTo({
-              left: 120,
-              behavior: 'smooth'
-            });
-            
-            // Then scroll back to start
+    if (state.currentUser && state.currentUser !== 'ADMIN' && !hasInitialScrolled.current) {
+      const performInitialScroll = () => {
+        if (navRef.current) {
+          const navElement = navRef.current;
+          const isScrollable = navElement.scrollWidth > navElement.clientWidth;
+          
+          if (isScrollable) {
+            // Very slow initial scroll to show there are more options
             setTimeout(() => {
               navElement.scrollTo({
-                left: 0,
+                left: 80, // Gentle scroll to show more content
                 behavior: 'smooth'
               });
-            }, 1500);
-          }, 1000);
+            }, 1000);
+          }
+          hasInitialScrolled.current = true;
         }
-      }
-    };
+      };
 
-    // Only run auto-scroll on initial load
-    if (state.currentUser && state.currentUser !== 'ADMIN') {
-      autoScrollNav();
+      performInitialScroll();
     }
-  }, [state.currentUser, location.pathname]);
+  }, [state.currentUser]);
+
+  // Smooth scroll to active tab when route changes
+  useEffect(() => {
+    if (navRef.current && hasInitialScrolled.current) {
+      const navElement = navRef.current;
+      const activeLink = navElement.querySelector('.nav-active');
+      
+      if (activeLink) {
+        const linkRect = activeLink.getBoundingClientRect();
+        const navRect = navElement.getBoundingClientRect();
+        const linkCenter = linkRect.left + linkRect.width / 2;
+        const navCenter = navRect.left + navRect.width / 2;
+        const scrollOffset = linkCenter - navCenter;
+        
+        // Smooth scroll to center the active link
+        setTimeout(() => {
+          navElement.scrollTo({
+            left: navElement.scrollLeft + scrollOffset,
+            behavior: 'smooth'
+          });
+        }, 300);
+      }
+    }
+  }, [location.pathname]);
 
   const handleLogout = () => {
     logout();
@@ -77,8 +93,9 @@ const GuestDashboard: React.FC = () => {
   // Determine active tab
   const getActiveTab = (path: string) => {
     const currentPath = location.pathname;
-    return currentPath.includes(path) 
-      ? "bg-theme-secondary text-theme-primary" 
+    const isActive = currentPath.includes(path);
+    return isActive 
+      ? "bg-theme-secondary text-theme-primary nav-active" 
       : "hover:bg-theme-secondary hover:text-theme-primary";
   };
 
@@ -101,52 +118,56 @@ const GuestDashboard: React.FC = () => {
           <div 
             ref={navRef}
             className="flex overflow-x-auto py-4 no-scrollbar scroll-smooth"
+            style={{
+              scrollBehavior: 'smooth',
+              transition: 'scroll-left 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94)'
+            }}
           >
             <Link 
               to="/guest/welcome" 
-              className={`whitespace-nowrap px-4 py-2 mx-2 rounded-full transition duration-300 ${getActiveTab('welcome')}`}
+              className={`whitespace-nowrap px-4 py-2 mx-2 rounded-full transition-all duration-500 ${getActiveTab('welcome')}`}
             >
               Welcome
             </Link>
             <Link 
               to="/guest/gallery" 
-              className={`whitespace-nowrap px-4 py-2 mx-2 rounded-full transition duration-300 ${getActiveTab('gallery')}`}
+              className={`whitespace-nowrap px-4 py-2 mx-2 rounded-full transition-all duration-500 ${getActiveTab('gallery')}`}
             >
               Gallery
             </Link>
             <Link 
               to="/guest/wedding-party" 
-              className={`whitespace-nowrap px-4 py-2 mx-2 rounded-full transition duration-300 ${getActiveTab('wedding-party')}`}
+              className={`whitespace-nowrap px-4 py-2 mx-2 rounded-full transition-all duration-500 ${getActiveTab('wedding-party')}`}
             >
               Wedding Party
             </Link>
             <Link 
               to="/guest/menu" 
-              className={`whitespace-nowrap px-4 py-2 mx-2 rounded-full transition duration-300 ${getActiveTab('menu')}`}
+              className={`whitespace-nowrap px-4 py-2 mx-2 rounded-full transition-all duration-500 ${getActiveTab('menu')}`}
             >
               Food & Drinks
             </Link>
             <Link 
               to="/guest/asoebi" 
-              className={`whitespace-nowrap px-4 py-2 mx-2 rounded-full transition duration-300 ${getActiveTab('asoebi')}`}
+              className={`whitespace-nowrap px-4 py-2 mx-2 rounded-full transition-all duration-500 ${getActiveTab('asoebi')}`}
             >
               Asoebi
             </Link>
             <Link 
               to="/guest/registry" 
-              className={`whitespace-nowrap px-4 py-2 mx-2 rounded-full transition duration-300 ${getActiveTab('registry')}`}
+              className={`whitespace-nowrap px-4 py-2 mx-2 rounded-full transition-all duration-500 ${getActiveTab('registry')}`}
             >
               Registry
             </Link>
             <Link 
               to="/guest/contact" 
-              className={`whitespace-nowrap px-4 py-2 mx-2 rounded-full transition duration-300 ${getActiveTab('contact')}`}
+              className={`whitespace-nowrap px-4 py-2 mx-2 rounded-full transition-all duration-500 ${getActiveTab('contact')}`}
             >
               Contact
             </Link>
             <button 
               onClick={handleLogout}
-              className="whitespace-nowrap px-4 py-2 mx-2 rounded-full bg-theme-card-bg text-theme-text hover:bg-gray-300 transition duration-300"
+              className="whitespace-nowrap px-4 py-2 mx-2 rounded-full bg-theme-card-bg text-theme-text hover:bg-gray-300 transition-all duration-500"
             >
               Logout
             </button>
