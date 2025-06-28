@@ -64,15 +64,14 @@ const WelcomeTab: React.FC = () => {
               
               <div className="mt-6">
   <h4 className="text-lg font-semibold mb-2 text-theme-text">Your Details:</h4>
-  
   {/* Guest Category */}
   <p className="text-theme-text">
     Guest Category: <span className="font-semibold capitalize text-theme-primary">{guest?.category || 'VVIP'}</span>
   </p>
   
-  {/* Table Name */}
   {guest?.seatNumber && (
     <>
+      {/* Table Name */}
       <p className="text-theme-text">
         Table Name: <span className="font-semibold" style={{ color: 'var(--color-primary)' }}>
           {getTableName(getTableNumber(guest.seatNumber))}
