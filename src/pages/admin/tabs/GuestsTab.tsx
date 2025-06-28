@@ -12,6 +12,7 @@ const GuestsTab: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedTable, setSelectedTable] = useState<number | null>(null);
   const [numGuestsToGenerate, setNumGuestsToGenerate] = useState(10);
+  const [tableNames, setTableNames] = useState<Record<number, string>>({});
   const fileInputRef = useRef<HTMLInputElement>(null);
   
   // Calculate total number of tables
@@ -20,6 +21,15 @@ const GuestsTab: React.FC = () => {
   // Calculate current guest count (excluding ADMIN)
   const currentGuestCount = Object.keys(state.guests).filter(code => code !== 'ADMIN').length;
   const remainingCapacity = state.settings.maxSeats - currentGuestCount;
+  
+  // Initialize table names with default values
+  React.useEffect(() => {
+    const defaultNames: Record<number, string> = {};
+    for (let i = 1; i <= totalTables; i++) {
+      defaultNames[i] = `Table ${i}`;
+    }
+    setTableNames(defaultNames);
+  }, [totalTables]);
   
   // Filter guests based on search term
   const filteredGuests = Object.entries(state.guests)
@@ -173,6 +183,11 @@ const GuestsTab: React.FC = () => {
     return Math.ceil(seatNumber / state.settings.seatsPerTable);
   };
 
+  const getTableName = (tableNumber: number | null): string => {
+    if (!tableNumber) return '';
+    return tableNames[tableNumber] || `Table ${tableNumber}`;
+  };
+
   const getAvailableSeatsForTable = (tableNumber: number) => {
     const startSeat = (tableNumber - 1) * state.settings.seatsPerTable + 1;
     const endSeat = tableNumber * state.settings.seatsPerTable;
@@ -186,6 +201,13 @@ const GuestsTab: React.FC = () => {
     }
     
     return availableSeats;
+  };
+
+  const handleTableNameChange = (tableNumber: number, newName: string) => {
+    setTableNames(prev => ({
+      ...prev,
+      [tableNumber]: newName
+    }));
   };
 
   const renderGuestRow = (code: string, guest: Guest, showSeatAssignment = false) => (
@@ -375,6 +397,9 @@ const GuestsTab: React.FC = () => {
                 <div className="text-center">
                   <Users className="w-6 h-6 mx-auto mb-2 text-gray-600" />
                   <div className="font-semibold text-sm">Table {tableNum}</div>
+                  <div className="text-xs text-gray-600 mb-1">
+                    {getTableName(tableNum)}
+                  </div>
                   <div className="text-xs text-gray-600">
                     {tableGuests.length}/{state.settings.seatsPerTable} occupied
                   </div>
@@ -421,10 +446,23 @@ const GuestsTab: React.FC = () => {
       {/* Table-specific view */}
       {selectedTable && (
         <div className="bg-white p-6 rounded-lg shadow-md mb-8">
-          <h4 className="text-lg font-semibold mb-4 text-rose-600 flex items-center gap-2">
-            <Users className="w-5 h-5" />
-            Table {selectedTable} - Seats {(selectedTable - 1) * state.settings.seatsPerTable + 1} to {selectedTable * state.settings.seatsPerTable}
-          </h4>
+          <div className="flex items-center justify-between mb-4">
+            <h4 className="text-lg font-semibold text-rose-600 flex items-center gap-2">
+              <Users className="w-5 h-5" />
+              Table {selectedTable} - Seats {(selectedTable - 1) * state.settings.seatsPerTable + 1} to {selectedTable * state.settings.seatsPerTable}
+            </h4>
+            
+            <div className="flex items-center gap-2">
+              <label className="text-sm font-medium text-gray-700">Table Name:</label>
+              <input
+                type="text"
+                value={tableNames[selectedTable] || `Table ${selectedTable}`}
+                onChange={(e) => handleTableNameChange(selectedTable, e.target.value)}
+                className="px-3 py-1 border rounded-lg focus:outline-none focus:ring-2 focus:ring-rose-300 text-sm"
+                placeholder="Enter table name"
+              />
+            </div>
+          </div>
           
           <div className="mb-4 p-3 bg-gray-50 rounded-lg">
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
@@ -484,10 +522,13 @@ const GuestsTab: React.FC = () => {
             return (
               <div key={tableNum} className="bg-white p-6 rounded-lg shadow-md">
                 <div className="flex items-center justify-between mb-4">
-                  <h4 className="text-lg font-semibold text-rose-600 flex items-center gap-2">
-                    <Users className="w-5 h-5" />
-                    Table {tableNum}
-                  </h4>
+                  <div>
+                    <h4 className="text-lg font-semibold text-rose-600 flex items-center gap-2">
+                      <Users className="w-5 h-5" />
+                      Table {tableNum}
+                    </h4>
+                    <p className="text-sm text-gray-600">{getTableName(tableNum)}</p>
+                  </div>
                   <button
                     onClick={() => setSelectedTable(tableNum)}
                     className="px-3 py-1 bg-rose-600 text-white rounded text-sm hover:bg-rose-700 transition duration-200"
