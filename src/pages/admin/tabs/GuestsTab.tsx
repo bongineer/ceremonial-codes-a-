@@ -4,14 +4,13 @@ import { useAppContext } from '../../../context/AppContext';
 import EditableCell from '../../../components/common/EditableCell';
 import EditableToggle from '../../../components/common/EditableToggle';
 import { Guest } from '../../../types';
-import { Upload, Users, MapPin, UserPlus, Settings } from 'lucide-react';
+import { Upload, Users, Settings } from 'lucide-react';
 
 const GuestsTab: React.FC = () => {
   const { state, updateGuestDetails, generateAccessCodes, assignSeat, updateSettings } = useAppContext();
   
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedTable, setSelectedTable] = useState<number | null>(null);
-  const [numGuestsToGenerate, setNumGuestsToGenerate] = useState(10);
   const fileInputRef = useRef<HTMLInputElement>(null);
   
   // Seating configuration state
@@ -112,28 +111,6 @@ const GuestsTab: React.FC = () => {
     } else {
       toast.error('Seat is already taken');
     }
-  };
-
-  const handleGenerateGuests = () => {
-    if (numGuestsToGenerate <= 0) {
-      toast.error('Please enter a valid number of guests');
-      return;
-    }
-    
-    if (numGuestsToGenerate > remainingCapacity) {
-      toast.error(`Cannot generate ${numGuestsToGenerate} guests. Only ${remainingCapacity} seats remaining.`);
-      return;
-    }
-    
-    const newCodes = generateAccessCodes(numGuestsToGenerate);
-    
-    // Auto-assign seats to new guests
-    setTimeout(() => {
-      autoAssignAllSeats();
-    }, 1000);
-    
-    toast.success(`Generated ${numGuestsToGenerate} new guests with access codes and auto-assigned seats`);
-    setNumGuestsToGenerate(10); // Reset to default
   };
 
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -267,21 +244,7 @@ const GuestsTab: React.FC = () => {
           {guest.seatNumber ? (
             <span className="text-green-600 font-semibold">Seat {guest.seatNumber}</span>
           ) : (
-            <select
-              onChange={(e) => {
-                const seatNumber = parseInt(e.target.value);
-                if (seatNumber) {
-                  handleAssignSeat(code, seatNumber);
-                }
-              }}
-              className="px-2 py-1 border rounded text-sm"
-              defaultValue=""
-            >
-              <option value="">Assign seat...</option>
-              {selectedTable && getAvailableSeatsForTable(selectedTable).map(seat => (
-                <option key={seat} value={seat}>Seat {seat}</option>
-              ))}
-            </select>
+            <span className="text-gray-500">Auto-assigned</span>
           )}
         </td>
       )}
@@ -406,51 +369,6 @@ const GuestsTab: React.FC = () => {
             </div>
           </div>
         </div>
-
-        {/* Guest Generation Section */}
-        <div className="mb-6 p-4 bg-blue-50 rounded-lg">
-          <h4 className="text-lg font-semibold mb-4 text-blue-800 flex items-center gap-2">
-            <UserPlus className="w-5 h-5" />
-            Generate Guests
-          </h4>
-          
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
-            <div>
-              <label className="block text-blue-700 mb-2 text-sm font-medium">Number of Guests to Generate</label>
-              <input 
-                type="number" 
-                min="1" 
-                max={remainingCapacity}
-                value={numGuestsToGenerate}
-                onChange={(e) => setNumGuestsToGenerate(parseInt(e.target.value) || 1)}
-                className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-300"
-                placeholder="Enter number of guests"
-              />
-            </div>
-            
-            <div>
-              <div className="text-sm text-blue-600">
-                <p><strong>Current:</strong> {currentGuestCount} guests</p>
-                <p><strong>Remaining:</strong> {remainingCapacity} seats</p>
-              </div>
-            </div>
-            
-            <div>
-              <button 
-                onClick={handleGenerateGuests}
-                disabled={remainingCapacity === 0}
-                className="w-full px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-              >
-                <UserPlus size={16} />
-                Generate Guests
-              </button>
-            </div>
-          </div>
-          
-          <p className="text-sm text-blue-600 mt-3">
-            This will automatically generate access codes, create guest entries, and assign seats sequentially.
-          </p>
-        </div>
         
         <div className="mb-4 p-4 bg-gray-50 rounded-lg">
           <p className="text-sm text-gray-700 mb-2">
@@ -460,6 +378,9 @@ const GuestsTab: React.FC = () => {
             Example: name,category<br/>
             John Doe,premium<br/>
             Jane Smith,family
+          </p>
+          <p className="text-sm text-blue-600 mt-3">
+            Guests will be automatically assigned seats sequentially when uploaded.
           </p>
         </div>
 
