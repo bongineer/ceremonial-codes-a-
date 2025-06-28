@@ -4,6 +4,7 @@ import { toast } from 'react-toastify';
 import CountdownTimer from '../components/common/CountdownTimer';
 import { useAppContext } from '../context/AppContext';
 import { isSupabaseReady } from '../lib/supabase';
+import { formatEventDate } from '../utils/storage';
 
 const LoginScreen: React.FC = () => {
   const [accessCode, setAccessCode] = useState('');
@@ -52,9 +53,12 @@ const LoginScreen: React.FC = () => {
     <div className="min-h-screen flex flex-col items-center justify-center bg-cover bg-center bg-no-repeat p-5"
          style={{ backgroundImage: "linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3)), url('https://images.unsplash.com/photo-1519741497674-611481863552?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80')" }}>
       <div className="bg-theme-card-bg rounded-lg shadow-xl p-8 w-full max-w-md animate-fade-in-down">
-        <h1 className="text-5xl text-center mb-8 text-theme-primary font-dancing animate-fade-in">
+        <h1 className="text-5xl text-center mb-4 text-theme-primary font-dancing animate-fade-in">
           {state.settings.coupleNames}
         </h1>
+        <p className="text-center mb-6 text-theme-text font-bold text-lg">
+          {formatEventDate(state.settings.eventDate)}
+        </p>
         <p className="text-center mb-6 text-theme-text">Welcome to our wedding celebration portal</p>
         
         {!isSupabaseReady && (
