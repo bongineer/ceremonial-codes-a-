@@ -4,7 +4,7 @@ import { useAppContext } from '../../../context/AppContext';
 import EditableCell from '../../../components/common/EditableCell';
 import EditableToggle from '../../../components/common/EditableToggle';
 import { Guest } from '../../../types';
-import { Upload, Users, MapPin, UserPlus } from 'lucide-react';
+import { Upload, Users, MapPin, UserPlus, Settings } from 'lucide-react';
 
 const GuestsTab: React.FC = () => {
   const { state, updateGuestDetails, generateAccessCodes, assignSeat, updateSettings } = useAppContext();
@@ -14,12 +14,16 @@ const GuestsTab: React.FC = () => {
   const [numGuestsToGenerate, setNumGuestsToGenerate] = useState(10);
   const fileInputRef = useRef<HTMLInputElement>(null);
   
+  // Seating configuration state
+  const [totalGuests, setTotalGuests] = useState(state.settings.maxSeats);
+  const [seatsPerTable, setSeatsPerTable] = useState(state.settings.seatsPerTable);
+  
   // Calculate total number of tables
-  const totalTables = Math.ceil(state.settings.maxSeats / state.settings.seatsPerTable);
+  const totalTables = Math.ceil(totalGuests / seatsPerTable);
   
   // Calculate current guest count (excluding ADMIN)
   const currentGuestCount = Object.keys(state.guests).filter(code => code !== 'ADMIN').length;
-  const remainingCapacity = state.settings.maxSeats - currentGuestCount;
+  const remainingCapacity = totalGuests - currentGuestCount;
   
   // Initialize table names with default values if not set
   React.useEffect(() => {
@@ -31,6 +35,45 @@ const GuestsTab: React.FC = () => {
       updateSettings({ tableNames: defaultNames });
     }
   }, [totalTables, state.settings.tableNames, updateSettings]);
+
+  // Auto-assign seats when total guests or seats per table changes
+  const autoAssignAllSeats = () => {
+    const allGuests = Object.entries(state.guests).filter(([code]) => code !== 'ADMIN');
+    
+    // Clear all existing seat assignments
+    allGuests.forEach(([code]) => {
+      updateGuestDetails(code, { seatNumber: null });
+    });
+    
+    // Assign seats sequentially
+    allGuests.forEach(([code], index) => {
+      const seatNumber = index + 1;
+      if (seatNumber <= totalGuests) {
+        assignSeat(code, seatNumber);
+      }
+    });
+    
+    toast.success(`Auto-assigned ${Math.min(allGuests.length, totalGuests)} guests to seats`);
+  };
+
+  const handleSaveSeatingSettings = () => {
+    const oldMaxSeats = state.settings.maxSeats;
+    const oldSeatsPerTable = state.settings.seatsPerTable;
+    
+    updateSettings({
+      maxSeats: totalGuests,
+      seatsPerTable: seatsPerTable
+    });
+    
+    // If settings changed, auto-assign seats
+    if (oldMaxSeats !== totalGuests || oldSeatsPerTable !== seatsPerTable) {
+      setTimeout(() => {
+        autoAssignAllSeats();
+      }, 500);
+    }
+    
+    toast.success('Seating settings saved and guests auto-assigned!');
+  };
   
   // Filter guests based on search term
   const filteredGuests = Object.entries(state.guests)
@@ -44,8 +87,8 @@ const GuestsTab: React.FC = () => {
   
   // Group guests by table
   const getGuestsByTable = (tableNumber: number) => {
-    const startSeat = (tableNumber - 1) * state.settings.seatsPerTable + 1;
-    const endSeat = tableNumber * state.settings.seatsPerTable;
+    const startSeat = (tableNumber - 1) * seatsPerTable + 1;
+    const endSeat = tableNumber * seatsPerTable;
     
     return filteredGuests.filter(([code, guest]) => {
       return guest.seatNumber && guest.seatNumber >= startSeat && guest.seatNumber <= endSeat;
@@ -71,29 +114,6 @@ const GuestsTab: React.FC = () => {
     }
   };
 
-  const handleAutoAssignSeats = () => {
-    const unassignedGuests = getUnassignedGuests();
-    let assignedCount = 0;
-    
-    // Find available seats
-    for (let seat = 1; seat <= state.settings.maxSeats; seat++) {
-      if (assignedCount >= unassignedGuests.length) break;
-      
-      const seatTaken = Object.values(state.guests).some(guest => guest.seatNumber === seat);
-      if (!seatTaken) {
-        const [guestCode] = unassignedGuests[assignedCount];
-        handleAssignSeat(guestCode, seat);
-        assignedCount++;
-      }
-    }
-    
-    if (assignedCount > 0) {
-      toast.success(`Auto-assigned ${assignedCount} guests to available seats`);
-    } else {
-      toast.info('No available seats or unassigned guests');
-    }
-  };
-
   const handleGenerateGuests = () => {
     if (numGuestsToGenerate <= 0) {
       toast.error('Please enter a valid number of guests');
@@ -106,7 +126,13 @@ const GuestsTab: React.FC = () => {
     }
     
     const newCodes = generateAccessCodes(numGuestsToGenerate);
-    toast.success(`Generated ${numGuestsToGenerate} new guests with access codes`);
+    
+    // Auto-assign seats to new guests
+    setTimeout(() => {
+      autoAssignAllSeats();
+    }, 1000);
+    
+    toast.success(`Generated ${numGuestsToGenerate} new guests with access codes and auto-assigned seats`);
     setNumGuestsToGenerate(10); // Reset to default
   };
 
@@ -169,7 +195,12 @@ const GuestsTab: React.FC = () => {
         });
       });
 
-      toast.success(`Successfully uploaded ${guestsToAdd.length} guests`);
+      // Auto-assign seats to all guests
+      setTimeout(() => {
+        autoAssignAllSeats();
+      }, 1000);
+
+      toast.success(`Successfully uploaded ${guestsToAdd.length} guests and auto-assigned seats`);
     };
     
     reader.readAsText(file);
@@ -181,7 +212,7 @@ const GuestsTab: React.FC = () => {
 
   const getTableNumber = (seatNumber: number | null): number | null => {
     if (!seatNumber) return null;
-    return Math.ceil(seatNumber / state.settings.seatsPerTable);
+    return Math.ceil(seatNumber / seatsPerTable);
   };
 
   const getTableName = (tableNumber: number | null): string => {
@@ -190,8 +221,8 @@ const GuestsTab: React.FC = () => {
   };
 
   const getAvailableSeatsForTable = (tableNumber: number) => {
-    const startSeat = (tableNumber - 1) * state.settings.seatsPerTable + 1;
-    const endSeat = tableNumber * state.settings.seatsPerTable;
+    const startSeat = (tableNumber - 1) * seatsPerTable + 1;
+    const endSeat = tableNumber * seatsPerTable;
     const availableSeats = [];
     
     for (let seat = startSeat; seat <= endSeat; seat++) {
@@ -283,6 +314,66 @@ const GuestsTab: React.FC = () => {
   
   return (
     <div>
+      {/* Seating Configuration Section */}
+      <div className="bg-white p-6 rounded-lg shadow-md mb-8">
+        <h3 className="text-xl font-semibold mb-6 text-blue-800 flex items-center gap-2">
+          <Settings className="w-5 h-5" />
+          Seating Configuration
+        </h3>
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+          <div>
+            <label htmlFor="total-guests" className="block text-gray-700 mb-2 font-medium">Total Number of Guests</label>
+            <input 
+              type="number" 
+              id="total-guests" 
+              min="1" 
+              max="500" 
+              value={totalGuests}
+              onChange={(e) => setTotalGuests(parseInt(e.target.value) || 300)}
+              className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-300"
+            />
+            <p className="text-sm text-gray-600 mt-1">
+              This determines the maximum number of guests that can be accommodated.
+            </p>
+          </div>
+          
+          <div>
+            <label htmlFor="seats-per-table" className="block text-gray-700 mb-2 font-medium">Seats Per Table</label>
+            <input 
+              type="number" 
+              id="seats-per-table" 
+              min="1" 
+              max="20" 
+              value={seatsPerTable}
+              onChange={(e) => setSeatsPerTable(parseInt(e.target.value) || 10)}
+              className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-300"
+            />
+            <p className="text-sm text-gray-600 mt-1">
+              Table mapping: Seats 1-{seatsPerTable} = Table 1, Seats {seatsPerTable + 1}-{seatsPerTable * 2} = Table 2, etc.
+            </p>
+          </div>
+        </div>
+
+        <div className="bg-blue-50 p-4 rounded-lg mb-6">
+          <h4 className="font-semibold text-blue-800 mb-2">Automatic Guest Assignment</h4>
+          <p className="text-blue-700 text-sm mb-2">
+            When you save these settings, all guests will be automatically assigned seats in sequential order.
+          </p>
+          <p className="text-blue-600 text-sm">
+            Current capacity: <span className="font-semibold">{currentGuestCount} guests</span> out of <span className="font-semibold">{totalGuests} total seats</span>
+          </p>
+        </div>
+
+        <button 
+          onClick={handleSaveSeatingSettings}
+          className="bg-blue-600 text-white py-2 px-6 rounded-lg hover:bg-blue-700 transition duration-300 flex items-center gap-2"
+        >
+          <Settings className="w-4 h-4" />
+          Save Settings & Auto-Assign Seats
+        </button>
+      </div>
+
       {/* Header Controls */}
       <div className="bg-white p-6 rounded-lg shadow-md mb-8">
         <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between mb-6">
@@ -311,14 +402,6 @@ const GuestsTab: React.FC = () => {
               >
                 <Upload size={16} />
                 Upload CSV
-              </button>
-              
-              <button
-                onClick={handleAutoAssignSeats}
-                className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition duration-300"
-              >
-                <MapPin size={16} />
-                Auto Assign
               </button>
             </div>
           </div>
@@ -365,7 +448,7 @@ const GuestsTab: React.FC = () => {
           </div>
           
           <p className="text-sm text-blue-600 mt-3">
-            This will automatically generate access codes and create guest entries. Guest names can be edited later.
+            This will automatically generate access codes, create guest entries, and assign seats sequentially.
           </p>
         </div>
         
@@ -403,7 +486,7 @@ const GuestsTab: React.FC = () => {
                     {getTableName(tableNum)}
                   </div>
                   <div className="text-xs text-gray-600">
-                    {tableGuests.length}/{state.settings.seatsPerTable} occupied
+                    {tableGuests.length}/{seatsPerTable} occupied
                   </div>
                   <div className="text-xs text-green-600">
                     {availableSeats.length} available
@@ -451,7 +534,7 @@ const GuestsTab: React.FC = () => {
           <div className="flex items-center justify-between mb-4">
             <h4 className="text-lg font-semibold text-rose-600 flex items-center gap-2">
               <Users className="w-5 h-5" />
-              Table {selectedTable} - Seats {(selectedTable - 1) * state.settings.seatsPerTable + 1} to {selectedTable * state.settings.seatsPerTable}
+              Table {selectedTable} - Seats {(selectedTable - 1) * seatsPerTable + 1} to {selectedTable * seatsPerTable}
             </h4>
             
             <div className="flex items-center gap-2">
@@ -475,7 +558,7 @@ const GuestsTab: React.FC = () => {
                 <span className="font-semibold">Available:</span> {getAvailableSeatsForTable(selectedTable).length}
               </div>
               <div>
-                <span className="font-semibold">Capacity:</span> {state.settings.seatsPerTable}
+                <span className="font-semibold">Capacity:</span> {seatsPerTable}
               </div>
               <div>
                 <span className="font-semibold">Available Seats:</span> {getAvailableSeatsForTable(selectedTable).join(', ') || 'None'}
@@ -541,8 +624,8 @@ const GuestsTab: React.FC = () => {
                 
                 <div className="mb-4 p-3 bg-gray-50 rounded text-sm">
                   <div className="grid grid-cols-2 gap-2">
-                    <div>Seats: {(tableNum - 1) * state.settings.seatsPerTable + 1}-{tableNum * state.settings.seatsPerTable}</div>
-                    <div>Occupied: {tableGuests.length}/{state.settings.seatsPerTable}</div>
+                    <div>Seats: {(tableNum - 1) * seatsPerTable + 1}-{tableNum * seatsPerTable}</div>
+                    <div>Occupied: {tableGuests.length}/{seatsPerTable}</div>
                     <div>Available: {availableSeats.length}</div>
                     <div>Arrived: {tableGuests.filter(([_, guest]) => guest.arrived).length}</div>
                   </div>

@@ -8,8 +8,6 @@ const Dashboard: React.FC = () => {
   
   const [eventDate, setEventDate] = useState(state.settings.eventDate);
   const [receptionDate, setReceptionDate] = useState(state.settings.receptionDate || '');
-  const [maxSeats, setMaxSeats] = useState(state.settings.maxSeats);
-  const [seatsPerTable, setSeatsPerTable] = useState(state.settings.seatsPerTable);
   const [coupleNames, setCoupleNames] = useState(state.settings.coupleNames);
   const [venue, setVenue] = useState(state.settings.venue);
   const [receptionVenue, setReceptionVenue] = useState(state.settings.receptionVenue || '');
@@ -31,8 +29,6 @@ const Dashboard: React.FC = () => {
     updateSettings({
       eventDate,
       receptionDate,
-      maxSeats,
-      seatsPerTable,
       coupleNames,
       venue,
       receptionVenue,
@@ -230,55 +226,6 @@ const Dashboard: React.FC = () => {
               </div>
             )}
           </div>
-        </div>
-      </div>
-      
-      {/* Seating Configuration Card */}
-      <div className="bg-theme-card-bg p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300">
-        <h3 className="text-xl mb-4 font-semibold">Seating Configuration</h3>
-        
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-          <div>
-            <label htmlFor="max-seats" className="block text-theme-text mb-2">Total Seats (max 300)</label>
-            <input 
-              type="number" 
-              id="max-seats" 
-              min="1" 
-              max="300" 
-              value={maxSeats}
-              onChange={(e) => setMaxSeats(parseInt(e.target.value) || 300)}
-              className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-theme-accent"
-            />
-            <p className="text-sm text-theme-text mt-1">
-              This determines the maximum number of guests that can be accommodated.
-            </p>
-          </div>
-          
-          <div>
-            <label htmlFor="seats-per-table" className="block text-theme-text mb-2">Seats Per Table</label>
-            <input 
-              type="number" 
-              id="seats-per-table" 
-              min="1" 
-              max="20" 
-              value={seatsPerTable}
-              onChange={(e) => setSeatsPerTable(parseInt(e.target.value) || 10)}
-              className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-theme-accent"
-            />
-            <p className="text-sm text-theme-text mt-1">
-              Table mapping: Seats 1-{seatsPerTable} = Table 1, Seats {seatsPerTable + 1}-{seatsPerTable * 2} = Table 2, etc.
-            </p>
-          </div>
-        </div>
-
-        <div className="bg-blue-50 p-4 rounded-lg">
-          <h4 className="font-semibold text-blue-800 mb-2">Guest Management</h4>
-          <p className="text-blue-700 text-sm mb-2">
-            Access codes for guests are automatically generated in the Guest Management section based on your seating configuration.
-          </p>
-          <p className="text-blue-600 text-sm">
-            Current capacity: <span className="font-semibold">{totalGuests} guests</span> out of <span className="font-semibold">{maxSeats} total seats</span>
-          </p>
         </div>
       </div>
     </div>
