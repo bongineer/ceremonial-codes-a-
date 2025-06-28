@@ -81,6 +81,7 @@ const AppContext = createContext<{
   addWeddingPartyMember: (member: WeddingPartyMember) => void;
   removeWeddingPartyMember: (index: number) => void;
   refreshData: () => Promise<void>;
+  autoAssignAllSeats: () => void;
 }>({
   state: initialState,
   setState: () => {},
@@ -106,12 +107,62 @@ const AppContext = createContext<{
   updateGuestDetails: () => {},
   addWeddingPartyMember: () => {},
   removeWeddingPartyMember: () => {},
-  refreshData: () => Promise.resolve()
+  refreshData: () => Promise.resolve(),
+  autoAssignAllSeats: () => {}
 });
 
 export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [state, setState] = useState<AppState>(initialState);
   const supabase = useSupabase();
+
+  // Auto-assign seats function
+  const autoAssignAllSeats = () => {
+    setState(prev => {
+      const allGuests = Object.entries(prev.guests).filter(([code]) => code !== 'ADMIN');
+      const updatedGuests = { ...prev.guests };
+      const updatedSeats: Record<number, Seat> = {};
+      
+      // Initialize all seats as available
+      for (let i = 1; i <= prev.settings.maxSeats; i++) {
+        updatedSeats[i] = {
+          taken: false,
+          guestCode: null
+        };
+      }
+      
+      // Assign seats sequentially
+      allGuests.forEach(([code], index) => {
+        const seatNumber = index + 1;
+        if (seatNumber <= prev.settings.maxSeats) {
+          updatedGuests[code] = {
+            ...updatedGuests[code],
+            seatNumber: seatNumber
+          };
+          updatedSeats[seatNumber] = {
+            taken: true,
+            guestCode: code
+          };
+          
+          // Update in Supabase if available
+          if (isSupabaseReady) {
+            supabase.updateGuest(code, { seatNumber });
+          }
+        }
+      });
+      
+      const newState = {
+        ...prev,
+        guests: updatedGuests,
+        seats: updatedSeats
+      };
+      
+      if (!isSupabaseReady) {
+        saveData(newState);
+      }
+      
+      return newState;
+    });
+  };
 
   // Load all data from Supabase or localStorage
   const refreshData = async () => {
@@ -262,27 +313,42 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       // Refresh data to get updated guest list
       setTimeout(() => refreshData(), 1000);
     } else {
-      // Add to localStorage
+      // Add to localStorage and auto-assign seats
       setState(prev => {
         const updatedGuests = { ...prev.guests };
         const updatedAccessCodes = [...prev.accessCodes];
+        const updatedSeats = { ...prev.seats };
         
-        newCodes.forEach(code => {
+        // Get current guest count (excluding ADMIN)
+        const currentGuestCount = Object.keys(prev.guests).filter(code => code !== 'ADMIN').length;
+        
+        newCodes.forEach((code, index) => {
+          const seatNumber = currentGuestCount + index + 1;
+          
           updatedGuests[code] = {
             name: `Guest ${code}`,
-            seatNumber: null,
+            seatNumber: seatNumber <= prev.settings.maxSeats ? seatNumber : null,
             arrived: false,
             mealServed: false,
             drinkServed: false,
             category: 'VVIP'
           };
           updatedAccessCodes.push(code);
+          
+          // Assign seat if within capacity
+          if (seatNumber <= prev.settings.maxSeats) {
+            updatedSeats[seatNumber] = {
+              taken: true,
+              guestCode: code
+            };
+          }
         });
         
         const newState = {
           ...prev,
           guests: updatedGuests,
-          accessCodes: updatedAccessCodes
+          accessCodes: updatedAccessCodes,
+          seats: updatedSeats
         };
         
         saveData(newState);
@@ -829,7 +895,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       updateGuestDetails,
       addWeddingPartyMember,
       removeWeddingPartyMember,
-      refreshData
+      refreshData,
+      autoAssignAllSeats
     }}>
       {children}
     </AppContext.Provider>

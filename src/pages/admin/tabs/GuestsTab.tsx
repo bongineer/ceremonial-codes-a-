@@ -7,7 +7,7 @@ import { Guest } from '../../../types';
 import { Upload, Users, Settings } from 'lucide-react';
 
 const GuestsTab: React.FC = () => {
-  const { state, updateGuestDetails, generateAccessCodes, assignSeat, updateSettings } = useAppContext();
+  const { state, updateGuestDetails, generateAccessCodes, assignSeat, updateSettings, autoAssignAllSeats } = useAppContext();
   
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedTable, setSelectedTable] = useState<number | null>(null);
@@ -35,26 +35,6 @@ const GuestsTab: React.FC = () => {
     }
   }, [totalTables, state.settings.tableNames, updateSettings]);
 
-  // Auto-assign seats when total guests or seats per table changes
-  const autoAssignAllSeats = () => {
-    const allGuests = Object.entries(state.guests).filter(([code]) => code !== 'ADMIN');
-    
-    // Clear all existing seat assignments
-    allGuests.forEach(([code]) => {
-      updateGuestDetails(code, { seatNumber: null });
-    });
-    
-    // Assign seats sequentially
-    allGuests.forEach(([code], index) => {
-      const seatNumber = index + 1;
-      if (seatNumber <= totalGuests) {
-        assignSeat(code, seatNumber);
-      }
-    });
-    
-    toast.success(`Auto-assigned ${Math.min(allGuests.length, totalGuests)} guests to seats`);
-  };
-
   const handleSaveSeatingSettings = () => {
     const oldMaxSeats = state.settings.maxSeats;
     const oldSeatsPerTable = state.settings.seatsPerTable;
@@ -68,10 +48,11 @@ const GuestsTab: React.FC = () => {
     if (oldMaxSeats !== totalGuests || oldSeatsPerTable !== seatsPerTable) {
       setTimeout(() => {
         autoAssignAllSeats();
+        toast.success('Seating settings saved and all guests auto-assigned to seats!');
       }, 500);
+    } else {
+      toast.success('Seating settings saved!');
     }
-    
-    toast.success('Seating settings saved and guests auto-assigned!');
   };
   
   // Filter guests based on search term
@@ -160,24 +141,25 @@ const GuestsTab: React.FC = () => {
 
       const newCodes = generateAccessCodes(guestsToAdd.length);
       
-      guestsToAdd.forEach((guestData, index) => {
-        const code = newCodes[index];
-        updateGuestDetails(code, {
-          name: guestData.name,
-          category: guestData.category,
-          arrived: false,
-          mealServed: false,
-          drinkServed: false,
-          seatNumber: null
-        });
-      });
-
-      // Auto-assign seats to all guests
+      // Update guest names and categories after codes are generated
       setTimeout(() => {
-        autoAssignAllSeats();
-      }, 1000);
+        guestsToAdd.forEach((guestData, index) => {
+          const code = newCodes[index];
+          updateGuestDetails(code, {
+            name: guestData.name,
+            category: guestData.category,
+            arrived: false,
+            mealServed: false,
+            drinkServed: false
+          });
+        });
 
-      toast.success(`Successfully uploaded ${guestsToAdd.length} guests and auto-assigned seats`);
+        // Auto-assign seats to all guests after a short delay
+        setTimeout(() => {
+          autoAssignAllSeats();
+          toast.success(`Successfully uploaded ${guestsToAdd.length} guests and auto-assigned seats!`);
+        }, 1000);
+      }, 500);
     };
     
     reader.readAsText(file);
@@ -244,7 +226,7 @@ const GuestsTab: React.FC = () => {
           {guest.seatNumber ? (
             <span className="text-green-600 font-semibold">Seat {guest.seatNumber}</span>
           ) : (
-            <span className="text-gray-500">Auto-assigned</span>
+            <span className="text-orange-500">Unassigned</span>
           )}
         </td>
       )}
@@ -321,7 +303,7 @@ const GuestsTab: React.FC = () => {
         <div className="bg-blue-50 p-4 rounded-lg mb-6">
           <h4 className="font-semibold text-blue-800 mb-2">Automatic Guest Assignment</h4>
           <p className="text-blue-700 text-sm mb-2">
-            When you save these settings, all guests will be automatically assigned seats in sequential order.
+            When you save these settings, all guests will be automatically assigned seats in sequential order (1, 2, 3, etc.).
           </p>
           <p className="text-blue-600 text-sm">
             Current capacity: <span className="font-semibold">{currentGuestCount} guests</span> out of <span className="font-semibold">{totalGuests} total seats</span>
@@ -380,7 +362,7 @@ const GuestsTab: React.FC = () => {
             Jane Smith,family
           </p>
           <p className="text-sm text-blue-600 mt-3">
-            Guests will be automatically assigned seats sequentially when uploaded.
+            <strong>Automatic Assignment:</strong> All guests will be automatically assigned seats sequentially when uploaded.
           </p>
         </div>
 
@@ -419,13 +401,19 @@ const GuestsTab: React.FC = () => {
         </div>
       </div>
 
-      {/* Unassigned Guests */}
+      {/* Unassigned Guests - Only show if there are any */}
       {getUnassignedGuests().length > 0 && (
-        <div className="bg-white p-6 rounded-lg shadow-md mb-8">
+        <div className="bg-white p-6 rounded-lg shadow-md mb-8 border-l-4 border-orange-500">
           <h4 className="text-lg font-semibold mb-4 text-orange-600 flex items-center gap-2">
             <Users className="w-5 h-5" />
             Unassigned Guests ({getUnassignedGuests().length})
           </h4>
+          
+          <div className="bg-orange-50 p-4 rounded-lg mb-4">
+            <p className="text-orange-700 text-sm">
+              <strong>Note:</strong> These guests don't have seats assigned. Click "Save Settings & Auto-Assign Seats" above to automatically assign them.
+            </p>
+          </div>
           
           <div className="overflow-x-auto">
             <table className="min-w-full bg-white">
