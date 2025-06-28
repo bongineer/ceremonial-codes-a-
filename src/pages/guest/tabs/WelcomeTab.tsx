@@ -110,15 +110,21 @@ const WelcomeTab: React.FC = () => {
             <div className="md:w-1/2 mb-6 md:mb-0">
               <h4 className="text-lg font-semibold mb-2 text-theme-text">Wedding Ceremony</h4>
               <p className="mb-1 text-theme-text">Date: {formatEventDate(state.settings.eventDate)}</p>
-              <p className="mb-1 text-theme-text">Time: {formatEventTime(state.settings.eventDate)} - {formatEventTime(new Date(new Date(state.settings.eventDate).getTime() + 90 * 60000).toISOString())}</p>
+              <p className="mb-1 text-theme-text">Time: {formatEventTime(state.settings.eventDate)}</p>
               <p className="text-theme-text">Venue: {state.settings.venue}</p>
             </div>
             
             <div className="md:w-1/2">
               <h4 className="text-lg font-semibold mb-2 text-theme-text">Reception</h4>
-              <p className="mb-1 text-theme-text">Date: {formatEventDate(state.settings.eventDate)}</p>
-              <p className="mb-1 text-theme-text">Time: {formatEventTime(new Date(new Date(state.settings.eventDate).getTime() + 120 * 60000).toISOString())} - {formatEventTime(new Date(new Date(state.settings.eventDate).getTime() + 420 * 60000).toISOString())}</p>
-              <p className="text-theme-text">Venue: {state.settings.venue}</p>
+              <p className="mb-1 text-theme-text">
+                Date: {state.settings.receptionDate ? formatEventDate(state.settings.receptionDate) : formatEventDate(state.settings.eventDate)}
+              </p>
+              <p className="mb-1 text-theme-text">
+                Time: {state.settings.receptionDate ? formatEventTime(state.settings.receptionDate) : formatEventTime(new Date(new Date(state.settings.eventDate).getTime() + 120 * 60000).toISOString())}
+              </p>
+              <p className="text-theme-text">
+                Venue: {state.settings.receptionVenue || state.settings.venue}
+              </p>
             </div>
           </div>
         </div>

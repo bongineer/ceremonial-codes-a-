@@ -7,10 +7,12 @@ const Dashboard: React.FC = () => {
   const { state, updateSettings } = useAppContext();
   
   const [eventDate, setEventDate] = useState(state.settings.eventDate);
+  const [receptionDate, setReceptionDate] = useState(state.settings.receptionDate || '');
   const [maxSeats, setMaxSeats] = useState(state.settings.maxSeats);
   const [seatsPerTable, setSeatsPerTable] = useState(state.settings.seatsPerTable);
   const [coupleNames, setCoupleNames] = useState(state.settings.coupleNames);
   const [venue, setVenue] = useState(state.settings.venue);
+  const [receptionVenue, setReceptionVenue] = useState(state.settings.receptionVenue || '');
   const [welcomeImage, setWelcomeImage] = useState(state.settings.welcomeImage || '');
   const [welcomeImages, setWelcomeImages] = useState<string[]>(state.settings.welcomeImages || []);
   
@@ -28,10 +30,12 @@ const Dashboard: React.FC = () => {
   const handleSaveSettings = () => {
     updateSettings({
       eventDate,
+      receptionDate,
       maxSeats,
       seatsPerTable,
       coupleNames,
       venue,
+      receptionVenue,
       welcomeImage,
       welcomeImages
     });
@@ -85,17 +89,6 @@ const Dashboard: React.FC = () => {
         <h3 className="text-xl mb-4 font-semibold">Quick Settings</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
-            <label htmlFor="event-date" className="block text-theme-text mb-2">Wedding Date</label>
-            <input 
-              type="datetime-local" 
-              id="event-date" 
-              value={eventDate}
-              onChange={(e) => setEventDate(e.target.value)}
-              className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-theme-accent"
-            />
-          </div>
-          
-          <div>
             <label htmlFor="couple-names" className="block text-theme-text mb-2">Couple Names</label>
             <input 
               type="text" 
@@ -107,13 +100,47 @@ const Dashboard: React.FC = () => {
           </div>
           
           <div>
-            <label htmlFor="venue" className="block text-theme-text mb-2">Venue</label>
+            <label htmlFor="event-date" className="block text-theme-text mb-2">Wedding Ceremony Date & Time</label>
+            <input 
+              type="datetime-local" 
+              id="event-date" 
+              value={eventDate}
+              onChange={(e) => setEventDate(e.target.value)}
+              className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-theme-accent"
+            />
+          </div>
+          
+          <div>
+            <label htmlFor="venue" className="block text-theme-text mb-2">Wedding Ceremony Venue</label>
             <input 
               type="text" 
               id="venue" 
               value={venue}
               onChange={(e) => setVenue(e.target.value)}
               className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-theme-accent"
+            />
+          </div>
+          
+          <div>
+            <label htmlFor="reception-date" className="block text-theme-text mb-2">Reception Date & Time</label>
+            <input 
+              type="datetime-local" 
+              id="reception-date" 
+              value={receptionDate}
+              onChange={(e) => setReceptionDate(e.target.value)}
+              className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-theme-accent"
+            />
+          </div>
+          
+          <div className="md:col-span-2">
+            <label htmlFor="reception-venue" className="block text-theme-text mb-2">Reception Venue</label>
+            <input 
+              type="text" 
+              id="reception-venue" 
+              value={receptionVenue}
+              onChange={(e) => setReceptionVenue(e.target.value)}
+              className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-theme-accent"
+              placeholder="Enter reception venue (if different from ceremony venue)"
             />
           </div>
         </div>

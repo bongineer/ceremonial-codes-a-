@@ -3,6 +3,8 @@ export interface Settings {
   coupleNames: string;
   eventDate: string;
   venue: string;
+  receptionVenue?: string;
+  receptionDate?: string;
   maxSeats: number;
   seatsPerTable: number;
   welcomeImage?: string;

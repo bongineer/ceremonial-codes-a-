@@ -22,6 +22,8 @@ const defaultSettings: Settings = {
   coupleNames: "Bonaventure & Joy",
   eventDate: "2024-06-15T11:00",
   venue: "Grand Ballroom, Royal Hotel",
+  receptionVenue: "Grand Ballroom, Royal Hotel - Reception Hall",
+  receptionDate: "2024-06-15T13:00",
   maxSeats: 300,
   seatsPerTable: 10,
   welcomeImage: "https://images.unsplash.com/photo-1511285560929-80b456fea0bc?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80",

@@ -36,6 +36,8 @@ export const useSupabase = () => {
         coupleNames: settingsData.couple_names,
         eventDate: settingsData.event_date,
         venue: settingsData.venue,
+        receptionVenue: settingsData.reception_venue,
+        receptionDate: settingsData.reception_date,
         maxSeats: settingsData.max_seats,
         seatsPerTable: settingsData.seats_per_table || 10,
         welcomeImage: settingsData.welcome_image,
@@ -68,6 +70,8 @@ export const useSupabase = () => {
             couple_names: settings.coupleNames || '',
             event_date: settings.eventDate || new Date().toISOString(),
             venue: settings.venue || '',
+            reception_venue: settings.receptionVenue || null,
+            reception_date: settings.receptionDate || null,
             max_seats: settings.maxSeats || 300,
             seats_per_table: settings.seatsPerTable || 10,
             welcome_image: settings.welcomeImage || null,
@@ -86,6 +90,8 @@ export const useSupabase = () => {
         if (settings.coupleNames !== undefined) updateData.couple_names = settings.coupleNames;
         if (settings.eventDate !== undefined) updateData.event_date = settings.eventDate;
         if (settings.venue !== undefined) updateData.venue = settings.venue;
+        if (settings.receptionVenue !== undefined) updateData.reception_venue = settings.receptionVenue;
+        if (settings.receptionDate !== undefined) updateData.reception_date = settings.receptionDate;
         if (settings.maxSeats !== undefined) updateData.max_seats = settings.maxSeats;
         if (settings.seatsPerTable !== undefined) updateData.seats_per_table = settings.seatsPerTable;
         if (settings.welcomeImage !== undefined) updateData.welcome_image = settings.welcomeImage;
