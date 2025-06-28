@@ -35,9 +35,7 @@ const WelcomeTab: React.FC = () => {
 
   const getTableName = (tableNumber: number | null): string => {
     if (!tableNumber) return '';
-    // For now, we'll use a default naming pattern since table names are managed in admin
-    // In a real implementation, you might want to store table names in the database
-    return `Table ${tableNumber}`;
+    return state.settings.tableNames?.[tableNumber] || `Table ${tableNumber}`;
   };
   
   return (
@@ -71,9 +69,9 @@ const WelcomeTab: React.FC = () => {
                   <>
                     <p className="text-theme-text">Seat Number: <span className="font-semibold text-theme-primary">{guest.seatNumber}</span></p>
                     <p className="text-theme-text">Table Number: <span className="font-semibold text-theme-primary">{getTableNumber(guest.seatNumber)}</span></p>
-                    <p className="text-theme-text" style={{ color: 'var(--color-primary)' }}>
+                    <p className="text-theme-text">Table Name: <span className="font-semibold" style={{ color: 'var(--color-primary)' }}>
                       {getTableName(getTableNumber(guest.seatNumber))}
-                    </p>
+                    </span></p>
                   </>
                 )}
               </div>

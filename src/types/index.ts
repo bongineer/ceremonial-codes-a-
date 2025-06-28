@@ -10,6 +10,7 @@ export interface Settings {
   backgroundImages: string[];
   guestPhotosLink?: string;
   theme: string;
+  tableNames?: Record<number, string>;
 }
 
 export interface Guest {

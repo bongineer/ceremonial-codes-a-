@@ -7,12 +7,11 @@ import { Guest } from '../../../types';
 import { Upload, Users, MapPin, UserPlus } from 'lucide-react';
 
 const GuestsTab: React.FC = () => {
-  const { state, updateGuestDetails, generateAccessCodes, assignSeat } = useAppContext();
+  const { state, updateGuestDetails, generateAccessCodes, assignSeat, updateSettings } = useAppContext();
   
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedTable, setSelectedTable] = useState<number | null>(null);
   const [numGuestsToGenerate, setNumGuestsToGenerate] = useState(10);
-  const [tableNames, setTableNames] = useState<Record<number, string>>({});
   const fileInputRef = useRef<HTMLInputElement>(null);
   
   // Calculate total number of tables
@@ -22,14 +21,16 @@ const GuestsTab: React.FC = () => {
   const currentGuestCount = Object.keys(state.guests).filter(code => code !== 'ADMIN').length;
   const remainingCapacity = state.settings.maxSeats - currentGuestCount;
   
-  // Initialize table names with default values
+  // Initialize table names with default values if not set
   React.useEffect(() => {
-    const defaultNames: Record<number, string> = {};
-    for (let i = 1; i <= totalTables; i++) {
-      defaultNames[i] = `Table ${i}`;
+    if (!state.settings.tableNames) {
+      const defaultNames: Record<number, string> = {};
+      for (let i = 1; i <= totalTables; i++) {
+        defaultNames[i] = `Table ${i}`;
+      }
+      updateSettings({ tableNames: defaultNames });
     }
-    setTableNames(defaultNames);
-  }, [totalTables]);
+  }, [totalTables, state.settings.tableNames, updateSettings]);
   
   // Filter guests based on search term
   const filteredGuests = Object.entries(state.guests)
@@ -185,7 +186,7 @@ const GuestsTab: React.FC = () => {
 
   const getTableName = (tableNumber: number | null): string => {
     if (!tableNumber) return '';
-    return tableNames[tableNumber] || `Table ${tableNumber}`;
+    return state.settings.tableNames?.[tableNumber] || `Table ${tableNumber}`;
   };
 
   const getAvailableSeatsForTable = (tableNumber: number) => {
@@ -204,10 +205,11 @@ const GuestsTab: React.FC = () => {
   };
 
   const handleTableNameChange = (tableNumber: number, newName: string) => {
-    setTableNames(prev => ({
-      ...prev,
+    const updatedTableNames = {
+      ...state.settings.tableNames,
       [tableNumber]: newName
-    }));
+    };
+    updateSettings({ tableNames: updatedTableNames });
   };
 
   const renderGuestRow = (code: string, guest: Guest, showSeatAssignment = false) => (
@@ -456,7 +458,7 @@ const GuestsTab: React.FC = () => {
               <label className="text-sm font-medium text-gray-700">Table Name:</label>
               <input
                 type="text"
-                value={tableNames[selectedTable] || `Table ${selectedTable}`}
+                value={state.settings.tableNames?.[selectedTable] || `Table ${selectedTable}`}
                 onChange={(e) => handleTableNameChange(selectedTable, e.target.value)}
                 className="px-3 py-1 border rounded-lg focus:outline-none focus:ring-2 focus:ring-rose-300 text-sm"
                 placeholder="Enter table name"
