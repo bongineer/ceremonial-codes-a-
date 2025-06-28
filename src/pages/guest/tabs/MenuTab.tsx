@@ -10,14 +10,21 @@ const MenuTab: React.FC = () => {
   const guest = guestCode ? state.guests[guestCode] : null;
   const guestCategory = guest?.category || 'VVIP';
   
-  // Filter menu items based on guest category
+  // Filter menu items based on guest category - CORRECTED LOGIC
   const getAvailableItems = (items: any[]) => {
     return items.filter(item => {
       const itemGuestCategory = item.guestCategory || 'VVIP';
       
-      if (guestCategory === 'family') return true; // Family can access all
-      if (guestCategory === 'premium') return itemGuestCategory === 'VVIP' || itemGuestCategory === 'premium';
-      return itemGuestCategory === 'VVIP'; // VVIP only gets VVIP
+      // VVIP guests can see all items (VVIP, premium, family)
+      if (guestCategory === 'VVIP') return true;
+      
+      // Premium guests can see premium and family items (but not VVIP-only items)
+      if (guestCategory === 'premium') return itemGuestCategory === 'premium' || itemGuestCategory === 'family';
+      
+      // Family guests can only see family items
+      if (guestCategory === 'family') return itemGuestCategory === 'family';
+      
+      return false;
     });
   };
   
@@ -103,12 +110,19 @@ const MenuTab: React.FC = () => {
             </div>
             <div className="text-center mt-4">
               <span className={`inline-block px-3 py-1 rounded-full text-sm ${
-                guestCategory === 'family' ? 'bg-blue-100 text-blue-800' :
+                guestCategory === 'VVIP' ? 'bg-purple-100 text-purple-800' :
                 guestCategory === 'premium' ? 'bg-yellow-100 text-yellow-800' :
-                'bg-gray-100 text-gray-800'
+                'bg-blue-100 text-blue-800'
               }`}>
                 {guestCategory.charAt(0).toUpperCase() + guestCategory.slice(1)} Guest
               </span>
+            </div>
+            
+            {/* Access Level Indicator */}
+            <div className="text-center mt-2 text-sm text-gray-600">
+              {guestCategory === 'VVIP' && 'You have access to all menu items'}
+              {guestCategory === 'premium' && 'You have access to premium and family menu items'}
+              {guestCategory === 'family' && 'You have access to family menu items'}
             </div>
           </div>
         )}
