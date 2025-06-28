@@ -4,7 +4,7 @@ import { useAppContext } from '../../../context/AppContext';
 import { formatEventDate } from '../../../utils/storage';
 
 const Dashboard: React.FC = () => {
-  const { state, updateSettings, generateAccessCodes } = useAppContext();
+  const { state, updateSettings } = useAppContext();
   
   const [eventDate, setEventDate] = useState(state.settings.eventDate);
   const [maxSeats, setMaxSeats] = useState(state.settings.maxSeats);
@@ -13,9 +13,6 @@ const Dashboard: React.FC = () => {
   const [venue, setVenue] = useState(state.settings.venue);
   const [welcomeImage, setWelcomeImage] = useState(state.settings.welcomeImage || '');
   const [welcomeImages, setWelcomeImages] = useState<string[]>(state.settings.welcomeImages || []);
-  
-  const [numCodes, setNumCodes] = useState(50);
-  const [generatedCodes, setGeneratedCodes] = useState<string[]>([]);
   
   // Stats calculations
   const totalGuests = Object.keys(state.guests).filter(code => code !== 'ADMIN').length;
@@ -40,34 +37,6 @@ const Dashboard: React.FC = () => {
     });
     
     toast.success('Settings saved successfully!');
-  };
-  
-  const handleGenerateCodes = () => {
-    if (numCodes <= 0 || numCodes > 300) {
-      toast.error('Please enter a number between 1 and 300');
-      return;
-    }
-    
-    const newCodes = generateAccessCodes(numCodes);
-    setGeneratedCodes(newCodes);
-    toast.success(`Generated ${numCodes} new access codes`);
-  };
-  
-  const handleDownloadCodes = () => {
-    if (generatedCodes.length === 0) return;
-    
-    let csvContent = "data:text/csv;charset=utf-8,Access Code\n";
-    generatedCodes.forEach(code => {
-      csvContent += code + "\n";
-    });
-    
-    const encodedUri = encodeURI(csvContent);
-    const link = document.createElement("a");
-    link.setAttribute("href", encodedUri);
-    link.setAttribute("download", "access_codes.csv");
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
   };
 
   const handleAddWelcomeImage = () => {
@@ -237,7 +206,7 @@ const Dashboard: React.FC = () => {
         </div>
       </div>
       
-      {/* Seating and Access Codes Card */}
+      {/* Seating Configuration Card */}
       <div className="bg-theme-card-bg p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300">
         <h3 className="text-xl mb-4 font-semibold">Seating Configuration</h3>
         
@@ -253,6 +222,9 @@ const Dashboard: React.FC = () => {
               onChange={(e) => setMaxSeats(parseInt(e.target.value) || 300)}
               className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-theme-accent"
             />
+            <p className="text-sm text-theme-text mt-1">
+              This determines the maximum number of guests that can be accommodated.
+            </p>
           </div>
           
           <div>
@@ -271,47 +243,16 @@ const Dashboard: React.FC = () => {
             </p>
           </div>
         </div>
-        
-        <h3 className="text-xl mb-4 font-semibold mt-8">Generate Access Codes</h3>
-        <p className="mb-4 text-theme-text">Generate unique 5-character alphanumeric codes for your guests.</p>
-        
-        <div className="mb-4">
-          <label htmlFor="num-codes" className="block text-theme-text mb-2">Number of Codes to Generate</label>
-          <input 
-            type="number" 
-            id="num-codes" 
-            min="1" 
-            max="300" 
-            value={numCodes}
-            onChange={(e) => setNumCodes(parseInt(e.target.value) || 50)}
-            className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-theme-accent"
-          />
+
+        <div className="bg-blue-50 p-4 rounded-lg">
+          <h4 className="font-semibold text-blue-800 mb-2">Guest Management</h4>
+          <p className="text-blue-700 text-sm mb-2">
+            Access codes for guests are automatically generated in the Guest Management section based on your seating configuration.
+          </p>
+          <p className="text-blue-600 text-sm">
+            Current capacity: <span className="font-semibold">{totalGuests} guests</span> out of <span className="font-semibold">{maxSeats} total seats</span>
+          </p>
         </div>
-        
-        <button 
-          onClick={handleGenerateCodes}
-          className="bg-theme-primary text-theme-button-text py-2 px-6 rounded-lg hover:bg-theme-accent transition duration-300"
-        >
-          Generate Codes
-        </button>
-        
-        {generatedCodes.length > 0 && (
-          <div className="mt-4">
-            <h4 className="font-semibold mb-2">Generated Access Codes</h4>
-            <div className="border p-4 rounded-lg max-h-60 overflow-y-auto bg-theme-background">
-              {generatedCodes.map((code, index) => (
-                <div key={index} className="mb-1">{code}</div>
-              ))}
-            </div>
-            
-            <button 
-              onClick={handleDownloadCodes}
-              className="mt-4 bg-gray-600 text-white py-2 px-6 rounded-lg hover:bg-gray-700 transition duration-300"
-            >
-              Download as CSV
-            </button>
-          </div>
-        )}
       </div>
     </div>
   );
