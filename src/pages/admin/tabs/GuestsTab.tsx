@@ -10,7 +10,7 @@ const GuestsTab: React.FC = () => {
   const { state, updateGuestDetails, generateAccessCodes, assignSeat, updateSettings, autoAssignAllSeats } = useAppContext();
   
   const [searchTerm, setSearchTerm] = useState('');
-  const [selectedTable, setSelectedTable] = useState<number | null>(null);
+  const [selectedTable, setSelectedTable] = useState<number | null>(3); // Default to table 3
   const fileInputRef = useRef<HTMLInputElement>(null);
   
   // Seating configuration state
@@ -236,52 +236,6 @@ const GuestsTab: React.FC = () => {
     updateSettings({ tableNames: updatedTableNames });
   };
 
-  // Drag and Drop handlers
-  const handleDragStart = (e: React.DragEvent, tableNumber: number) => {
-    setDraggedTable(tableNumber);
-    e.dataTransfer.effectAllowed = 'move';
-    e.dataTransfer.setData('text/html', e.currentTarget.outerHTML);
-    e.currentTarget.style.opacity = '0.5';
-  };
-
-  const handleDragEnd = (e: React.DragEvent) => {
-    e.currentTarget.style.opacity = '1';
-    setDraggedTable(null);
-    setDragOverTable(null);
-  };
-
-  const handleDragOver = (e: React.DragEvent, tableNumber: number) => {
-    e.preventDefault();
-    e.dataTransfer.dropEffect = 'move';
-    setDragOverTable(tableNumber);
-  };
-
-  const handleDragLeave = () => {
-    setDragOverTable(null);
-  };
-
-  const handleDrop = (e: React.DragEvent, dropTableNumber: number) => {
-    e.preventDefault();
-    
-    if (draggedTable === null || draggedTable === dropTableNumber) {
-      return;
-    }
-
-    // Reorder the tables
-    const newOrder = [...tableOrder];
-    const draggedIndex = newOrder.indexOf(draggedTable);
-    const dropIndex = newOrder.indexOf(dropTableNumber);
-    
-    // Remove dragged table and insert at new position
-    newOrder.splice(draggedIndex, 1);
-    newOrder.splice(dropIndex, 0, draggedTable);
-    
-    setTableOrder(newOrder);
-    setDragOverTable(null);
-    
-    toast.success('Table order updated! Note: This only changes display order, not seat assignments.');
-  };
-
   const renderGuestRow = (code: string, guest: Guest, showSeatAssignment = false) => (
     <tr key={code} className="hover:bg-gray-50">
       <td className="py-3 px-4 border-b border-gray-200">
@@ -435,100 +389,15 @@ const GuestsTab: React.FC = () => {
             Jane Smith,family
           </p>
         </div>
-
-        {/* Table Overview with Drag and Drop */}
-        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4 mb-6">
-          {tableOrder.map((originalTableNum, displayIndex) => {
-            const displayTableNum = displayIndex + 1;
-            const tableGuests = getGuestsByTable(originalTableNum);
-            const availableSeats = getAvailableSeatsForTable(originalTableNum);
-            
-            return (
-              <div
-                key={originalTableNum}
-                draggable
-                onDragStart={(e) => handleDragStart(e, originalTableNum)}
-                onDragEnd={handleDragEnd}
-                onDragOver={(e) => handleDragOver(e, originalTableNum)}
-                onDragLeave={handleDragLeave}
-                onDrop={(e) => handleDrop(e, originalTableNum)}
-                className={`p-4 rounded-lg border-2 transition-all duration-200 cursor-move ${
-                  selectedTable === originalTableNum 
-                    ? 'border-theme-primary bg-theme-secondary' 
-                    : dragOverTable === originalTableNum
-                    ? 'border-theme-accent bg-theme-secondary'
-                    : 'border-gray-200 hover:border-gray-300 bg-theme-card-bg'
-                }`}
-                onClick={() => setSelectedTable(selectedTable === originalTableNum ? null : originalTableNum)}
-              >
-                <div className="text-center">
-                  <div className="flex items-center justify-center mb-2">
-                    <GripVertical className="w-4 h-4 text-gray-400 mr-1" />
-                    <Users className="w-6 h-6 text-theme-primary" />
-                  </div>
-                  <div className="font-semibold text-sm text-theme-text">Table {displayTableNum}</div>
-                  <div className="text-xs text-theme-text mb-1">
-                    {getTableName(originalTableNum)}
-                  </div>
-                  <div className="text-xs text-theme-text">
-                    {tableGuests.length}/{seatsPerTable} occupied
-                  </div>
-                  <div className="text-xs text-green-600">
-                    {availableSeats.length} available
-                  </div>
-                  <div className="text-xs text-theme-primary mt-1">
-                    Seats {(originalTableNum - 1) * seatsPerTable + 1}-{originalTableNum * seatsPerTable}
-                  </div>
-                </div>
-              </div>
-            );
-          })}
-        </div>
       </div>
 
-      {/* Unassigned Guests - Only show if there are any */}
-      {getUnassignedGuests().length > 0 && (
-        <div className="bg-theme-card-bg p-6 rounded-lg shadow-md mb-8 border-l-4 border-orange-500">
-          <h4 className="text-lg font-semibold mb-4 text-orange-600 flex items-center gap-2">
-            <Users className="w-5 h-5" />
-            Unassigned Guests ({getUnassignedGuests().length})
-          </h4>
-          
-          <div className="bg-orange-50 p-4 rounded-lg mb-4">
-            <p className="text-orange-700 text-sm">
-              <strong>Note:</strong> These guests don't have seats assigned. Click "Save Settings & Auto-Create/Assign Guests" above to automatically assign them.
-            </p>
-          </div>
-          
-          <div className="overflow-x-auto">
-            <table className="min-w-full bg-theme-card-bg">
-              <thead>
-                <tr className="bg-orange-50">
-                  <th className="py-3 px-4 border-b border-gray-200 text-left text-xs font-semibold text-gray-600 uppercase">Code</th>
-                  <th className="py-3 px-4 border-b border-gray-200 text-left text-xs font-semibold text-gray-600 uppercase">Name</th>
-                  <th className="py-3 px-4 border-b border-gray-200 text-left text-xs font-semibold text-gray-600 uppercase">Category</th>
-                  <th className="py-3 px-4 border-b border-gray-200 text-left text-xs font-semibold text-gray-600 uppercase">Arrived</th>
-                  <th className="py-3 px-4 border-b border-gray-200 text-left text-xs font-semibold text-gray-600 uppercase">Food</th>
-                  <th className="py-3 px-4 border-b border-gray-200 text-left text-xs font-semibold text-gray-600 uppercase">Meal Served</th>
-                  <th className="py-3 px-4 border-b border-gray-200 text-left text-xs font-semibold text-gray-600 uppercase">Drink</th>
-                  <th className="py-3 px-4 border-b border-gray-200 text-left text-xs font-semibold text-gray-600 uppercase">Drink Served</th>
-                </tr>
-              </thead>
-              <tbody>
-                {getUnassignedGuests().map(([code, guest]) => renderGuestRow(code, guest))}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      )}
-
-      {/* Table-specific view */}
+      {/* Table-specific view - Always show the selected table (default: Table 3) */}
       {selectedTable && (
         <div className="bg-theme-card-bg p-6 rounded-lg shadow-md mb-8">
           <div className="flex items-center justify-between mb-4">
             <h4 className="text-lg font-semibold text-theme-primary flex items-center gap-2">
               <Users className="w-5 h-5" />
-              Table {tableOrder.indexOf(selectedTable) + 1} - Seats {(selectedTable - 1) * seatsPerTable + 1} to {selectedTable * seatsPerTable}
+              Table {selectedTable} - Seats {(selectedTable - 1) * seatsPerTable + 1} to {selectedTable * seatsPerTable}
             </h4>
             
             <div className="flex items-center gap-2">
@@ -588,69 +457,6 @@ const GuestsTab: React.FC = () => {
               </tbody>
             </table>
           </div>
-        </div>
-      )}
-
-      {/* All Tables Overview */}
-      {!selectedTable && (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {tableOrder.map((originalTableNum, displayIndex) => {
-            const displayTableNum = displayIndex + 1;
-            const tableGuests = getGuestsByTable(originalTableNum);
-            const availableSeats = getAvailableSeatsForTable(originalTableNum);
-            
-            return (
-              <div key={originalTableNum} className="bg-theme-card-bg p-6 rounded-lg shadow-md">
-                <div className="flex items-center justify-between mb-4">
-                  <div>
-                    <h4 className="text-lg font-semibold text-theme-primary flex items-center gap-2">
-                      <Users className="w-5 h-5" />
-                      Table {displayTableNum}
-                    </h4>
-                    <p className="text-sm text-theme-text">{getTableName(originalTableNum)}</p>
-                    <p className="text-xs text-theme-primary">Seats {(originalTableNum - 1) * seatsPerTable + 1}-{originalTableNum * seatsPerTable}</p>
-                  </div>
-                  <button
-                    onClick={() => setSelectedTable(originalTableNum)}
-                    className="px-3 py-1 bg-theme-primary text-theme-button-text rounded text-sm hover:bg-theme-accent transition duration-200"
-                  >
-                    Manage
-                  </button>
-                </div>
-                
-                <div className="mb-4 p-3 bg-theme-secondary rounded text-sm">
-                  <div className="grid grid-cols-2 gap-2">
-                    <div className="text-theme-text">Occupied: {tableGuests.length}/{seatsPerTable}</div>
-                    <div className="text-theme-text">Available: {availableSeats.length}</div>
-                    <div className="text-theme-text">Arrived: {tableGuests.filter(([_, guest]) => guest.arrived).length}</div>
-                    <div className="text-theme-text">Display Order: #{displayTableNum}</div>
-                  </div>
-                </div>
-                
-                <div className="space-y-2">
-                  {tableGuests.length > 0 ? (
-                    tableGuests.map(([code, guest]) => (
-                      <div key={code} className="flex items-center justify-between p-2 bg-theme-secondary rounded">
-                        <div>
-                          <span className="font-medium text-theme-text">{guest.name}</span>
-                          <span className="text-sm text-theme-text ml-2">Seat {guest.seatNumber}</span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          {guest.arrived && <span className="w-2 h-2 bg-green-500 rounded-full" title="Arrived"></span>}
-                          {guest.mealServed && <span className="w-2 h-2 bg-blue-500 rounded-full" title="Meal Served"></span>}
-                          {guest.drinkServed && <span className="w-2 h-2 bg-purple-500 rounded-full" title="Drink Served"></span>}
-                        </div>
-                      </div>
-                    ))
-                  ) : (
-                    <div className="text-center py-4 text-theme-text">
-                      No guests assigned to this table yet. Click "Save Settings & Auto-Create/Assign Guests" above.
-                    </div>
-                  )}
-                </div>
-              </div>
-            );
-          })}
         </div>
       )}
     </div>
