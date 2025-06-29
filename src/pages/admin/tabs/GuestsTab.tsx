@@ -4,7 +4,7 @@ import { useAppContext } from '../../../context/AppContext';
 import EditableCell from '../../../components/common/EditableCell';
 import EditableToggle from '../../../components/common/EditableToggle';
 import { Guest } from '../../../types';
-import { Upload, Users, Settings, UserPlus } from 'lucide-react';
+import { Upload, Users, Settings } from 'lucide-react';
 
 const GuestsTab: React.FC = () => {
   const { state, updateGuestDetails, generateAccessCodes, assignSeat, updateSettings, autoAssignAllSeats } = useAppContext();
@@ -16,9 +16,6 @@ const GuestsTab: React.FC = () => {
   // Seating configuration state
   const [totalGuests, setTotalGuests] = useState(state.settings.maxSeats);
   const [seatsPerTable, setSeatsPerTable] = useState(state.settings.seatsPerTable);
-  
-  // Guest creation state
-  const [numGuestsToCreate, setNumGuestsToCreate] = useState(10);
   
   // Calculate total number of tables
   const totalTables = Math.ceil(totalGuests / seatsPerTable);
@@ -55,30 +52,6 @@ const GuestsTab: React.FC = () => {
     } catch (error) {
       console.error('Error saving seating settings:', error);
       toast.error('Failed to save seating settings');
-    }
-  };
-
-  const handleCreateGuests = () => {
-    if (numGuestsToCreate <= 0) {
-      toast.error('Please enter a valid number of guests');
-      return;
-    }
-    
-    if (numGuestsToCreate > remainingCapacity) {
-      toast.error(`Cannot create ${numGuestsToCreate} guests. Only ${remainingCapacity} seats remaining.`);
-      return;
-    }
-    
-    try {
-      // Generate access codes and create guests
-      const newCodes = generateAccessCodes(numGuestsToCreate);
-      
-      // Show success message
-      toast.success(`Created ${numGuestsToCreate} new guests with automatic seat assignment!`);
-      setNumGuestsToCreate(10); // Reset to default
-    } catch (error) {
-      console.error('Error creating guests:', error);
-      toast.error('Failed to create guests');
     }
   };
   
@@ -324,9 +297,10 @@ const GuestsTab: React.FC = () => {
         </div>
 
         <div className="bg-blue-50 p-4 rounded-lg mb-6">
-          <h4 className="font-semibold text-blue-800 mb-2">Automatic Guest Assignment</h4>
+          <h4 className="font-semibold text-blue-800 mb-2">Automatic Guest Management</h4>
           <p className="text-blue-700 text-sm mb-2">
-            When you save these settings, all guests will be automatically assigned seats in sequential order (1, 2, 3, etc.).
+            When you increase the total number of guests, new guests will be automatically created and assigned seats sequentially. 
+            When you decrease the number, excess guests will be removed from the end.
           </p>
           <p className="text-blue-600 text-sm">
             Current capacity: <span className="font-semibold">{currentGuestCount} guests</span> out of <span className="font-semibold">{totalGuests} total seats</span>
@@ -340,54 +314,6 @@ const GuestsTab: React.FC = () => {
           <Settings className="w-5 h-5" />
           Save Settings & Auto-Assign Seats
         </button>
-      </div>
-
-      {/* Guest Creation Section */}
-      <div className="bg-white p-6 rounded-lg shadow-md mb-8">
-        <h3 className="text-xl font-semibold mb-6 text-green-800 flex items-center gap-2">
-          <UserPlus className="w-5 h-5" />
-          Create New Guests
-        </h3>
-        
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-end">
-          <div>
-            <label htmlFor="num-guests" className="block text-gray-700 mb-2 font-medium">Number of Guests to Create</label>
-            <input 
-              type="number" 
-              id="num-guests" 
-              min="1" 
-              max={remainingCapacity}
-              value={numGuestsToCreate}
-              onChange={(e) => setNumGuestsToCreate(parseInt(e.target.value) || 1)}
-              className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-300"
-              placeholder="Enter number of guests"
-            />
-          </div>
-          
-          <div>
-            <div className="text-sm text-gray-600">
-              <p><strong>Current:</strong> {currentGuestCount} guests</p>
-              <p><strong>Remaining:</strong> {remainingCapacity} seats</p>
-            </div>
-          </div>
-          
-          <div>
-            <button 
-              onClick={handleCreateGuests}
-              disabled={remainingCapacity === 0 || numGuestsToCreate <= 0}
-              className="w-full px-4 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 font-medium"
-            >
-              <UserPlus size={16} />
-              Create Guests
-            </button>
-          </div>
-        </div>
-        
-        <div className="bg-green-50 p-4 rounded-lg mt-4">
-          <p className="text-sm text-green-700">
-            <strong>Automatic Process:</strong> This will generate unique access codes, create guest entries, and automatically assign them seats in sequential order (1, 2, 3, etc.). You can edit guest names later.
-          </p>
-        </div>
       </div>
 
       {/* Header Controls */}
