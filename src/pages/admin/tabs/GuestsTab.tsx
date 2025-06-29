@@ -236,6 +236,52 @@ const GuestsTab: React.FC = () => {
     updateSettings({ tableNames: updatedTableNames });
   };
 
+  // Drag and Drop handlers
+  const handleDragStart = (e: React.DragEvent, tableNumber: number) => {
+    setDraggedTable(tableNumber);
+    e.dataTransfer.effectAllowed = 'move';
+    e.dataTransfer.setData('text/html', e.currentTarget.outerHTML);
+    e.currentTarget.style.opacity = '0.5';
+  };
+
+  const handleDragEnd = (e: React.DragEvent) => {
+    e.currentTarget.style.opacity = '1';
+    setDraggedTable(null);
+    setDragOverTable(null);
+  };
+
+  const handleDragOver = (e: React.DragEvent, tableNumber: number) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+    setDragOverTable(tableNumber);
+  };
+
+  const handleDragLeave = () => {
+    setDragOverTable(null);
+  };
+
+  const handleDrop = (e: React.DragEvent, dropTableNumber: number) => {
+    e.preventDefault();
+    
+    if (draggedTable === null || draggedTable === dropTableNumber) {
+      return;
+    }
+
+    // Reorder the tables
+    const newOrder = [...tableOrder];
+    const draggedIndex = newOrder.indexOf(draggedTable);
+    const dropIndex = newOrder.indexOf(dropTableNumber);
+    
+    // Remove dragged table and insert at new position
+    newOrder.splice(draggedIndex, 1);
+    newOrder.splice(dropIndex, 0, draggedTable);
+    
+    setTableOrder(newOrder);
+    setDragOverTable(null);
+    
+    toast.success('Table order updated! Note: This only changes display order, not seat assignments.');
+  };
+
   const renderGuestRow = (code: string, guest: Guest, showSeatAssignment = false) => (
     <tr key={code} className="hover:bg-gray-50">
       <td className="py-3 px-4 border-b border-gray-200">
@@ -389,6 +435,66 @@ const GuestsTab: React.FC = () => {
             Jane Smith,family
           </p>
         </div>
+
+        {/* Table Navigation Tabs with Drag and Drop */}
+        <div className="mb-6">
+          <h4 className="text-lg font-semibold mb-4 text-theme-text">Table Navigation</h4>
+          <div className="bg-theme-secondary p-4 rounded-lg mb-4">
+            <p className="text-sm text-theme-text mb-2">
+              <strong>💡 Tip:</strong> You can drag and drop the table tabs below to rearrange their display order. 
+              This changes how tables are numbered and displayed, but doesn't affect actual seat assignments.
+            </p>
+          </div>
+          
+          <div className="flex flex-wrap gap-2 overflow-x-auto pb-2">
+            {tableOrder.map((originalTableNum, displayIndex) => {
+              const displayTableNum = displayIndex + 1;
+              const tableGuests = getGuestsByTable(originalTableNum);
+              const availableSeats = getAvailableSeatsForTable(originalTableNum);
+              const isSelected = selectedTable === originalTableNum;
+              
+              return (
+                <div
+                  key={originalTableNum}
+                  draggable
+                  onDragStart={(e) => handleDragStart(e, originalTableNum)}
+                  onDragEnd={handleDragEnd}
+                  onDragOver={(e) => handleDragOver(e, originalTableNum)}
+                  onDragLeave={handleDragLeave}
+                  onDrop={(e) => handleDrop(e, originalTableNum)}
+                  onClick={() => setSelectedTable(originalTableNum)}
+                  className={`flex-shrink-0 p-4 rounded-lg border-2 transition-all duration-200 cursor-pointer ${
+                    isSelected 
+                      ? 'border-theme-primary bg-theme-primary text-theme-button-text shadow-lg' 
+                      : dragOverTable === originalTableNum
+                      ? 'border-theme-accent bg-theme-accent text-theme-button-text'
+                      : 'border-gray-200 hover:border-theme-primary bg-theme-card-bg hover:bg-theme-secondary'
+                  }`}
+                >
+                  <div className="text-center min-w-[120px]">
+                    <div className="flex items-center justify-center mb-2">
+                      <GripVertical className="w-4 h-4 mr-1 opacity-50" />
+                      <Users className="w-5 h-5" />
+                    </div>
+                    <div className="font-semibold text-sm">Table {displayTableNum}</div>
+                    <div className="text-xs opacity-75 mb-1">
+                      {getTableName(originalTableNum)}
+                    </div>
+                    <div className="text-xs opacity-75">
+                      {tableGuests.length}/{seatsPerTable} occupied
+                    </div>
+                    <div className="text-xs opacity-75">
+                      {availableSeats.length} available
+                    </div>
+                    <div className="text-xs opacity-75 mt-1">
+                      Seats {(originalTableNum - 1) * seatsPerTable + 1}-{originalTableNum * seatsPerTable}
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
       </div>
 
       {/* Table-specific view - Always show the selected table (default: Table 3) */}
@@ -397,7 +503,7 @@ const GuestsTab: React.FC = () => {
           <div className="flex items-center justify-between mb-4">
             <h4 className="text-lg font-semibold text-theme-primary flex items-center gap-2">
               <Users className="w-5 h-5" />
-              Table {selectedTable} - Seats {(selectedTable - 1) * seatsPerTable + 1} to {selectedTable * seatsPerTable}
+              Table {tableOrder.indexOf(selectedTable) + 1} - Seats {(selectedTable - 1) * seatsPerTable + 1} to {selectedTable * seatsPerTable}
             </h4>
             
             <div className="flex items-center gap-2">
