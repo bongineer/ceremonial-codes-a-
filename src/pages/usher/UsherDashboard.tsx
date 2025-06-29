@@ -1,8 +1,8 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAppContext } from '../../context/AppContext';
 import { toast } from 'react-toastify';
-import { Users, GripVertical } from 'lucide-react';
+import { Users } from 'lucide-react';
 import EditableToggle from '../../components/common/EditableToggle';
 import { Guest } from '../../types';
 
@@ -13,20 +13,8 @@ const UsherDashboard: React.FC = () => {
   const [selectedTable, setSelectedTable] = useState<number | null>(3); // Default to table 3
   const [searchTerm, setSearchTerm] = useState('');
   
-  // Drag and drop state
-  const [draggedTable, setDraggedTable] = useState<number | null>(null);
-  const [dragOverTable, setDragOverTable] = useState<number | null>(null);
-  const [tableOrder, setTableOrder] = useState<number[]>([]);
-  
   const seatsPerTable = state.settings.seatsPerTable;
   const totalTables = Math.ceil(state.settings.maxSeats / seatsPerTable);
-  
-  // Initialize table order
-  React.useEffect(() => {
-    if (tableOrder.length !== totalTables) {
-      setTableOrder(Array.from({ length: totalTables }, (_, i) => i + 1));
-    }
-  }, [totalTables, tableOrder.length]);
 
   useEffect(() => {
     // Redirect to login if not logged in or not usher
@@ -54,10 +42,10 @@ const UsherDashboard: React.FC = () => {
              guest.name.toLowerCase().includes(lowerSearchTerm);
     });
 
-  // Group guests by table (using original table numbers, not reordered)
-  const getGuestsByTable = (originalTableNumber: number) => {
-    const startSeat = (originalTableNumber - 1) * seatsPerTable + 1;
-    const endSeat = originalTableNumber * seatsPerTable;
+  // Group guests by table
+  const getGuestsByTable = (tableNumber: number) => {
+    const startSeat = (tableNumber - 1) * seatsPerTable + 1;
+    const endSeat = tableNumber * seatsPerTable;
     
     return filteredGuests.filter(([code, guest]) => {
       return guest.seatNumber && guest.seatNumber >= startSeat && guest.seatNumber <= endSeat;
@@ -67,21 +55,6 @@ const UsherDashboard: React.FC = () => {
   const getTableName = (tableNumber: number | null): string => {
     if (!tableNumber) return '';
     return state.settings.tableNames?.[tableNumber] || `Table ${tableNumber}`;
-  };
-
-  const getAvailableSeatsForTable = (tableNumber: number) => {
-    const startSeat = (tableNumber - 1) * seatsPerTable + 1;
-    const endSeat = tableNumber * seatsPerTable;
-    const availableSeats = [];
-    
-    for (let seat = startSeat; seat <= endSeat; seat++) {
-      const seatTaken = Object.values(state.guests).some(guest => guest.seatNumber === seat);
-      if (!seatTaken) {
-        availableSeats.push(seat);
-      }
-    }
-    
-    return availableSeats;
   };
 
   // Handle editable toggles for usher-specific actions
@@ -95,52 +68,6 @@ const UsherDashboard: React.FC = () => {
     };
     
     toast.success(actionMessages[field as keyof typeof actionMessages] || 'Guest updated');
-  };
-
-  // Drag and Drop handlers
-  const handleDragStart = (e: React.DragEvent, tableNumber: number) => {
-    setDraggedTable(tableNumber);
-    e.dataTransfer.effectAllowed = 'move';
-    e.dataTransfer.setData('text/html', e.currentTarget.outerHTML);
-    e.currentTarget.style.opacity = '0.5';
-  };
-
-  const handleDragEnd = (e: React.DragEvent) => {
-    e.currentTarget.style.opacity = '1';
-    setDraggedTable(null);
-    setDragOverTable(null);
-  };
-
-  const handleDragOver = (e: React.DragEvent, tableNumber: number) => {
-    e.preventDefault();
-    e.dataTransfer.dropEffect = 'move';
-    setDragOverTable(tableNumber);
-  };
-
-  const handleDragLeave = () => {
-    setDragOverTable(null);
-  };
-
-  const handleDrop = (e: React.DragEvent, dropTableNumber: number) => {
-    e.preventDefault();
-    
-    if (draggedTable === null || draggedTable === dropTableNumber) {
-      return;
-    }
-
-    // Reorder the tables
-    const newOrder = [...tableOrder];
-    const draggedIndex = newOrder.indexOf(draggedTable);
-    const dropIndex = newOrder.indexOf(dropTableNumber);
-    
-    // Remove dragged table and insert at new position
-    newOrder.splice(draggedIndex, 1);
-    newOrder.splice(dropIndex, 0, draggedTable);
-    
-    setTableOrder(newOrder);
-    setDragOverTable(null);
-    
-    toast.success('Table order updated!');
   };
 
   const renderGuestRow = (code: string, guest: Guest) => (
@@ -236,48 +163,33 @@ const UsherDashboard: React.FC = () => {
             </p>
           </div>
 
-          {/* Table Navigation Tabs with Drag and Drop */}
+          {/* Table Navigation Tabs - Simple Click Navigation */}
           <div className="mb-6">
             <h4 className="text-lg font-semibold mb-4 text-theme-text">Table Navigation</h4>
-            <div className="bg-theme-secondary p-4 rounded-lg mb-4">
-              <p className="text-sm text-theme-text mb-2">
-                <strong>💡 Tip:</strong> You can drag and drop the table tabs below to rearrange their display order for easier navigation.
-              </p>
-            </div>
             
             <div className="flex flex-wrap gap-2 overflow-x-auto pb-2">
-              {tableOrder.map((originalTableNum, displayIndex) => {
-                const displayTableNum = displayIndex + 1;
-                const tableGuests = getGuestsByTable(originalTableNum);
-                const availableSeats = getAvailableSeatsForTable(originalTableNum);
-                const isSelected = selectedTable === originalTableNum;
+              {Array.from({ length: totalTables }, (_, index) => {
+                const tableNumber = index + 1;
+                const tableGuests = getGuestsByTable(tableNumber);
+                const isSelected = selectedTable === tableNumber;
                 
                 return (
                   <div
-                    key={originalTableNum}
-                    draggable
-                    onDragStart={(e) => handleDragStart(e, originalTableNum)}
-                    onDragEnd={handleDragEnd}
-                    onDragOver={(e) => handleDragOver(e, originalTableNum)}
-                    onDragLeave={handleDragLeave}
-                    onDrop={(e) => handleDrop(e, originalTableNum)}
-                    onClick={() => setSelectedTable(originalTableNum)}
+                    key={tableNumber}
+                    onClick={() => setSelectedTable(tableNumber)}
                     className={`flex-shrink-0 p-4 rounded-lg border-2 transition-all duration-200 cursor-pointer ${
                       isSelected 
                         ? 'border-theme-primary bg-theme-primary text-theme-button-text shadow-lg' 
-                        : dragOverTable === originalTableNum
-                        ? 'border-theme-accent bg-theme-accent text-theme-button-text'
                         : 'border-gray-200 hover:border-theme-primary bg-theme-card-bg hover:bg-theme-secondary'
                     }`}
                   >
                     <div className="text-center min-w-[120px]">
                       <div className="flex items-center justify-center mb-2">
-                        <GripVertical className="w-4 h-4 mr-1 opacity-50" />
                         <Users className="w-5 h-5" />
                       </div>
-                      <div className="font-semibold text-sm">Table {displayTableNum}</div>
+                      <div className="font-semibold text-sm">Table {tableNumber}</div>
                       <div className="text-xs opacity-75 mb-1">
-                        {getTableName(originalTableNum)}
+                        {getTableName(tableNumber)}
                       </div>
                       <div className="text-xs opacity-75">
                         {tableGuests.length}/{seatsPerTable} occupied
@@ -286,7 +198,7 @@ const UsherDashboard: React.FC = () => {
                         Arrived: {tableGuests.filter(([_, guest]) => guest.arrived).length}
                       </div>
                       <div className="text-xs opacity-75 mt-1">
-                        Seats {(originalTableNum - 1) * seatsPerTable + 1}-{originalTableNum * seatsPerTable}
+                        Seats {(tableNumber - 1) * seatsPerTable + 1}-{tableNumber * seatsPerTable}
                       </div>
                     </div>
                   </div>
@@ -302,7 +214,7 @@ const UsherDashboard: React.FC = () => {
             <div className="flex items-center justify-between mb-4">
               <h4 className="text-lg font-semibold text-theme-primary flex items-center gap-2">
                 <Users className="w-5 h-5" />
-                Table {tableOrder.indexOf(selectedTable) + 1} - {getTableName(selectedTable)}
+                Table {selectedTable} - {getTableName(selectedTable)}
               </h4>
               
               <div className="text-sm text-theme-text">
