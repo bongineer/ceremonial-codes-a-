@@ -45,53 +45,53 @@ const AsoebiTab: React.FC = () => {
   
   return (
     <div>
-      <div className="bg-white p-6 rounded-lg shadow-md mb-8">
-        <h3 className="text-xl mb-4 font-semibold">Manage Wedding Attire (Asoebi)</h3>
+      <div className="bg-theme-card-bg p-6 rounded-lg shadow-md mb-8">
+        <h3 className="text-xl mb-4 font-semibold text-theme-primary">Manage Wedding Attire (Asoebi)</h3>
         
         <div className="mb-4">
-          <label htmlFor="asoebi-title" className="block text-gray-700 mb-2">Title</label>
+          <label htmlFor="asoebi-title" className="block text-theme-text mb-2">Title</label>
           <input 
             type="text" 
             id="asoebi-title" 
             value={title}
             onChange={(e) => setTitle(e.target.value)}
-            className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-rose-300" 
+            className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-theme-accent" 
             placeholder="Enter title"
           />
         </div>
         
         <div className="mb-4">
-          <label htmlFor="asoebi-description" className="block text-gray-700 mb-2">Description</label>
+          <label htmlFor="asoebi-description" className="block text-theme-text mb-2">Description</label>
           <textarea 
             id="asoebi-description" 
             value={description}
             onChange={(e) => setDescription(e.target.value)}
-            className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-rose-300" 
+            className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-theme-accent" 
             placeholder="Enter description" 
             rows={2}
           ></textarea>
         </div>
         
         <div className="mb-4">
-          <label htmlFor="asoebi-image" className="block text-gray-700 mb-2">Image URL</label>
+          <label htmlFor="asoebi-image" className="block text-theme-text mb-2">Image URL</label>
           <input 
             type="text" 
             id="asoebi-image" 
             value={imageUrl}
             onChange={(e) => setImageUrl(e.target.value)}
-            className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-rose-300" 
+            className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-theme-accent" 
             placeholder="Enter image URL"
           />
         </div>
         
         <div className="mb-4">
-          <label htmlFor="asoebi-price" className="block text-gray-700 mb-2">Price</label>
+          <label htmlFor="asoebi-price" className="block text-theme-text mb-2">Price</label>
           <input 
             type="number" 
             id="asoebi-price" 
             value={price}
             onChange={(e) => setPrice(e.target.value)}
-            className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-rose-300" 
+            className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-theme-accent" 
             placeholder="Enter price"
             min="0"
             step="0.01"
@@ -99,12 +99,12 @@ const AsoebiTab: React.FC = () => {
         </div>
         
         <div className="mb-4">
-          <label htmlFor="asoebi-gender" className="block text-gray-700 mb-2">Gender</label>
+          <label htmlFor="asoebi-gender" className="block text-theme-text mb-2">Gender</label>
           <select 
             id="asoebi-gender" 
             value={gender}
             onChange={(e) => setGender(e.target.value as any)}
-            className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-rose-300"
+            className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-theme-accent"
           >
             <option value="male">Male</option>
             <option value="female">Female</option>
@@ -114,20 +114,20 @@ const AsoebiTab: React.FC = () => {
         
         <button 
           onClick={handleAddAsoebi}
-          className="bg-rose-600 text-white py-2 px-6 rounded-lg hover:bg-rose-700 transition duration-300"
+          className="bg-theme-primary text-theme-button-text py-2 px-6 rounded-lg hover:bg-theme-accent transition duration-300"
         >
           Add Asoebi Item
         </button>
       </div>
       
-      <div className="bg-white p-6 rounded-lg shadow-md">
-        <h3 className="text-xl mb-4 font-semibold">Current Asoebi Items</h3>
+      <div className="bg-theme-card-bg p-6 rounded-lg shadow-md">
+        <h3 className="text-xl mb-4 font-semibold text-theme-primary">Current Asoebi Items</h3>
         
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
           {state.asoebiItems.map((item, index) => (
             <div 
               key={index} 
-              className="bg-white rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-all duration-300 hover:-translate-y-2"
+              className="bg-theme-card-bg rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-all duration-300 hover:-translate-y-2"
             >
               <div className="aspect-square overflow-hidden">
                 <img 
@@ -137,12 +137,12 @@ const AsoebiTab: React.FC = () => {
                 />
               </div>
               <div className="p-3">
-                <h3 className="font-semibold mb-1 text-sm">{item.title}</h3>
-                <p className="text-rose-600 font-semibold mb-1 text-sm">₦{item.price}</p>
-                <p className="text-xs text-gray-600 mb-2">
+                <h3 className="font-semibold mb-1 text-sm text-theme-text">{item.title}</h3>
+                <p className="text-theme-primary font-semibold mb-1 text-sm">₦{item.price}</p>
+                <p className="text-xs text-theme-text mb-2">
                   For: {item.gender.charAt(0).toUpperCase() + item.gender.slice(1)}
                 </p>
-                <p className="text-xs text-gray-600 mb-3 line-clamp-2">{item.description}</p>
+                <p className="text-xs text-theme-text mb-3 line-clamp-2">{item.description}</p>
                 
                 <button 
                   onClick={() => {
@@ -158,7 +158,7 @@ const AsoebiTab: React.FC = () => {
           ))}
           
           {state.asoebiItems.length === 0 && (
-            <div className="col-span-full text-center py-10 text-gray-500">
+            <div className="col-span-full text-center py-10 text-theme-text">
               No asoebi items available yet.
             </div>
           )}

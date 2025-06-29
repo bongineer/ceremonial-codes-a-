@@ -39,53 +39,53 @@ const WeddingPartyTab: React.FC = () => {
   
   return (
     <div>
-      <div className="bg-white p-6 rounded-lg shadow-md mb-8">
-        <h3 className="text-xl mb-4 font-semibold">Add Wedding Party Member</h3>
+      <div className="bg-theme-card-bg p-6 rounded-lg shadow-md mb-8">
+        <h3 className="text-xl mb-4 font-semibold text-theme-primary">Add Wedding Party Member</h3>
         
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <label htmlFor="member-name" className="block text-gray-700 mb-2">Name</label>
+            <label htmlFor="member-name" className="block text-theme-text mb-2">Name</label>
             <input 
               type="text" 
               id="member-name" 
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-rose-300" 
+              className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-theme-accent" 
               placeholder="Enter name"
             />
           </div>
           
           <div>
-            <label htmlFor="member-role" className="block text-gray-700 mb-2">Role</label>
+            <label htmlFor="member-role" className="block text-theme-text mb-2">Role</label>
             <input 
               type="text" 
               id="member-role" 
               value={role}
               onChange={(e) => setRole(e.target.value)}
-              className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-rose-300" 
+              className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-theme-accent" 
               placeholder="e.g., Maid of Honor, Best Man"
             />
           </div>
           
           <div>
-            <label htmlFor="member-image" className="block text-gray-700 mb-2">Image URL</label>
+            <label htmlFor="member-image" className="block text-theme-text mb-2">Image URL</label>
             <input 
               type="text" 
               id="member-image" 
               value={imageUrl}
               onChange={(e) => setImageUrl(e.target.value)}
-              className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-rose-300" 
+              className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-theme-accent" 
               placeholder="Enter image URL"
             />
           </div>
           
           <div>
-            <label htmlFor="member-side" className="block text-gray-700 mb-2">Side</label>
+            <label htmlFor="member-side" className="block text-theme-text mb-2">Side</label>
             <select 
               id="member-side" 
               value={side}
               onChange={(e) => setSide(e.target.value as 'bride' | 'groom')}
-              className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-rose-300"
+              className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-theme-accent"
             >
               <option value="bride">Bride's Side</option>
               <option value="groom">Groom's Side</option>
@@ -95,30 +95,30 @@ const WeddingPartyTab: React.FC = () => {
         
         <button 
           onClick={handleAddMember}
-          className="mt-4 bg-rose-600 text-white py-2 px-6 rounded-lg hover:bg-rose-700 transition duration-300"
+          className="mt-4 bg-theme-primary text-theme-button-text py-2 px-6 rounded-lg hover:bg-theme-accent transition duration-300"
         >
           Add Member
         </button>
       </div>
       
-      <div className="bg-white p-6 rounded-lg shadow-md">
-        <h3 className="text-xl mb-6 font-semibold">Wedding Party</h3>
+      <div className="bg-theme-card-bg p-6 rounded-lg shadow-md">
+        <h3 className="text-xl mb-6 font-semibold text-theme-primary">Wedding Party</h3>
         
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {/* Bride's Side */}
           <div>
-            <h4 className="text-lg font-semibold mb-4 text-rose-600">Bride's Side</h4>
+            <h4 className="text-lg font-semibold mb-4 text-theme-primary">Bride's Side</h4>
             <div className="space-y-4">
               {brideMembers.map((member, index) => (
                 <div key={index} className="flex items-center space-x-4 p-4 border rounded-lg">
                   <img 
                     src={member.imageUrl} 
                     alt={member.name}
-                    className="w-16 h-16 rounded-full object-cover"
+                    className="w-16 h-16 rounded-full object-cover border-4 border-theme-secondary"
                   />
                   <div className="flex-1">
-                    <h5 className="font-semibold">{member.name}</h5>
-                    <p className="text-gray-600 text-sm">{member.role}</p>
+                    <h5 className="text-lg font-semibold text-theme-text">{member.name}</h5>
+                    <p className="text-theme-primary font-medium">{member.role}</p>
                   </div>
                   <button 
                     onClick={() => {
@@ -133,8 +133,8 @@ const WeddingPartyTab: React.FC = () => {
               ))}
               
               {brideMembers.length === 0 && (
-                <div className="text-center py-8 text-gray-500">
-                  No members added for bride's side yet.
+                <div className="text-center py-8 bg-theme-secondary rounded-lg">
+                  <p className="text-theme-text">No members added for bride's side yet.</p>
                 </div>
               )}
             </div>
@@ -142,18 +142,18 @@ const WeddingPartyTab: React.FC = () => {
           
           {/* Groom's Side */}
           <div>
-            <h4 className="text-lg font-semibold mb-4 text-blue-600">Groom's Side</h4>
+            <h4 className="text-lg font-semibold mb-4 text-theme-primary">Groom's Side</h4>
             <div className="space-y-4">
               {groomMembers.map((member, index) => (
                 <div key={index} className="flex items-center space-x-4 p-4 border rounded-lg">
                   <img 
                     src={member.imageUrl} 
                     alt={member.name}
-                    className="w-16 h-16 rounded-full object-cover"
+                    className="w-16 h-16 rounded-full object-cover border-4 border-theme-secondary"
                   />
                   <div className="flex-1">
-                    <h5 className="font-semibold">{member.name}</h5>
-                    <p className="text-gray-600 text-sm">{member.role}</p>
+                    <h5 className="text-lg font-semibold text-theme-text">{member.name}</h5>
+                    <p className="text-theme-primary font-medium">{member.role}</p>
                   </div>
                   <button 
                     onClick={() => {
@@ -168,8 +168,8 @@ const WeddingPartyTab: React.FC = () => {
               ))}
               
               {groomMembers.length === 0 && (
-                <div className="text-center py-8 text-gray-500">
-                  No members added for groom's side yet.
+                <div className="text-center py-8 bg-theme-secondary rounded-lg">
+                  <p className="text-theme-text">No members added for groom's side yet.</p>
                 </div>
               )}
             </div>

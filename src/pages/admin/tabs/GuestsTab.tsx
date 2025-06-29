@@ -340,15 +340,15 @@ const GuestsTab: React.FC = () => {
   return (
     <div>
       {/* Seating Configuration Section */}
-      <div className="bg-white p-6 rounded-lg shadow-md mb-8">
-        <h3 className="text-xl font-semibold mb-6 text-blue-800 flex items-center gap-2">
+      <div className="bg-theme-card-bg p-6 rounded-lg shadow-md mb-8">
+        <h3 className="text-xl font-semibold mb-6 text-theme-primary flex items-center gap-2">
           <Settings className="w-5 h-5" />
           Seating Configuration
         </h3>
         
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
           <div>
-            <label htmlFor="total-guests" className="block text-gray-700 mb-2 font-medium">Total Number of Guests</label>
+            <label htmlFor="total-guests" className="block text-theme-text mb-2 font-medium">Total Number of Guests</label>
             <input 
               type="number" 
               id="total-guests" 
@@ -356,12 +356,12 @@ const GuestsTab: React.FC = () => {
               max="500" 
               value={totalGuests}
               onChange={(e) => setTotalGuests(parseInt(e.target.value) || 300)}
-              className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-300"
+              className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-theme-accent"
             />
           </div>
           
           <div>
-            <label htmlFor="seats-per-table" className="block text-gray-700 mb-2 font-medium">Seats Per Table</label>
+            <label htmlFor="seats-per-table" className="block text-theme-text mb-2 font-medium">Seats Per Table</label>
             <input 
               type="number" 
               id="seats-per-table" 
@@ -369,23 +369,23 @@ const GuestsTab: React.FC = () => {
               max="20" 
               value={seatsPerTable}
               onChange={(e) => setSeatsPerTable(parseInt(e.target.value) || 10)}
-              className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-300"
+              className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-theme-accent"
             />
           </div>
         </div>
 
-        <div className="bg-blue-50 p-4 rounded-lg mb-6">
-          <p className="text-blue-600 text-sm">
+        <div className="bg-theme-secondary p-4 rounded-lg mb-6">
+          <p className="text-theme-text text-sm">
             Current capacity: <span className="font-semibold">{currentGuestCount} guests</span> out of <span className="font-semibold">{totalGuests} total seats</span>
           </p>
-          <p className="text-blue-600 text-sm">
+          <p className="text-theme-text text-sm">
             Tables to be created: <span className="font-semibold">{totalTables} tables</span> with <span className="font-semibold">{seatsPerTable} seats each</span>
           </p>
         </div>
 
         <button 
           onClick={handleSaveSeatingSettings}
-          className="bg-blue-600 text-white py-3 px-8 rounded-lg hover:bg-blue-700 transition duration-300 flex items-center gap-2 font-medium"
+          className="bg-theme-primary text-theme-button-text py-3 px-8 rounded-lg hover:bg-theme-accent transition duration-300 flex items-center gap-2 font-medium"
         >
           <Settings className="w-5 h-5" />
           Save Settings & Auto-Create/Assign Guests
@@ -393,16 +393,16 @@ const GuestsTab: React.FC = () => {
       </div>
 
       {/* Header Controls */}
-      <div className="bg-white p-6 rounded-lg shadow-md mb-8">
+      <div className="bg-theme-card-bg p-6 rounded-lg shadow-md mb-8">
         <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between mb-6">
-          <h3 className="text-xl font-semibold mb-4 lg:mb-0">Guest Management by Tables</h3>
+          <h3 className="text-xl font-semibold mb-4 lg:mb-0 text-theme-primary">Guest Management by Tables</h3>
           
           <div className="flex flex-col sm:flex-row gap-4">
             <input 
               type="text" 
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-rose-300" 
+              className="px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-theme-accent" 
               placeholder="Search guests..."
             />
             
@@ -416,7 +416,7 @@ const GuestsTab: React.FC = () => {
               />
               <button
                 onClick={() => fileInputRef.current?.click()}
-                className="flex items-center gap-2 px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition duration-300"
+                className="flex items-center gap-2 px-4 py-2 bg-theme-accent text-theme-button-text rounded-lg hover:bg-theme-primary transition duration-300"
               >
                 <Upload size={16} />
                 Upload CSV
@@ -425,11 +425,11 @@ const GuestsTab: React.FC = () => {
           </div>
         </div>
         
-        <div className="mb-4 p-4 bg-gray-50 rounded-lg">
-          <p className="text-sm text-gray-700 mb-2">
+        <div className="mb-4 p-4 bg-theme-secondary rounded-lg">
+          <p className="text-sm text-theme-text mb-2">
             <strong>CSV Upload Format:</strong> Your CSV file should have columns: "name" (required), "category" (optional: VVIP, premium, family)
           </p>
-          <p className="text-sm text-gray-600">
+          <p className="text-sm text-theme-text">
             Example: name,category<br/>
             John Doe,premium<br/>
             Jane Smith,family
@@ -454,29 +454,29 @@ const GuestsTab: React.FC = () => {
                 onDrop={(e) => handleDrop(e, originalTableNum)}
                 className={`p-4 rounded-lg border-2 transition-all duration-200 cursor-move ${
                   selectedTable === originalTableNum 
-                    ? 'border-rose-500 bg-rose-50' 
+                    ? 'border-theme-primary bg-theme-secondary' 
                     : dragOverTable === originalTableNum
-                    ? 'border-blue-400 bg-blue-50'
-                    : 'border-gray-200 hover:border-gray-300 bg-white'
+                    ? 'border-theme-accent bg-theme-secondary'
+                    : 'border-gray-200 hover:border-gray-300 bg-theme-card-bg'
                 }`}
                 onClick={() => setSelectedTable(selectedTable === originalTableNum ? null : originalTableNum)}
               >
                 <div className="text-center">
                   <div className="flex items-center justify-center mb-2">
                     <GripVertical className="w-4 h-4 text-gray-400 mr-1" />
-                    <Users className="w-6 h-6 text-gray-600" />
+                    <Users className="w-6 h-6 text-theme-primary" />
                   </div>
-                  <div className="font-semibold text-sm">Table {displayTableNum}</div>
-                  <div className="text-xs text-gray-600 mb-1">
+                  <div className="font-semibold text-sm text-theme-text">Table {displayTableNum}</div>
+                  <div className="text-xs text-theme-text mb-1">
                     {getTableName(originalTableNum)}
                   </div>
-                  <div className="text-xs text-gray-600">
+                  <div className="text-xs text-theme-text">
                     {tableGuests.length}/{seatsPerTable} occupied
                   </div>
                   <div className="text-xs text-green-600">
                     {availableSeats.length} available
                   </div>
-                  <div className="text-xs text-blue-600 mt-1">
+                  <div className="text-xs text-theme-primary mt-1">
                     Seats {(originalTableNum - 1) * seatsPerTable + 1}-{originalTableNum * seatsPerTable}
                   </div>
                 </div>
@@ -488,7 +488,7 @@ const GuestsTab: React.FC = () => {
 
       {/* Unassigned Guests - Only show if there are any */}
       {getUnassignedGuests().length > 0 && (
-        <div className="bg-white p-6 rounded-lg shadow-md mb-8 border-l-4 border-orange-500">
+        <div className="bg-theme-card-bg p-6 rounded-lg shadow-md mb-8 border-l-4 border-orange-500">
           <h4 className="text-lg font-semibold mb-4 text-orange-600 flex items-center gap-2">
             <Users className="w-5 h-5" />
             Unassigned Guests ({getUnassignedGuests().length})
@@ -501,7 +501,7 @@ const GuestsTab: React.FC = () => {
           </div>
           
           <div className="overflow-x-auto">
-            <table className="min-w-full bg-white">
+            <table className="min-w-full bg-theme-card-bg">
               <thead>
                 <tr className="bg-orange-50">
                   <th className="py-3 px-4 border-b border-gray-200 text-left text-xs font-semibold text-gray-600 uppercase">Code</th>
@@ -524,55 +524,55 @@ const GuestsTab: React.FC = () => {
 
       {/* Table-specific view */}
       {selectedTable && (
-        <div className="bg-white p-6 rounded-lg shadow-md mb-8">
+        <div className="bg-theme-card-bg p-6 rounded-lg shadow-md mb-8">
           <div className="flex items-center justify-between mb-4">
-            <h4 className="text-lg font-semibold text-rose-600 flex items-center gap-2">
+            <h4 className="text-lg font-semibold text-theme-primary flex items-center gap-2">
               <Users className="w-5 h-5" />
               Table {tableOrder.indexOf(selectedTable) + 1} - Seats {(selectedTable - 1) * seatsPerTable + 1} to {selectedTable * seatsPerTable}
             </h4>
             
             <div className="flex items-center gap-2">
-              <label className="text-sm font-medium text-gray-700">Table Name:</label>
+              <label className="text-sm font-medium text-theme-text">Table Name:</label>
               <input
                 type="text"
                 value={state.settings.tableNames?.[selectedTable] || `Table ${selectedTable}`}
                 onChange={(e) => handleTableNameChange(selectedTable, e.target.value)}
-                className="px-3 py-1 border rounded-lg focus:outline-none focus:ring-2 focus:ring-rose-300 text-sm"
+                className="px-3 py-1 border rounded-lg focus:outline-none focus:ring-2 focus:ring-theme-accent text-sm"
                 placeholder="Enter table name"
               />
             </div>
           </div>
           
-          <div className="mb-4 p-3 bg-gray-50 rounded-lg">
+          <div className="mb-4 p-3 bg-theme-secondary rounded-lg">
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
               <div>
-                <span className="font-semibold">Occupied:</span> {getGuestsByTable(selectedTable).length}
+                <span className="font-semibold text-theme-text">Occupied:</span> {getGuestsByTable(selectedTable).length}
               </div>
               <div>
-                <span className="font-semibold">Available:</span> {getAvailableSeatsForTable(selectedTable).length}
+                <span className="font-semibold text-theme-text">Available:</span> {getAvailableSeatsForTable(selectedTable).length}
               </div>
               <div>
-                <span className="font-semibold">Capacity:</span> {seatsPerTable}
+                <span className="font-semibold text-theme-text">Capacity:</span> {seatsPerTable}
               </div>
               <div>
-                <span className="font-semibold">Available Seats:</span> {getAvailableSeatsForTable(selectedTable).join(', ') || 'None'}
+                <span className="font-semibold text-theme-text">Available Seats:</span> {getAvailableSeatsForTable(selectedTable).join(', ') || 'None'}
               </div>
             </div>
           </div>
           
           <div className="overflow-x-auto">
-            <table className="min-w-full bg-white">
+            <table className="min-w-full bg-theme-card-bg">
               <thead>
-                <tr className="bg-rose-50">
-                  <th className="py-3 px-4 border-b border-gray-200 text-left text-xs font-semibold text-gray-600 uppercase">Code</th>
-                  <th className="py-3 px-4 border-b border-gray-200 text-left text-xs font-semibold text-gray-600 uppercase">Name</th>
-                  <th className="py-3 px-4 border-b border-gray-200 text-left text-xs font-semibold text-gray-600 uppercase">Category</th>
-                  <th className="py-3 px-4 border-b border-gray-200 text-left text-xs font-semibold text-gray-600 uppercase">Seat Assignment</th>
-                  <th className="py-3 px-4 border-b border-gray-200 text-left text-xs font-semibold text-gray-600 uppercase">Arrived</th>
-                  <th className="py-3 px-4 border-b border-gray-200 text-left text-xs font-semibold text-gray-600 uppercase">Food</th>
-                  <th className="py-3 px-4 border-b border-gray-200 text-left text-xs font-semibold text-gray-600 uppercase">Meal Served</th>
-                  <th className="py-3 px-4 border-b border-gray-200 text-left text-xs font-semibold text-gray-600 uppercase">Drink</th>
-                  <th className="py-3 px-4 border-b border-gray-200 text-left text-xs font-semibold text-gray-600 uppercase">Drink Served</th>
+                <tr className="bg-theme-secondary">
+                  <th className="py-3 px-4 border-b border-gray-200 text-left text-xs font-semibold text-theme-text uppercase">Code</th>
+                  <th className="py-3 px-4 border-b border-gray-200 text-left text-xs font-semibold text-theme-text uppercase">Name</th>
+                  <th className="py-3 px-4 border-b border-gray-200 text-left text-xs font-semibold text-theme-text uppercase">Category</th>
+                  <th className="py-3 px-4 border-b border-gray-200 text-left text-xs font-semibold text-theme-text uppercase">Seat Assignment</th>
+                  <th className="py-3 px-4 border-b border-gray-200 text-left text-xs font-semibold text-theme-text uppercase">Arrived</th>
+                  <th className="py-3 px-4 border-b border-gray-200 text-left text-xs font-semibold text-theme-text uppercase">Food</th>
+                  <th className="py-3 px-4 border-b border-gray-200 text-left text-xs font-semibold text-theme-text uppercase">Meal Served</th>
+                  <th className="py-3 px-4 border-b border-gray-200 text-left text-xs font-semibold text-theme-text uppercase">Drink</th>
+                  <th className="py-3 px-4 border-b border-gray-200 text-left text-xs font-semibold text-theme-text uppercase">Drink Served</th>
                 </tr>
               </thead>
               <tbody>
@@ -580,7 +580,7 @@ const GuestsTab: React.FC = () => {
                 
                 {getGuestsByTable(selectedTable).length === 0 && (
                   <tr>
-                    <td colSpan={9} className="py-8 text-center text-gray-500">
+                    <td colSpan={9} className="py-8 text-center text-theme-text">
                       No guests assigned to this table yet. Click "Save Settings & Auto-Create/Assign Guests" above to automatically assign guests.
                     </td>
                   </tr>
@@ -600,40 +600,40 @@ const GuestsTab: React.FC = () => {
             const availableSeats = getAvailableSeatsForTable(originalTableNum);
             
             return (
-              <div key={originalTableNum} className="bg-white p-6 rounded-lg shadow-md">
+              <div key={originalTableNum} className="bg-theme-card-bg p-6 rounded-lg shadow-md">
                 <div className="flex items-center justify-between mb-4">
                   <div>
-                    <h4 className="text-lg font-semibold text-rose-600 flex items-center gap-2">
+                    <h4 className="text-lg font-semibold text-theme-primary flex items-center gap-2">
                       <Users className="w-5 h-5" />
                       Table {displayTableNum}
                     </h4>
-                    <p className="text-sm text-gray-600">{getTableName(originalTableNum)}</p>
-                    <p className="text-xs text-blue-600">Seats {(originalTableNum - 1) * seatsPerTable + 1}-{originalTableNum * seatsPerTable}</p>
+                    <p className="text-sm text-theme-text">{getTableName(originalTableNum)}</p>
+                    <p className="text-xs text-theme-primary">Seats {(originalTableNum - 1) * seatsPerTable + 1}-{originalTableNum * seatsPerTable}</p>
                   </div>
                   <button
                     onClick={() => setSelectedTable(originalTableNum)}
-                    className="px-3 py-1 bg-rose-600 text-white rounded text-sm hover:bg-rose-700 transition duration-200"
+                    className="px-3 py-1 bg-theme-primary text-theme-button-text rounded text-sm hover:bg-theme-accent transition duration-200"
                   >
                     Manage
                   </button>
                 </div>
                 
-                <div className="mb-4 p-3 bg-gray-50 rounded text-sm">
+                <div className="mb-4 p-3 bg-theme-secondary rounded text-sm">
                   <div className="grid grid-cols-2 gap-2">
-                    <div>Occupied: {tableGuests.length}/{seatsPerTable}</div>
-                    <div>Available: {availableSeats.length}</div>
-                    <div>Arrived: {tableGuests.filter(([_, guest]) => guest.arrived).length}</div>
-                    <div>Display Order: #{displayTableNum}</div>
+                    <div className="text-theme-text">Occupied: {tableGuests.length}/{seatsPerTable}</div>
+                    <div className="text-theme-text">Available: {availableSeats.length}</div>
+                    <div className="text-theme-text">Arrived: {tableGuests.filter(([_, guest]) => guest.arrived).length}</div>
+                    <div className="text-theme-text">Display Order: #{displayTableNum}</div>
                   </div>
                 </div>
                 
                 <div className="space-y-2">
                   {tableGuests.length > 0 ? (
                     tableGuests.map(([code, guest]) => (
-                      <div key={code} className="flex items-center justify-between p-2 bg-gray-50 rounded">
+                      <div key={code} className="flex items-center justify-between p-2 bg-theme-secondary rounded">
                         <div>
-                          <span className="font-medium">{guest.name}</span>
-                          <span className="text-sm text-gray-600 ml-2">Seat {guest.seatNumber}</span>
+                          <span className="font-medium text-theme-text">{guest.name}</span>
+                          <span className="text-sm text-theme-text ml-2">Seat {guest.seatNumber}</span>
                         </div>
                         <div className="flex items-center gap-2">
                           {guest.arrived && <span className="w-2 h-2 bg-green-500 rounded-full" title="Arrived"></span>}
@@ -643,7 +643,7 @@ const GuestsTab: React.FC = () => {
                       </div>
                     ))
                   ) : (
-                    <div className="text-center py-4 text-gray-500">
+                    <div className="text-center py-4 text-theme-text">
                       No guests assigned to this table yet. Click "Save Settings & Auto-Create/Assign Guests" above.
                     </div>
                   )}

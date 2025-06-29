@@ -69,19 +69,19 @@ const Dashboard: React.FC = () => {
     <div>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
         <div className="bg-theme-card-bg p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300">
-          <h3 className="text-xl mb-2 font-semibold">Total Guests</h3>
+          <h3 className="text-xl mb-2 font-semibold text-theme-text">Total Guests</h3>
           <p className="text-3xl text-theme-primary font-bold">{totalGuests}</p>
           <p className="text-sm text-theme-text mt-2">Maximum capacity: {state.settings.maxSeats}</p>
         </div>
         
         <div className="bg-theme-card-bg p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300">
-          <h3 className="text-xl mb-2 font-semibold">Arrived Guests</h3>
+          <h3 className="text-xl mb-2 font-semibold text-theme-text">Arrived Guests</h3>
           <p className="text-3xl text-green-600 font-bold">{arrivedGuests}</p>
           <p className="text-sm text-theme-text mt-2">Out of {confirmedGuests} confirmed</p>
         </div>
         
         <div className="bg-theme-card-bg p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300">
-          <h3 className="text-xl mb-2 font-semibold">Meals Served</h3>
+          <h3 className="text-xl mb-2 font-semibold text-theme-text">Meals Served</h3>
           <p className="text-3xl text-amber-600 font-bold">{mealsServed}</p>
           <p className="text-sm text-theme-text mt-2">Drinks served: {drinksServed}</p>
         </div>
@@ -89,7 +89,7 @@ const Dashboard: React.FC = () => {
       
       {/* Quick Settings Card */}
       <div className="bg-theme-card-bg p-6 rounded-lg shadow-md mb-8 hover:shadow-lg transition-shadow duration-300">
-        <h3 className="text-xl mb-4 font-semibold">Quick Settings</h3>
+        <h3 className="text-xl mb-4 font-semibold text-theme-primary">Quick Settings</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
             <label htmlFor="couple-names" className="block text-theme-text mb-2">Couple Names</label>
@@ -158,7 +158,7 @@ const Dashboard: React.FC = () => {
       
       {/* Welcome Images Card */}
       <div className="bg-theme-card-bg p-6 rounded-lg shadow-md mb-8 hover:shadow-lg transition-shadow duration-300">
-        <h3 className="text-xl mb-4 font-semibold">Welcome Images</h3>
+        <h3 className="text-xl mb-4 font-semibold text-theme-primary">Welcome Images</h3>
         
         <div className="mb-6">
           <label htmlFor="welcome-image" className="block text-theme-text mb-2">Primary Welcome Image URL</label>
@@ -228,7 +228,7 @@ const Dashboard: React.FC = () => {
             ))}
             
             {welcomeImages.length === 0 && (
-              <div className="text-center py-8 text-theme-text border-2 border-dashed border-gray-300 rounded-lg">
+              <div className="text-center py-8 text-theme-text border-2 border-dashed border-theme-primary border-opacity-30 rounded-lg">
                 <p>No welcome images added yet. Click "Add Photo" to start building your photo slider.</p>
               </div>
             )}
@@ -238,7 +238,7 @@ const Dashboard: React.FC = () => {
         {/* Independent Save Button for Welcome Images */}
         <button 
           onClick={handleSaveWelcomeImages}
-          className="mt-6 bg-green-600 text-white py-2 px-6 rounded-lg hover:bg-green-700 transition duration-300"
+          className="mt-6 bg-theme-accent text-theme-button-text py-2 px-6 rounded-lg hover:bg-theme-primary transition duration-300"
         >
           Save Welcome Images
         </button>
