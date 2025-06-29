@@ -4,7 +4,7 @@ import { useAppContext } from '../../../context/AppContext';
 import EditableCell from '../../../components/common/EditableCell';
 import EditableToggle from '../../../components/common/EditableToggle';
 import { Guest } from '../../../types';
-import { Upload, Users, Settings } from 'lucide-react';
+import { Upload, Users, Settings, GripVertical } from 'lucide-react';
 
 const GuestsTab: React.FC = () => {
   const { state, updateGuestDetails, generateAccessCodes, assignSeat, updateSettings, autoAssignAllSeats } = useAppContext();
@@ -17,8 +17,20 @@ const GuestsTab: React.FC = () => {
   const [totalGuests, setTotalGuests] = useState(state.settings.maxSeats);
   const [seatsPerTable, setSeatsPerTable] = useState(state.settings.seatsPerTable);
   
+  // Drag and drop state
+  const [draggedTable, setDraggedTable] = useState<number | null>(null);
+  const [dragOverTable, setDragOverTable] = useState<number | null>(null);
+  const [tableOrder, setTableOrder] = useState<number[]>([]);
+  
   // Calculate total number of tables
   const totalTables = Math.ceil(totalGuests / seatsPerTable);
+  
+  // Initialize table order
+  React.useEffect(() => {
+    if (tableOrder.length !== totalTables) {
+      setTableOrder(Array.from({ length: totalTables }, (_, i) => i + 1));
+    }
+  }, [totalTables, tableOrder.length]);
   
   // Calculate current guest count (excluding ADMIN)
   const currentGuestCount = Object.keys(state.guests).filter(code => code !== 'ADMIN').length;
@@ -91,10 +103,10 @@ const GuestsTab: React.FC = () => {
              guest.name.toLowerCase().includes(lowerSearchTerm);
     });
   
-  // Group guests by table
-  const getGuestsByTable = (tableNumber: number) => {
-    const startSeat = (tableNumber - 1) * seatsPerTable + 1;
-    const endSeat = tableNumber * seatsPerTable;
+  // Group guests by table (using original table numbers, not reordered)
+  const getGuestsByTable = (originalTableNumber: number) => {
+    const startSeat = (originalTableNumber - 1) * seatsPerTable + 1;
+    const endSeat = originalTableNumber * seatsPerTable;
     
     return filteredGuests.filter(([code, guest]) => {
       return guest.seatNumber && guest.seatNumber >= startSeat && guest.seatNumber <= endSeat;
@@ -222,6 +234,52 @@ const GuestsTab: React.FC = () => {
       [tableNumber]: newName
     };
     updateSettings({ tableNames: updatedTableNames });
+  };
+
+  // Drag and Drop handlers
+  const handleDragStart = (e: React.DragEvent, tableNumber: number) => {
+    setDraggedTable(tableNumber);
+    e.dataTransfer.effectAllowed = 'move';
+    e.dataTransfer.setData('text/html', e.currentTarget.outerHTML);
+    e.currentTarget.style.opacity = '0.5';
+  };
+
+  const handleDragEnd = (e: React.DragEvent) => {
+    e.currentTarget.style.opacity = '1';
+    setDraggedTable(null);
+    setDragOverTable(null);
+  };
+
+  const handleDragOver = (e: React.DragEvent, tableNumber: number) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+    setDragOverTable(tableNumber);
+  };
+
+  const handleDragLeave = () => {
+    setDragOverTable(null);
+  };
+
+  const handleDrop = (e: React.DragEvent, dropTableNumber: number) => {
+    e.preventDefault();
+    
+    if (draggedTable === null || draggedTable === dropTableNumber) {
+      return;
+    }
+
+    // Reorder the tables
+    const newOrder = [...tableOrder];
+    const draggedIndex = newOrder.indexOf(draggedTable);
+    const dropIndex = newOrder.indexOf(dropTableNumber);
+    
+    // Remove dragged table and insert at new position
+    newOrder.splice(draggedIndex, 1);
+    newOrder.splice(dropIndex, 0, draggedTable);
+    
+    setTableOrder(newOrder);
+    setDragOverTable(null);
+    
+    toast.success('Table order updated! Note: This only changes display order, not seat assignments.');
   };
 
   const renderGuestRow = (code: string, guest: Guest, showSeatAssignment = false) => (
@@ -392,27 +450,47 @@ const GuestsTab: React.FC = () => {
           </p>
         </div>
 
-        {/* Table Overview */}
+        {/* Drag and Drop Info */}
+        <div className="mb-4 p-4 bg-green-50 rounded-lg border border-green-200">
+          <p className="text-sm text-green-700 mb-2">
+            <strong>💡 Tip:</strong> You can drag and drop the table cards below to rearrange their display order. 
+            This changes how tables are numbered and displayed, but doesn't affect actual seat assignments.
+          </p>
+        </div>
+
+        {/* Table Overview with Drag and Drop */}
         <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4 mb-6">
-          {Array.from({ length: totalTables }, (_, i) => i + 1).map(tableNum => {
-            const tableGuests = getGuestsByTable(tableNum);
-            const availableSeats = getAvailableSeatsForTable(tableNum);
+          {tableOrder.map((originalTableNum, displayIndex) => {
+            const displayTableNum = displayIndex + 1;
+            const tableGuests = getGuestsByTable(originalTableNum);
+            const availableSeats = getAvailableSeatsForTable(originalTableNum);
             
             return (
-              <button
-                key={tableNum}
-                onClick={() => setSelectedTable(selectedTable === tableNum ? null : tableNum)}
-                className={`p-4 rounded-lg border-2 transition-all duration-200 ${
-                  selectedTable === tableNum 
+              <div
+                key={originalTableNum}
+                draggable
+                onDragStart={(e) => handleDragStart(e, originalTableNum)}
+                onDragEnd={handleDragEnd}
+                onDragOver={(e) => handleDragOver(e, originalTableNum)}
+                onDragLeave={handleDragLeave}
+                onDrop={(e) => handleDrop(e, originalTableNum)}
+                className={`p-4 rounded-lg border-2 transition-all duration-200 cursor-move ${
+                  selectedTable === originalTableNum 
                     ? 'border-rose-500 bg-rose-50' 
+                    : dragOverTable === originalTableNum
+                    ? 'border-blue-400 bg-blue-50'
                     : 'border-gray-200 hover:border-gray-300 bg-white'
                 }`}
+                onClick={() => setSelectedTable(selectedTable === originalTableNum ? null : originalTableNum)}
               >
                 <div className="text-center">
-                  <Users className="w-6 h-6 mx-auto mb-2 text-gray-600" />
-                  <div className="font-semibold text-sm">Table {tableNum}</div>
+                  <div className="flex items-center justify-center mb-2">
+                    <GripVertical className="w-4 h-4 text-gray-400 mr-1" />
+                    <Users className="w-6 h-6 text-gray-600" />
+                  </div>
+                  <div className="font-semibold text-sm">Table {displayTableNum}</div>
                   <div className="text-xs text-gray-600 mb-1">
-                    {getTableName(tableNum)}
+                    {getTableName(originalTableNum)}
                   </div>
                   <div className="text-xs text-gray-600">
                     {tableGuests.length}/{seatsPerTable} occupied
@@ -420,8 +498,11 @@ const GuestsTab: React.FC = () => {
                   <div className="text-xs text-green-600">
                     {availableSeats.length} available
                   </div>
+                  <div className="text-xs text-blue-600 mt-1">
+                    Seats {(originalTableNum - 1) * seatsPerTable + 1}-{originalTableNum * seatsPerTable}
+                  </div>
                 </div>
-              </button>
+              </div>
             );
           })}
         </div>
@@ -469,7 +550,7 @@ const GuestsTab: React.FC = () => {
           <div className="flex items-center justify-between mb-4">
             <h4 className="text-lg font-semibold text-rose-600 flex items-center gap-2">
               <Users className="w-5 h-5" />
-              Table {selectedTable} - Seats {(selectedTable - 1) * seatsPerTable + 1} to {selectedTable * seatsPerTable}
+              Table {tableOrder.indexOf(selectedTable) + 1} - Seats {(selectedTable - 1) * seatsPerTable + 1} to {selectedTable * seatsPerTable}
             </h4>
             
             <div className="flex items-center gap-2">
@@ -535,22 +616,24 @@ const GuestsTab: React.FC = () => {
       {/* All Tables Overview */}
       {!selectedTable && (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {Array.from({ length: totalTables }, (_, i) => i + 1).map(tableNum => {
-            const tableGuests = getGuestsByTable(tableNum);
-            const availableSeats = getAvailableSeatsForTable(tableNum);
+          {tableOrder.map((originalTableNum, displayIndex) => {
+            const displayTableNum = displayIndex + 1;
+            const tableGuests = getGuestsByTable(originalTableNum);
+            const availableSeats = getAvailableSeatsForTable(originalTableNum);
             
             return (
-              <div key={tableNum} className="bg-white p-6 rounded-lg shadow-md">
+              <div key={originalTableNum} className="bg-white p-6 rounded-lg shadow-md">
                 <div className="flex items-center justify-between mb-4">
                   <div>
                     <h4 className="text-lg font-semibold text-rose-600 flex items-center gap-2">
                       <Users className="w-5 h-5" />
-                      Table {tableNum}
+                      Table {displayTableNum}
                     </h4>
-                    <p className="text-sm text-gray-600">{getTableName(tableNum)}</p>
+                    <p className="text-sm text-gray-600">{getTableName(originalTableNum)}</p>
+                    <p className="text-xs text-blue-600">Seats {(originalTableNum - 1) * seatsPerTable + 1}-{originalTableNum * seatsPerTable}</p>
                   </div>
                   <button
-                    onClick={() => setSelectedTable(tableNum)}
+                    onClick={() => setSelectedTable(originalTableNum)}
                     className="px-3 py-1 bg-rose-600 text-white rounded text-sm hover:bg-rose-700 transition duration-200"
                   >
                     Manage
@@ -559,10 +642,10 @@ const GuestsTab: React.FC = () => {
                 
                 <div className="mb-4 p-3 bg-gray-50 rounded text-sm">
                   <div className="grid grid-cols-2 gap-2">
-                    <div>Seats: {(tableNum - 1) * seatsPerTable + 1}-{tableNum * seatsPerTable}</div>
                     <div>Occupied: {tableGuests.length}/{seatsPerTable}</div>
                     <div>Available: {availableSeats.length}</div>
                     <div>Arrived: {tableGuests.filter(([_, guest]) => guest.arrived).length}</div>
+                    <div>Display Order: #{displayTableNum}</div>
                   </div>
                 </div>
                 
