@@ -120,7 +120,7 @@ const MenuTab: React.FC = () => {
           return (
             <div 
               key={index} 
-              className="bg-white rounded-lg shadow-md hover:shadow-lg transition-all duration-300 overflow-hidden"
+              className="bg-theme-card-bg rounded-lg shadow-md hover:shadow-lg transition-all duration-300 overflow-hidden"
             >
               <div className="md:flex">
                 {/* Image Section - Larger Display */}
@@ -138,9 +138,9 @@ const MenuTab: React.FC = () => {
                 <div className="md:w-2/3 p-6">
                   <div className="flex justify-between items-start mb-4">
                     <div className="flex-1">
-                      <h3 className="text-2xl font-bold text-gray-800 mb-2">{item.name}</h3>
+                      <h3 className="text-2xl font-bold text-theme-text mb-2">{item.name}</h3>
                       <div className="flex items-center gap-4 mb-3">
-                        <span className="inline-block px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm font-medium capitalize">
+                        <span className="inline-block px-3 py-1 bg-theme-secondary text-theme-primary rounded-full text-sm font-medium capitalize">
                           {item.category.replace('-', ' ')}
                         </span>
                         <span className={`inline-block px-3 py-1 rounded-full text-sm font-medium capitalize ${
@@ -157,7 +157,7 @@ const MenuTab: React.FC = () => {
                     <div className="flex gap-2 ml-4">
                       <button 
                         onClick={() => handleEditItem(item, type, actualIndex)}
-                        className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition duration-300 flex items-center gap-2"
+                        className="px-4 py-2 bg-theme-primary text-theme-button-text rounded-lg hover:bg-theme-accent transition duration-300 flex items-center gap-2"
                       >
                         <Edit size={16} />
                         Edit
@@ -173,11 +173,11 @@ const MenuTab: React.FC = () => {
                   </div>
                   
                   {/* Description */}
-                  <p className="text-gray-600 text-lg leading-relaxed">{item.description}</p>
+                  <p className="text-theme-text text-lg leading-relaxed">{item.description}</p>
                   
                   {/* Additional Info */}
-                  <div className="mt-4 pt-4 border-t border-gray-200">
-                    <div className="grid grid-cols-2 gap-4 text-sm text-gray-500">
+                  <div className="mt-4 pt-4 border-t border-theme-secondary">
+                    <div className="grid grid-cols-2 gap-4 text-sm text-theme-text opacity-75">
                       <div>
                         <span className="font-medium">Category:</span> {item.category.charAt(0).toUpperCase() + item.category.slice(1).replace('-', ' ')}
                       </div>
@@ -193,8 +193,8 @@ const MenuTab: React.FC = () => {
         })}
 
         {filteredItems.length === 0 && (
-          <div className="text-center py-12 bg-gray-50 rounded-lg border-2 border-dashed border-gray-300">
-            <p className="text-gray-500 text-lg">No items available in this category.</p>
+          <div className="text-center py-12 bg-theme-secondary rounded-lg border-2 border-dashed border-theme-primary border-opacity-30">
+            <p className="text-theme-text text-lg">No items available in this category.</p>
           </div>
         )}
       </div>
@@ -205,52 +205,52 @@ const MenuTab: React.FC = () => {
     <div className="space-y-8">
       {/* Add Forms Section */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        <div className="bg-white p-6 rounded-lg shadow-md">
-          <h3 className="text-xl mb-4 font-semibold">Add Food Item</h3>
+        <div className="bg-theme-card-bg p-6 rounded-lg shadow-md">
+          <h3 className="text-xl mb-4 font-semibold text-theme-text">Add Food Item</h3>
           
           <div className="mb-4">
-            <label htmlFor="food-name" className="block text-gray-700 mb-2">Food Name</label>
+            <label htmlFor="food-name" className="block text-theme-text mb-2">Food Name</label>
             <input 
               type="text" 
               id="food-name" 
               value={foodName}
               onChange={(e) => setFoodName(e.target.value)}
-              className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-rose-300" 
+              className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-theme-accent" 
               placeholder="Enter food name"
             />
           </div>
           
           <div className="mb-4">
-            <label htmlFor="food-description" className="block text-gray-700 mb-2">Description</label>
+            <label htmlFor="food-description" className="block text-theme-text mb-2">Description</label>
             <textarea 
               id="food-description" 
               value={foodDescription}
               onChange={(e) => setFoodDescription(e.target.value)}
-              className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-rose-300" 
+              className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-theme-accent" 
               placeholder="Enter food description" 
               rows={2}
             ></textarea>
           </div>
           
           <div className="mb-4">
-            <label htmlFor="food-image" className="block text-gray-700 mb-2">Image URL</label>
+            <label htmlFor="food-image" className="block text-theme-text mb-2">Image URL</label>
             <input 
               type="text" 
               id="food-image" 
               value={foodImage}
               onChange={(e) => setFoodImage(e.target.value)}
-              className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-rose-300" 
+              className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-theme-accent" 
               placeholder="Enter image URL"
             />
           </div>
           
           <div className="mb-4">
-            <label htmlFor="food-category" className="block text-gray-700 mb-2">Food Category</label>
+            <label htmlFor="food-category" className="block text-theme-text mb-2">Food Category</label>
             <select 
               id="food-category" 
               value={foodCategory}
               onChange={(e) => setFoodCategory(e.target.value as any)}
-              className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-rose-300"
+              className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-theme-accent"
             >
               <option value="main">Main Course</option>
               <option value="appetizer">Appetizer</option>
@@ -259,18 +259,18 @@ const MenuTab: React.FC = () => {
           </div>
 
           <div className="mb-4">
-            <label htmlFor="food-guest-category" className="block text-gray-700 mb-2">Guest Category</label>
+            <label htmlFor="food-guest-category" className="block text-theme-text mb-2">Guest Category</label>
             <select 
               id="food-guest-category" 
               value={foodGuestCategory}
               onChange={(e) => setFoodGuestCategory(e.target.value as any)}
-              className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-rose-300"
+              className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-theme-accent"
             >
               <option value="VVIP">VVIP</option>
               <option value="premium">Premium</option>
               <option value="family">Family</option>
             </select>
-            <p className="text-sm text-gray-500 mt-1">
+            <p className="text-sm text-theme-text opacity-75 mt-1">
               VVIP: Only VVIP guests can see this item<br/>
               Premium: VVIP and premium guests can see this item<br/>
               Family: All guests can see this item
@@ -279,58 +279,58 @@ const MenuTab: React.FC = () => {
           
           <button 
             onClick={handleAddFood}
-            className="bg-rose-600 text-white py-2 px-6 rounded-lg hover:bg-rose-700 transition duration-300"
+            className="bg-theme-primary text-theme-button-text py-2 px-6 rounded-lg hover:bg-theme-accent transition duration-300"
           >
             Add Food Item
           </button>
         </div>
         
-        <div className="bg-white p-6 rounded-lg shadow-md">
-          <h3 className="text-xl mb-4 font-semibold">Add Drink Item</h3>
+        <div className="bg-theme-card-bg p-6 rounded-lg shadow-md">
+          <h3 className="text-xl mb-4 font-semibold text-theme-text">Add Drink Item</h3>
           
           <div className="mb-4">
-            <label htmlFor="drink-name" className="block text-gray-700 mb-2">Drink Name</label>
+            <label htmlFor="drink-name" className="block text-theme-text mb-2">Drink Name</label>
             <input 
               type="text" 
               id="drink-name" 
               value={drinkName}
               onChange={(e) => setDrinkName(e.target.value)}
-              className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-rose-300" 
+              className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-theme-accent" 
               placeholder="Enter drink name"
             />
           </div>
           
           <div className="mb-4">
-            <label htmlFor="drink-description" className="block text-gray-700 mb-2">Description</label>
+            <label htmlFor="drink-description" className="block text-theme-text mb-2">Description</label>
             <textarea 
               id="drink-description" 
               value={drinkDescription}
               onChange={(e) => setDrinkDescription(e.target.value)}
-              className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-rose-300" 
+              className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-theme-accent" 
               placeholder="Enter drink description" 
               rows={2}
             ></textarea>
           </div>
           
           <div className="mb-4">
-            <label htmlFor="drink-image" className="block text-gray-700 mb-2">Image URL</label>
+            <label htmlFor="drink-image" className="block text-theme-text mb-2">Image URL</label>
             <input 
               type="text" 
               id="drink-image" 
               value={drinkImage}
               onChange={(e) => setDrinkImage(e.target.value)}
-              className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-rose-300" 
+              className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-theme-accent" 
               placeholder="Enter image URL"
             />
           </div>
           
           <div className="mb-4">
-            <label htmlFor="drink-category" className="block text-gray-700 mb-2">Drink Category</label>
+            <label htmlFor="drink-category" className="block text-theme-text mb-2">Drink Category</label>
             <select 
               id="drink-category" 
               value={drinkCategory}
               onChange={(e) => setDrinkCategory(e.target.value as any)}
-              className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-rose-300"
+              className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-theme-accent"
             >
               <option value="alcoholic">Alcoholic</option>
               <option value="non-alcoholic">Non-Alcoholic</option>
@@ -339,18 +339,18 @@ const MenuTab: React.FC = () => {
           </div>
 
           <div className="mb-4">
-            <label htmlFor="drink-guest-category" className="block text-gray-700 mb-2">Guest Category</label>
+            <label htmlFor="drink-guest-category" className="block text-theme-text mb-2">Guest Category</label>
             <select 
               id="drink-guest-category" 
               value={drinkGuestCategory}
               onChange={(e) => setDrinkGuestCategory(e.target.value as any)}
-              className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-rose-300"
+              className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-theme-accent"
             >
               <option value="VVIP">VVIP</option>
               <option value="premium">Premium</option>
               <option value="family">Family</option>
             </select>
-            <p className="text-sm text-gray-500 mt-1">
+            <p className="text-sm text-theme-text opacity-75 mt-1">
               VVIP: Only VVIP guests can see this item<br/>
               Premium: VVIP and premium guests can see this item<br/>
               Family: All guests can see this item
@@ -359,7 +359,7 @@ const MenuTab: React.FC = () => {
           
           <button 
             onClick={handleAddDrink}
-            className="bg-rose-600 text-white py-2 px-6 rounded-lg hover:bg-rose-700 transition duration-300"
+            className="bg-theme-primary text-theme-button-text py-2 px-6 rounded-lg hover:bg-theme-accent transition duration-300"
           >
             Add Drink Item
           </button>
@@ -367,44 +367,44 @@ const MenuTab: React.FC = () => {
       </div>
 
       {/* Food Menu Display */}
-      <div className="bg-white p-6 rounded-lg shadow-md">
-        <h3 className="text-2xl mb-6 font-semibold text-gray-800">Food Menu Management</h3>
+      <div className="bg-theme-card-bg p-6 rounded-lg shadow-md">
+        <h3 className="text-2xl mb-6 font-semibold text-theme-primary">Food Menu Management</h3>
         
         <div className="space-y-8">
           <div>
-            <h4 className="text-xl mb-4 font-medium text-gray-700 border-b-2 border-rose-200 pb-2">Main Courses</h4>
+            <h4 className="text-xl mb-4 font-medium text-theme-text border-b-2 border-theme-secondary pb-2">Main Courses</h4>
             {renderMenuSection(state.foodMenu, 'main', 'food', removeFoodItem)}
           </div>
           
           <div>
-            <h4 className="text-xl mb-4 font-medium text-gray-700 border-b-2 border-rose-200 pb-2">Appetizers</h4>
+            <h4 className="text-xl mb-4 font-medium text-theme-text border-b-2 border-theme-secondary pb-2">Appetizers</h4>
             {renderMenuSection(state.foodMenu, 'appetizer', 'food', removeFoodItem)}
           </div>
           
           <div>
-            <h4 className="text-xl mb-4 font-medium text-gray-700 border-b-2 border-rose-200 pb-2">Desserts</h4>
+            <h4 className="text-xl mb-4 font-medium text-theme-text border-b-2 border-theme-secondary pb-2">Desserts</h4>
             {renderMenuSection(state.foodMenu, 'dessert', 'food', removeFoodItem)}
           </div>
         </div>
       </div>
 
       {/* Drink Menu Display */}
-      <div className="bg-white p-6 rounded-lg shadow-md">
-        <h3 className="text-2xl mb-6 font-semibold text-gray-800">Drinks Menu Management</h3>
+      <div className="bg-theme-card-bg p-6 rounded-lg shadow-md">
+        <h3 className="text-2xl mb-6 font-semibold text-theme-primary">Drinks Menu Management</h3>
         
         <div className="space-y-8">
           <div>
-            <h4 className="text-xl mb-4 font-medium text-gray-700 border-b-2 border-rose-200 pb-2">Alcoholic Beverages</h4>
+            <h4 className="text-xl mb-4 font-medium text-theme-text border-b-2 border-theme-secondary pb-2">Alcoholic Beverages</h4>
             {renderMenuSection(state.drinkMenu, 'alcoholic', 'drink', removeDrinkItem)}
           </div>
           
           <div>
-            <h4 className="text-xl mb-4 font-medium text-gray-700 border-b-2 border-rose-200 pb-2">Non-Alcoholic Beverages</h4>
+            <h4 className="text-xl mb-4 font-medium text-theme-text border-b-2 border-theme-secondary pb-2">Non-Alcoholic Beverages</h4>
             {renderMenuSection(state.drinkMenu, 'non-alcoholic', 'drink', removeDrinkItem)}
           </div>
           
           <div>
-            <h4 className="text-xl mb-4 font-medium text-gray-700 border-b-2 border-rose-200 pb-2">Water</h4>
+            <h4 className="text-xl mb-4 font-medium text-theme-text border-b-2 border-theme-secondary pb-2">Water</h4>
             {renderMenuSection(state.drinkMenu, 'water', 'drink', removeDrinkItem)}
           </div>
         </div>
@@ -419,41 +419,41 @@ const MenuTab: React.FC = () => {
         {editItem && (
           <div>
             <div className="mb-4">
-              <label className="block text-gray-700 mb-2">Name</label>
+              <label className="block text-theme-text mb-2">Name</label>
               <input 
                 type="text" 
                 value={editItem.name}
                 onChange={(e) => setEditItem({...editItem, name: e.target.value})}
-                className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-rose-300"
+                className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-theme-accent"
               />
             </div>
             
             <div className="mb-4">
-              <label className="block text-gray-700 mb-2">Description</label>
+              <label className="block text-theme-text mb-2">Description</label>
               <textarea 
                 value={editItem.description}
                 onChange={(e) => setEditItem({...editItem, description: e.target.value})}
-                className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-rose-300" 
+                className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-theme-accent" 
                 rows={2}
               />
             </div>
             
             <div className="mb-4">
-              <label className="block text-gray-700 mb-2">Image URL</label>
+              <label className="block text-theme-text mb-2">Image URL</label>
               <input 
                 type="text" 
                 value={editItem.imageUrl}
                 onChange={(e) => setEditItem({...editItem, imageUrl: e.target.value})}
-                className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-rose-300"
+                className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-theme-accent"
               />
             </div>
             
             <div className="mb-4">
-              <label className="block text-gray-700 mb-2">{editType === 'food' ? 'Food' : 'Drink'} Category</label>
+              <label className="block text-theme-text mb-2">{editType === 'food' ? 'Food' : 'Drink'} Category</label>
               <select 
                 value={editItem.category}
                 onChange={(e) => setEditItem({...editItem, category: e.target.value})}
-                className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-rose-300"
+                className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-theme-accent"
               >
                 {editType === 'food' ? (
                   <>
@@ -472,11 +472,11 @@ const MenuTab: React.FC = () => {
             </div>
 
             <div className="mb-6">
-              <label className="block text-gray-700 mb-2">Guest Category</label>
+              <label className="block text-theme-text mb-2">Guest Category</label>
               <select 
                 value={editItem.guestCategory}
                 onChange={(e) => setEditItem({...editItem, guestCategory: e.target.value})}
-                className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-rose-300"
+                className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-theme-accent"
               >
                 <option value="VVIP">VVIP</option>
                 <option value="premium">Premium</option>
@@ -486,7 +486,7 @@ const MenuTab: React.FC = () => {
             
             <button 
               onClick={handleSaveEdit}
-              className="w-full px-4 py-2 bg-rose-600 text-white rounded-lg hover:bg-rose-700 transition duration-300"
+              className="w-full px-4 py-2 bg-theme-primary text-theme-button-text rounded-lg hover:bg-theme-accent transition duration-300"
             >
               Save Changes
             </button>
