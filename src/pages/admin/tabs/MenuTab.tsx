@@ -203,11 +203,11 @@ const MenuTab: React.FC = () => {
   
   return (
     <div className="space-y-8">
-      {/* Add Forms Section */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        <div className="bg-theme-card-bg p-6 rounded-lg shadow-md">
-          <h3 className="text-xl mb-4 font-semibold text-theme-text">Add Food Item</h3>
-          
+      {/* Add Food Item Form */}
+      <div className="bg-theme-card-bg p-6 rounded-lg shadow-md">
+        <h3 className="text-xl mb-4 font-semibold text-theme-text">Add Food Item</h3>
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="mb-4">
             <label htmlFor="food-name" className="block text-theme-text mb-2">Food Name</label>
             <input 
@@ -217,30 +217,6 @@ const MenuTab: React.FC = () => {
               onChange={(e) => setFoodName(e.target.value)}
               className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-theme-accent" 
               placeholder="Enter food name"
-            />
-          </div>
-          
-          <div className="mb-4">
-            <label htmlFor="food-description" className="block text-theme-text mb-2">Description</label>
-            <textarea 
-              id="food-description" 
-              value={foodDescription}
-              onChange={(e) => setFoodDescription(e.target.value)}
-              className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-theme-accent" 
-              placeholder="Enter food description" 
-              rows={2}
-            ></textarea>
-          </div>
-          
-          <div className="mb-4">
-            <label htmlFor="food-image" className="block text-theme-text mb-2">Image URL</label>
-            <input 
-              type="text" 
-              id="food-image" 
-              value={foodImage}
-              onChange={(e) => setFoodImage(e.target.value)}
-              className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-theme-accent" 
-              placeholder="Enter image URL"
             />
           </div>
           
@@ -257,6 +233,32 @@ const MenuTab: React.FC = () => {
               <option value="dessert">Dessert</option>
             </select>
           </div>
+        </div>
+        
+        <div className="mb-4">
+          <label htmlFor="food-description" className="block text-theme-text mb-2">Description</label>
+          <textarea 
+            id="food-description" 
+            value={foodDescription}
+            onChange={(e) => setFoodDescription(e.target.value)}
+            className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-theme-accent" 
+            placeholder="Enter food description" 
+            rows={2}
+          ></textarea>
+        </div>
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="mb-4">
+            <label htmlFor="food-image" className="block text-theme-text mb-2">Image URL</label>
+            <input 
+              type="text" 
+              id="food-image" 
+              value={foodImage}
+              onChange={(e) => setFoodImage(e.target.value)}
+              className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-theme-accent" 
+              placeholder="Enter image URL"
+            />
+          </div>
 
           <div className="mb-4">
             <label htmlFor="food-guest-category" className="block text-theme-text mb-2">Guest Category</label>
@@ -270,100 +272,19 @@ const MenuTab: React.FC = () => {
               <option value="premium">Premium</option>
               <option value="family">Family</option>
             </select>
-            <p className="text-sm text-theme-text opacity-75 mt-1">
-              VVIP: Only VVIP guests can see this item<br/>
-              Premium: VVIP and premium guests can see this item<br/>
-              Family: All guests can see this item
-            </p>
           </div>
-          
-          <button 
-            onClick={handleAddFood}
-            className="bg-theme-primary text-theme-button-text py-2 px-6 rounded-lg hover:bg-theme-accent transition duration-300"
-          >
-            Add Food Item
-          </button>
         </div>
-        
-        <div className="bg-theme-card-bg p-6 rounded-lg shadow-md">
-          <h3 className="text-xl mb-4 font-semibold text-theme-text">Add Drink Item</h3>
-          
-          <div className="mb-4">
-            <label htmlFor="drink-name" className="block text-theme-text mb-2">Drink Name</label>
-            <input 
-              type="text" 
-              id="drink-name" 
-              value={drinkName}
-              onChange={(e) => setDrinkName(e.target.value)}
-              className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-theme-accent" 
-              placeholder="Enter drink name"
-            />
-          </div>
-          
-          <div className="mb-4">
-            <label htmlFor="drink-description" className="block text-theme-text mb-2">Description</label>
-            <textarea 
-              id="drink-description" 
-              value={drinkDescription}
-              onChange={(e) => setDrinkDescription(e.target.value)}
-              className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-theme-accent" 
-              placeholder="Enter drink description" 
-              rows={2}
-            ></textarea>
-          </div>
-          
-          <div className="mb-4">
-            <label htmlFor="drink-image" className="block text-theme-text mb-2">Image URL</label>
-            <input 
-              type="text" 
-              id="drink-image" 
-              value={drinkImage}
-              onChange={(e) => setDrinkImage(e.target.value)}
-              className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-theme-accent" 
-              placeholder="Enter image URL"
-            />
-          </div>
-          
-          <div className="mb-4">
-            <label htmlFor="drink-category" className="block text-theme-text mb-2">Drink Category</label>
-            <select 
-              id="drink-category" 
-              value={drinkCategory}
-              onChange={(e) => setDrinkCategory(e.target.value as any)}
-              className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-theme-accent"
-            >
-              <option value="alcoholic">Alcoholic</option>
-              <option value="non-alcoholic">Non-Alcoholic</option>
-              <option value="water">Water</option>
-            </select>
-          </div>
 
-          <div className="mb-4">
-            <label htmlFor="drink-guest-category" className="block text-theme-text mb-2">Guest Category</label>
-            <select 
-              id="drink-guest-category" 
-              value={drinkGuestCategory}
-              onChange={(e) => setDrinkGuestCategory(e.target.value as any)}
-              className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-theme-accent"
-            >
-              <option value="VVIP">VVIP</option>
-              <option value="premium">Premium</option>
-              <option value="family">Family</option>
-            </select>
-            <p className="text-sm text-theme-text opacity-75 mt-1">
-              VVIP: Only VVIP guests can see this item<br/>
-              Premium: VVIP and premium guests can see this item<br/>
-              Family: All guests can see this item
-            </p>
-          </div>
-          
-          <button 
-            onClick={handleAddDrink}
-            className="bg-theme-primary text-theme-button-text py-2 px-6 rounded-lg hover:bg-theme-accent transition duration-300"
-          >
-            Add Drink Item
-          </button>
-        </div>
+        <p className="text-sm text-theme-text opacity-75 mb-4">
+          VVIP: Only VVIP guests can see this item • Premium: VVIP and premium guests can see this item • Family: All guests can see this item
+        </p>
+        
+        <button 
+          onClick={handleAddFood}
+          className="bg-theme-primary text-theme-button-text py-2 px-6 rounded-lg hover:bg-theme-accent transition duration-300"
+        >
+          Add Food Item
+        </button>
       </div>
 
       {/* Food Menu Display */}
@@ -386,6 +307,90 @@ const MenuTab: React.FC = () => {
             {renderMenuSection(state.foodMenu, 'dessert', 'food', removeFoodItem)}
           </div>
         </div>
+      </div>
+
+      {/* Add Drink Item Form - Now positioned after Food Menu */}
+      <div className="bg-theme-card-bg p-6 rounded-lg shadow-md">
+        <h3 className="text-xl mb-4 font-semibold text-theme-text">Add Drink Item</h3>
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="mb-4">
+            <label htmlFor="drink-name" className="block text-theme-text mb-2">Drink Name</label>
+            <input 
+              type="text" 
+              id="drink-name" 
+              value={drinkName}
+              onChange={(e) => setDrinkName(e.target.value)}
+              className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-theme-accent" 
+              placeholder="Enter drink name"
+            />
+          </div>
+          
+          <div className="mb-4">
+            <label htmlFor="drink-category" className="block text-theme-text mb-2">Drink Category</label>
+            <select 
+              id="drink-category" 
+              value={drinkCategory}
+              onChange={(e) => setDrinkCategory(e.target.value as any)}
+              className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-theme-accent"
+            >
+              <option value="alcoholic">Alcoholic</option>
+              <option value="non-alcoholic">Non-Alcoholic</option>
+              <option value="water">Water</option>
+            </select>
+          </div>
+        </div>
+        
+        <div className="mb-4">
+          <label htmlFor="drink-description" className="block text-theme-text mb-2">Description</label>
+          <textarea 
+            id="drink-description" 
+            value={drinkDescription}
+            onChange={(e) => setDrinkDescription(e.target.value)}
+            className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-theme-accent" 
+            placeholder="Enter drink description" 
+            rows={2}
+          ></textarea>
+        </div>
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="mb-4">
+            <label htmlFor="drink-image" className="block text-theme-text mb-2">Image URL</label>
+            <input 
+              type="text" 
+              id="drink-image" 
+              value={drinkImage}
+              onChange={(e) => setDrinkImage(e.target.value)}
+              className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-theme-accent" 
+              placeholder="Enter image URL"
+            />
+          </div>
+
+          <div className="mb-4">
+            <label htmlFor="drink-guest-category" className="block text-theme-text mb-2">Guest Category</label>
+            <select 
+              id="drink-guest-category" 
+              value={drinkGuestCategory}
+              onChange={(e) => setDrinkGuestCategory(e.target.value as any)}
+              className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-theme-accent"
+            >
+              <option value="VVIP">VVIP</option>
+              <option value="premium">Premium</option>
+              <option value="family">Family</option>
+            </select>
+          </div>
+        </div>
+
+        <p className="text-sm text-theme-text opacity-75 mb-4">
+          VVIP: Only VVIP guests can see this item • Premium: VVIP and premium guests can see this item • Family: All guests can see this item
+        </p>
+        
+        <button 
+          onClick={handleAddDrink}
+          className="bg-theme-primary text-theme-button-text py-2 px-6 rounded-lg hover:bg-theme-accent transition duration-300"
+        >
+          Add Drink Item
+        </button>
       </div>
 
       {/* Drink Menu Display */}
