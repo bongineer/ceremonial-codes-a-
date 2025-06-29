@@ -31,12 +31,19 @@ const Dashboard: React.FC = () => {
       receptionDate,
       coupleNames,
       venue,
-      receptionVenue,
+      receptionVenue
+    });
+    
+    toast.success('Settings saved successfully!');
+  };
+
+  const handleSaveWelcomeImages = () => {
+    updateSettings({
       welcomeImage,
       welcomeImages
     });
     
-    toast.success('Settings saved successfully!');
+    toast.success('Welcome images saved successfully!');
   };
 
   const handleAddWelcomeImage = () => {
@@ -227,6 +234,14 @@ const Dashboard: React.FC = () => {
             )}
           </div>
         </div>
+
+        {/* Independent Save Button for Welcome Images */}
+        <button 
+          onClick={handleSaveWelcomeImages}
+          className="mt-6 bg-green-600 text-white py-2 px-6 rounded-lg hover:bg-green-700 transition duration-300"
+        >
+          Save Welcome Images
+        </button>
       </div>
     </div>
   );
