@@ -37,17 +37,43 @@ const GuestsTab: React.FC = () => {
 
   const handleSaveSeatingSettings = async () => {
     try {
-      // Update settings first
+      // First, update the settings
       await updateSettings({
         maxSeats: totalGuests,
         seatsPerTable: seatsPerTable
       });
       
-      // Wait a moment for settings to be saved, then auto-assign seats
-      setTimeout(() => {
-        autoAssignAllSeats();
-        toast.success('Seating settings saved and all guests auto-assigned to seats!');
-      }, 1000);
+      // Calculate how many guests we need
+      const targetGuestCount = totalGuests;
+      const currentGuestCount = Object.keys(state.guests).filter(code => code !== 'ADMIN').length;
+      
+      if (currentGuestCount < targetGuestCount) {
+        // Need to create more guests
+        const guestsToCreate = targetGuestCount - currentGuestCount;
+        console.log(`Creating ${guestsToCreate} new guests`);
+        
+        // Generate new access codes and create guests
+        const newCodes = generateAccessCodes(guestsToCreate);
+        
+        // Wait a moment for guests to be created, then auto-assign all seats
+        setTimeout(() => {
+          autoAssignAllSeats();
+          toast.success(`Created ${guestsToCreate} new guests and assigned all seats automatically!`);
+        }, 1000);
+        
+      } else if (currentGuestCount > targetGuestCount) {
+        // Need to remove excess guests (this would require additional logic)
+        toast.warning('Reducing guest count - excess guests will need to be manually removed');
+        setTimeout(() => {
+          autoAssignAllSeats();
+        }, 1000);
+      } else {
+        // Same number of guests, just reassign seats
+        setTimeout(() => {
+          autoAssignAllSeats();
+          toast.success('Seating settings saved and all guests auto-assigned to seats!');
+        }, 1000);
+      }
       
     } catch (error) {
       console.error('Error saving seating settings:', error);
@@ -299,11 +325,14 @@ const GuestsTab: React.FC = () => {
         <div className="bg-blue-50 p-4 rounded-lg mb-6">
           <h4 className="font-semibold text-blue-800 mb-2">Automatic Guest Management</h4>
           <p className="text-blue-700 text-sm mb-2">
-            When you increase the total number of guests, new guests will be automatically created and assigned seats sequentially. 
-            When you decrease the number, excess guests will be removed from the end.
+            When you save settings, guests will be automatically created and assigned seats sequentially. 
+            If you need more guests than currently exist, new ones will be created automatically.
           </p>
           <p className="text-blue-600 text-sm">
             Current capacity: <span className="font-semibold">{currentGuestCount} guests</span> out of <span className="font-semibold">{totalGuests} total seats</span>
+          </p>
+          <p className="text-blue-600 text-sm">
+            Tables to be created: <span className="font-semibold">{totalTables} tables</span> with <span className="font-semibold">{seatsPerTable} seats each</span>
           </p>
         </div>
 
@@ -312,7 +341,7 @@ const GuestsTab: React.FC = () => {
           className="bg-blue-600 text-white py-3 px-8 rounded-lg hover:bg-blue-700 transition duration-300 flex items-center gap-2 font-medium"
         >
           <Settings className="w-5 h-5" />
-          Save Settings & Auto-Assign Seats
+          Save Settings & Auto-Create/Assign Guests
         </button>
       </div>
 
@@ -408,7 +437,7 @@ const GuestsTab: React.FC = () => {
           
           <div className="bg-orange-50 p-4 rounded-lg mb-4">
             <p className="text-orange-700 text-sm">
-              <strong>Note:</strong> These guests don't have seats assigned. Click "Save Settings & Auto-Assign Seats" above to automatically assign them.
+              <strong>Note:</strong> These guests don't have seats assigned. Click "Save Settings & Auto-Create/Assign Guests" above to automatically assign them.
             </p>
           </div>
           
@@ -493,7 +522,7 @@ const GuestsTab: React.FC = () => {
                 {getGuestsByTable(selectedTable).length === 0 && (
                   <tr>
                     <td colSpan={9} className="py-8 text-center text-gray-500">
-                      No guests assigned to this table yet.
+                      No guests assigned to this table yet. Click "Save Settings & Auto-Create/Assign Guests" above to automatically assign guests.
                     </td>
                   </tr>
                 )}
@@ -554,7 +583,7 @@ const GuestsTab: React.FC = () => {
                     ))
                   ) : (
                     <div className="text-center py-4 text-gray-500">
-                      No guests assigned to this table
+                      No guests assigned to this table yet. Click "Save Settings & Auto-Create/Assign Guests" above.
                     </div>
                   )}
                 </div>
