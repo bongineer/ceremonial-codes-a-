@@ -358,9 +358,6 @@ const GuestsTab: React.FC = () => {
               onChange={(e) => setTotalGuests(parseInt(e.target.value) || 300)}
               className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-300"
             />
-            <p className="text-sm text-gray-600 mt-1">
-              This determines the maximum number of guests that can be accommodated.
-            </p>
           </div>
           
           <div>
@@ -374,24 +371,7 @@ const GuestsTab: React.FC = () => {
               onChange={(e) => setSeatsPerTable(parseInt(e.target.value) || 10)}
               className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-300"
             />
-            <p className="text-sm text-gray-600 mt-1">
-              Table mapping: Seats 1-{seatsPerTable} = Table 1, Seats {seatsPerTable + 1}-{seatsPerTable * 2} = Table 2, etc.
-            </p>
           </div>
-        </div>
-
-        <div className="bg-blue-50 p-4 rounded-lg mb-6">
-          <h4 className="font-semibold text-blue-800 mb-2">Automatic Guest Management</h4>
-          <p className="text-blue-700 text-sm mb-2">
-            When you save settings, guests will be automatically created and assigned seats sequentially. 
-            If you need more guests than currently exist, new ones will be created automatically.
-          </p>
-          <p className="text-blue-600 text-sm">
-            Current capacity: <span className="font-semibold">{currentGuestCount} guests</span> out of <span className="font-semibold">{totalGuests} total seats</span>
-          </p>
-          <p className="text-blue-600 text-sm">
-            Tables to be created: <span className="font-semibold">{totalTables} tables</span> with <span className="font-semibold">{seatsPerTable} seats each</span>
-          </p>
         </div>
 
         <button 
@@ -434,28 +414,6 @@ const GuestsTab: React.FC = () => {
               </button>
             </div>
           </div>
-        </div>
-        
-        <div className="mb-4 p-4 bg-gray-50 rounded-lg">
-          <p className="text-sm text-gray-700 mb-2">
-            <strong>CSV Upload Format:</strong> Your CSV file should have columns: "name" (required), "category" (optional: VVIP, premium, family)
-          </p>
-          <p className="text-sm text-gray-600">
-            Example: name,category<br/>
-            John Doe,premium<br/>
-            Jane Smith,family
-          </p>
-          <p className="text-sm text-blue-600 mt-3">
-            <strong>Automatic Assignment:</strong> All guests will be automatically assigned seats sequentially when uploaded.
-          </p>
-        </div>
-
-        {/* Drag and Drop Info */}
-        <div className="mb-4 p-4 bg-green-50 rounded-lg border border-green-200">
-          <p className="text-sm text-green-700 mb-2">
-            <strong>💡 Tip:</strong> You can drag and drop the table cards below to rearrange their display order. 
-            This changes how tables are numbered and displayed, but doesn't affect actual seat assignments.
-          </p>
         </div>
 
         {/* Table Overview with Drag and Drop */}
@@ -515,12 +473,6 @@ const GuestsTab: React.FC = () => {
             <Users className="w-5 h-5" />
             Unassigned Guests ({getUnassignedGuests().length})
           </h4>
-          
-          <div className="bg-orange-50 p-4 rounded-lg mb-4">
-            <p className="text-orange-700 text-sm">
-              <strong>Note:</strong> These guests don't have seats assigned. Click "Save Settings & Auto-Create/Assign Guests" above to automatically assign them.
-            </p>
-          </div>
           
           <div className="overflow-x-auto">
             <table className="min-w-full bg-white">
