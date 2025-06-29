@@ -118,7 +118,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [state, setState] = useState<AppState>(initialState);
   const supabase = useSupabase();
 
-  // Auto-assign seats function
+  // Auto-assign seats function - assigns seats serially and maintains them
   const autoAssignAllSeats = () => {
     setState(prev => {
       const allGuests = Object.entries(prev.guests).filter(([code]) => code !== 'ADMIN' && code !== 'USHER');
@@ -133,22 +133,41 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         };
       }
       
-      // Assign seats sequentially
-      allGuests.forEach(([code], index) => {
-        const seatNumber = index + 1;
-        if (seatNumber <= prev.settings.maxSeats) {
-          updatedGuests[code] = {
-            ...updatedGuests[code],
-            seatNumber: seatNumber
-          };
-          updatedSeats[seatNumber] = {
+      // First, preserve existing seat assignments
+      allGuests.forEach(([code, guest]) => {
+        if (guest.seatNumber && guest.seatNumber <= prev.settings.maxSeats) {
+          updatedSeats[guest.seatNumber] = {
             taken: true,
             guestCode: code
           };
+        }
+      });
+      
+      // Then assign seats to guests who don't have one, using the next available seat
+      let nextAvailableSeat = 1;
+      allGuests.forEach(([code, guest]) => {
+        if (!guest.seatNumber || guest.seatNumber > prev.settings.maxSeats) {
+          // Find next available seat
+          while (nextAvailableSeat <= prev.settings.maxSeats && updatedSeats[nextAvailableSeat].taken) {
+            nextAvailableSeat++;
+          }
           
-          // Update in Supabase if available
-          if (isSupabaseReady) {
-            supabase.updateGuest(code, { seatNumber });
+          if (nextAvailableSeat <= prev.settings.maxSeats) {
+            updatedGuests[code] = {
+              ...updatedGuests[code],
+              seatNumber: nextAvailableSeat
+            };
+            updatedSeats[nextAvailableSeat] = {
+              taken: true,
+              guestCode: code
+            };
+            
+            // Update in Supabase if available
+            if (isSupabaseReady) {
+              supabase.updateGuest(code, { seatNumber: nextAvailableSeat });
+            }
+            
+            nextAvailableSeat++;
           }
         }
       });
@@ -319,17 +338,30 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       // Refresh data to get updated guest list
       setTimeout(() => refreshData(), 1000);
     } else {
-      // Add to localStorage and auto-assign seats
+      // Add to localStorage with serial seat assignment
       setState(prev => {
         const updatedGuests = { ...prev.guests };
         const updatedAccessCodes = [...prev.accessCodes];
         const updatedSeats = { ...prev.seats };
         
-        // Get current guest count (excluding ADMIN and USHER)
-        const currentGuestCount = Object.keys(prev.guests).filter(code => code !== 'ADMIN' && code !== 'USHER').length;
+        // Find the next available seat number (serial assignment)
+        let nextSeatNumber = 1;
+        const existingSeats = Object.values(prev.guests)
+          .map(guest => guest.seatNumber)
+          .filter(seat => seat !== null)
+          .sort((a, b) => (a || 0) - (b || 0));
+        
+        // Find the first gap or use the next number after the highest
+        for (const seat of existingSeats) {
+          if (seat === nextSeatNumber) {
+            nextSeatNumber++;
+          } else {
+            break;
+          }
+        }
         
         newCodes.forEach((code, index) => {
-          const seatNumber = currentGuestCount + index + 1;
+          const seatNumber = nextSeatNumber + index;
           
           updatedGuests[code] = {
             name: `Guest ${code}`,
@@ -799,10 +831,17 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           const updatedGuests = { ...prev.guests };
           
           if (updatedGuests[code]) {
+            // Preserve the existing seat number when updating other details
+            const currentSeatNumber = updatedGuests[code].seatNumber;
             updatedGuests[code] = {
               ...updatedGuests[code],
               ...updates
             };
+            
+            // If the update doesn't include seatNumber, preserve the existing one
+            if (updates.seatNumber === undefined && currentSeatNumber !== null) {
+              updatedGuests[code].seatNumber = currentSeatNumber;
+            }
           }
           
           return {
@@ -816,10 +855,17 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         const updatedGuests = { ...prev.guests };
         
         if (updatedGuests[code]) {
+          // Preserve the existing seat number when updating other details
+          const currentSeatNumber = updatedGuests[code].seatNumber;
           updatedGuests[code] = {
             ...updatedGuests[code],
             ...updates
           };
+          
+          // If the update doesn't include seatNumber, preserve the existing one
+          if (updates.seatNumber === undefined && currentSeatNumber !== null) {
+            updatedGuests[code].seatNumber = currentSeatNumber;
+          }
         }
         
         const newState = {
