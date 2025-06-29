@@ -212,7 +212,7 @@ const GuestDashboard: React.FC = () => {
             </a>
           </div>
           
-          <p className="text-sm text-gray-400">Thank you for celebrating with us!</p>
+          <p className="text-sm text-white">Thank you for celebrating with us!</p>
         </div>
       </footer>
     </div>
