@@ -27,8 +27,11 @@ const LoginScreen: React.FC = () => {
       const success = await login(accessCode);
       
       if (success) {
-        if (accessCode.toUpperCase() === 'ADMIN') {
+        const upperCode = accessCode.toUpperCase();
+        if (upperCode === 'ADMIN') {
           navigate('/admin/dashboard');
+        } else if (upperCode === 'USHER') {
+          navigate('/usher');
         } else {
           navigate('/guest/welcome');
         }
@@ -88,7 +91,7 @@ const LoginScreen: React.FC = () => {
           <p className="mt-2 text-sm text-theme-text">
             {isSupabaseReady 
               ? "Access code was sent with your invitation" 
-              : "Try 'ADMIN' for admin panel or any 5-letter code for guest view"
+              : "Try 'ADMIN' for admin panel, 'USHER' for usher dashboard, or any 5-letter code for guest view"
             }
           </p>
         </div>

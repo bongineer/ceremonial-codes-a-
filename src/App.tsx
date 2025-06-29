@@ -7,6 +7,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import LoginScreen from './pages/LoginScreen';
 import AdminDashboard from './pages/admin/AdminDashboard';
 import GuestDashboard from './pages/guest/GuestDashboard';
+import UsherDashboard from './pages/usher/UsherDashboard';
 
 // Context
 import { AppProvider } from './context/AppContext';
@@ -41,6 +42,7 @@ function App() {
           <Route path="/" element={<LoginScreen />} />
           <Route path="/admin/*" element={<AdminDashboard />} />
           <Route path="/guest/*" element={<GuestDashboard />} />
+          <Route path="/usher" element={<UsherDashboard />} />
         </Routes>
       </Router>
       <ToastContainer position="bottom-right" />

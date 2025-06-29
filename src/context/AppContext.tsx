@@ -47,9 +47,12 @@ const initialState: AppState = {
   asoebiItems: [],
   registryItems: [],
   paymentDetails: defaultPaymentDetails,
-  guests: { 'ADMIN': { name: 'Admin', seatNumber: null, arrived: false, mealServed: false, drinkServed: false } },
+  guests: { 
+    'ADMIN': { name: 'Admin', seatNumber: null, arrived: false, mealServed: false, drinkServed: false },
+    'USHER': { name: 'Usher', seatNumber: null, arrived: false, mealServed: false, drinkServed: false }
+  },
   seats: {},
-  accessCodes: ['ADMIN'],
+  accessCodes: ['ADMIN', 'USHER'],
   currentUser: null,
   weddingParty: [],
   currentTheme: getThemeById('classic-rose')
@@ -118,7 +121,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   // Auto-assign seats function
   const autoAssignAllSeats = () => {
     setState(prev => {
-      const allGuests = Object.entries(prev.guests).filter(([code]) => code !== 'ADMIN');
+      const allGuests = Object.entries(prev.guests).filter(([code]) => code !== 'ADMIN' && code !== 'USHER');
       const updatedGuests = { ...prev.guests };
       const updatedSeats: Record<number, Seat> = {};
       
@@ -217,9 +220,12 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           asoebiItems: asoebiItems || [],
           registryItems: registryItems || [],
           paymentDetails: paymentDetails || defaultPaymentDetails,
-          guests: guests || { 'ADMIN': { name: 'Admin', seatNumber: null, arrived: false, mealServed: false, drinkServed: false } },
+          guests: guests || { 
+            'ADMIN': { name: 'Admin', seatNumber: null, arrived: false, mealServed: false, drinkServed: false },
+            'USHER': { name: 'Usher', seatNumber: null, arrived: false, mealServed: false, drinkServed: false }
+          },
           seats,
-          accessCodes: Object.keys(guests || { 'ADMIN': {} }),
+          accessCodes: Object.keys(guests || { 'ADMIN': {}, 'USHER': {} }),
           currentUser: null,
           weddingParty: weddingParty || [],
           currentTheme
@@ -319,8 +325,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         const updatedAccessCodes = [...prev.accessCodes];
         const updatedSeats = { ...prev.seats };
         
-        // Get current guest count (excluding ADMIN)
-        const currentGuestCount = Object.keys(prev.guests).filter(code => code !== 'ADMIN').length;
+        // Get current guest count (excluding ADMIN and USHER)
+        const currentGuestCount = Object.keys(prev.guests).filter(code => code !== 'ADMIN' && code !== 'USHER').length;
         
         newCodes.forEach((code, index) => {
           const seatNumber = currentGuestCount + index + 1;
