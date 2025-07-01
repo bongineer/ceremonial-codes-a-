@@ -11,6 +11,7 @@ import RegistryTab from './tabs/RegistryTab';
 import ContactTab from './tabs/ContactTab';
 import WeddingPartyTab from './tabs/WeddingPartyTab';
 import CountdownTimer from '../../components/common/CountdownTimer';
+import CustomerCareFloat from '../../components/common/CustomerCareFloat';
 import { formatEventDate } from '../../utils/storage';
 
 const GuestDashboard: React.FC = () => {
@@ -186,6 +187,9 @@ const GuestDashboard: React.FC = () => {
           <Route path="/contact" element={<ContactTab />} />
         </Routes>
       </div>
+      
+      {/* Customer Care Floating Button */}
+      <CustomerCareFloat />
       
       <footer className="bg-theme-primary text-theme-text-inverse py-8">
         <div className="container mx-auto px-5 text-center">
