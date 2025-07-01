@@ -11,29 +11,31 @@ const WeddingPartyTab: React.FC = () => {
   
   return (
     <BackgroundImage imageUrl={state.settings.welcomeImage}>
-      <div>
+      <div className="max-w-7xl mx-auto px-4">
         <h2 className="text-3xl md:text-4xl text-center mb-8 text-theme-primary font-dancing">Our Wedding Party</h2>
         
         <div className="bg-theme-card-bg rounded-lg shadow-md p-8 mb-8 hover:shadow-lg transition-shadow duration-300">
           <p className="text-center mb-6 text-theme-text">Meet the special people who will be standing with us on our big day!</p>
         </div>
         
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
           {/* Groom's Side - Left Column */}
           <div>
-            <h3 className="text-2xl font-semibold mb-6 text-theme-primary text-center">Groomsmen</h3>
-            <div className="space-y-6">
+            <h3 className="text-2xl font-semibold mb-8 text-theme-primary text-center">Groomsmen</h3>
+            <div className="space-y-8">
               {groomMembers.map((member, index) => (
                 <div key={index} className="bg-theme-card-bg rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow duration-300">
-                  <div className="flex items-center space-x-4">
-                    <img 
-                      src={member.imageUrl} 
-                      alt={member.name}
-                      className="w-20 h-20 rounded-full object-cover border-4 border-theme-secondary"
-                    />
-                    <div>
-                      <h4 className="text-lg font-semibold text-theme-text">{member.name}</h4>
-                      <p className="text-theme-primary font-medium">{member.role}</p>
+                  <div className="flex flex-col sm:flex-row items-center space-x-0 sm:space-x-6 space-y-4 sm:space-y-0">
+                    <div className="relative">
+                      <img 
+                        src={member.imageUrl} 
+                        alt={member.name}
+                        className="w-40 h-40 rounded-full object-cover border-4 border-theme-secondary"
+                      />
+                    </div>
+                    <div className="text-center sm:text-left">
+                      <h4 className="text-xl font-semibold text-theme-text">{member.name}</h4>
+                      <p className="text-theme-primary font-medium text-lg">{member.role}</p>
                     </div>
                   </div>
                 </div>
@@ -49,19 +51,21 @@ const WeddingPartyTab: React.FC = () => {
           
           {/* Bride's Side - Right Column */}
           <div>
-            <h3 className="text-2xl font-semibold mb-6 text-theme-primary text-center">Bridesmaids</h3>
-            <div className="space-y-6">
+            <h3 className="text-2xl font-semibold mb-8 text-theme-primary text-center">Bridesmaids</h3>
+            <div className="space-y-8">
               {brideMembers.map((member, index) => (
                 <div key={index} className="bg-theme-card-bg rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow duration-300">
-                  <div className="flex items-center space-x-4">
-                    <img 
-                      src={member.imageUrl} 
-                      alt={member.name}
-                      className="w-20 h-20 rounded-full object-cover border-4 border-theme-secondary"
-                    />
-                    <div>
-                      <h4 className="text-lg font-semibold text-theme-text">{member.name}</h4>
-                      <p className="text-theme-primary font-medium">{member.role}</p>
+                  <div className="flex flex-col sm:flex-row items-center space-x-0 sm:space-x-6 space-y-4 sm:space-y-0">
+                    <div className="relative">
+                      <img 
+                        src={member.imageUrl} 
+                        alt={member.name}
+                        className="w-40 h-40 rounded-full object-cover border-4 border-theme-secondary"
+                      />
+                    </div>
+                    <div className="text-center sm:text-left">
+                      <h4 className="text-xl font-semibold text-theme-text">{member.name}</h4>
+                      <p className="text-theme-primary font-medium text-lg">{member.role}</p>
                     </div>
                   </div>
                 </div>
