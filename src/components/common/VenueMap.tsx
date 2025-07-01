@@ -82,6 +82,13 @@ const VenueMap: React.FC<VenueMapProps> = ({ ceremonyVenue, receptionVenue }) =>
         </div>
       </div>
 
+      {/* Additional Info */}
+      <div className="mt-6 p-4 bg-theme-primary bg-opacity-10 rounded-lg">
+        <p className="text-theme-text text-sm text-center">
+          <strong>💡 Tip:</strong> Click "Get Directions" to open navigation in your preferred maps app, or "View on Map" to see the location details.
+        </p>
+      </div>
+    </div>
   );
 };
 
