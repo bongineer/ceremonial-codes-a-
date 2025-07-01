@@ -4,6 +4,7 @@ import { formatEventDate, formatEventTime } from '../../../utils/storage';
 import BackgroundImage from '../../../components/common/BackgroundImage';
 import FlowerBorder from '../../../components/common/FlowerBorder';
 import WelcomeSlideshow from '../../../components/common/WelcomeSlideshow';
+import VenueMap from '../../../components/common/VenueMap';
 
 const WelcomeTab: React.FC = () => {
   const { state } = useAppContext();
@@ -102,7 +103,7 @@ const WelcomeTab: React.FC = () => {
           <p className="text-theme-text">Tired and a bit annoyed, I still gave him my number and left on the same ride. That night marked the start of our journey—an unexpected moment that led to forever.</p>
         </div>
         
-        <div className="bg-theme-card-bg rounded-lg shadow-md p-8 hover:shadow-lg transition-shadow duration-300">
+        <div className="bg-theme-card-bg rounded-lg shadow-md p-8 mb-8 hover:shadow-lg transition-shadow duration-300">
           <h3 className="text-2xl mb-4 text-theme-primary text-center">Event Schedule</h3>
           
           <div className="md:flex md:space-x-8">
@@ -127,6 +128,12 @@ const WelcomeTab: React.FC = () => {
             </div>
           </div>
         </div>
+        
+        {/* Venue Map Section */}
+        <VenueMap 
+          ceremonyVenue={state.settings.venue}
+          receptionVenue={state.settings.receptionVenue}
+        />
         
         <FlowerBorder />
       </div>
