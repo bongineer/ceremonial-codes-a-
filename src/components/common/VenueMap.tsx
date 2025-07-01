@@ -46,16 +46,6 @@ const VenueMap: React.FC<VenueMapProps> = ({ ceremonyVenue, receptionVenue }) =>
               <MapPin className="w-4 h-4" />
               View on Map
             </a>
-            
-            <a
-              href={getDirectionsUrl(ceremonyVenue)}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center justify-center gap-2 px-4 py-2 bg-theme-accent text-theme-button-text rounded-lg hover:bg-theme-primary transition duration-300 text-sm"
-            >
-              <Navigation className="w-4 h-4" />
-              Get Directions
-            </a>
           </div>
         </div>
 
