@@ -68,9 +68,7 @@ const WelcomeTab: React.FC = () => {
               <div className="mt-6">
                 <h4 className="text-lg font-semibold mb-2 text-theme-text">Your Details:</h4>
                 
-                {/* Guest Category */}
-                
-                
+ 
                 {guest?.seatNumber && (
                   <>
                     {/* Table Name */}
