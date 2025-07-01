@@ -30,30 +30,6 @@ function App() {
         <div className="text-center">
           <h1 className="text-4xl text-rose-600 font-dancing mb-4">Wedding Portal</h1>
           <div className="w-16 h-16 border-4 border-rose-200 border-t-rose-600 rounded-full animate-spin mx-auto"></div>
-          <div style={{
-            position: "fixed",
-            bottom: 30,
-            right: 30,
-            zIndex: 9999,
-            display: "flex",
-            flexDirection: "column",
-            gap: 10
-          }}>
-            <a href="https://wa.me/+2347043486896" target="_blank" rel="noopener noreferrer" title="Chat on WhatsApp">
-              <img 
-                src="https://cdn-icons-png.flaticon.com/512/3670/3670051.png" 
-                alt="WhatsApp" 
-                style={{ width: 50, height: 50 }} 
-              />
-            </a>
-            <a href="tel:+2347043486896" title="Call Us">
-              <img 
-                src="https://cdn-icons-png.flaticon.com/512/3059/3059518.png" 
-                alt="Call" 
-                style={{ width: 50, height: 50 }} 
-              />
-            </a>
-          </div>
         </div>
       </div>
     );
