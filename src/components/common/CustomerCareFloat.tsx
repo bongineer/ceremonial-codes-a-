@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { MessageCircle, Phone, X } from 'lucide-react';
+import { Headset, Phone, X } from 'lucide-react';
 import { useAppContext } from '../../context/AppContext';
 
 const CustomerCareFloat: React.FC = () => {
@@ -26,7 +26,7 @@ const CustomerCareFloat: React.FC = () => {
             className="flex items-center gap-3 bg-green-600 hover:bg-green-700 text-white px-4 py-3 rounded-full shadow-lg transition-all duration-300 hover:scale-105"
             title="Chat on WhatsApp"
           >
-            <MessageCircle className="w-5 h-5" />
+            <Headset className="w-5 h-5" />
             <span className="text-sm font-medium">WhatsApp</span>
           </button>
 
@@ -55,7 +55,7 @@ const CustomerCareFloat: React.FC = () => {
         {isExpanded ? (
           <X className="w-6 h-6" />
         ) : (
-          <MessageCircle className="w-6 h-6" />
+          <Headset className="w-6 h-6" />
         )}
       </button>
     </div>
