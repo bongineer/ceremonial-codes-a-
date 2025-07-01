@@ -86,6 +86,7 @@ const RegistryTab: React.FC = () => {
                   <button 
                     onClick={() => handleContribute(item.item, item.price)}
                     className="px-3 py-2 bg-theme-accent text-theme-button-text rounded-lg hover:bg-theme-primary transition duration-300 text-xs"
+                    className="block w-full bg-theme-primary hover:bg-theme-accent text-theme-button-text py-2 px-4 rounded-lg text-center transition-colors duration-300"
                   >
                     Contribute
                   </button>
