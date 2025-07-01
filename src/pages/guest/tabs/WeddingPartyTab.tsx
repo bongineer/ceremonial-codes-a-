@@ -29,7 +29,7 @@ const WeddingPartyTab: React.FC = () => {
                     <img 
                       src={member.imageUrl} 
                       alt={member.name}
-                      className="w-21 h-20 rounded-full object-cover border-4 border-theme-secondary"
+                      className="w-20 h-20 rounded-full object-cover border-4 border-theme-secondary"
                     />
                     <div>
                       <h4 className="text-lg font-semibold text-theme-text">{member.name}</h4>
@@ -57,7 +57,7 @@ const WeddingPartyTab: React.FC = () => {
                     <img 
                       src={member.imageUrl} 
                       alt={member.name}
-                      className="w-25 h-25 rounded-full object-cover border-4 border-theme-secondary"
+                      className="w-20 h-20 rounded-full object-cover border-4 border-theme-secondary"
                     />
                     <div>
                       <h4 className="text-lg font-semibold text-theme-text">{member.name}</h4>
