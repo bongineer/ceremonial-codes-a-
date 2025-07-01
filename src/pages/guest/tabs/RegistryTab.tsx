@@ -77,7 +77,6 @@ const RegistryTab: React.FC = () => {
                       href={item.link} 
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="px-3 py-2 bg-theme-primary text-theme-button-text rounded-lg hover:bg-theme-accent transition duration-300 text-center text-xs"
                       className="block w-full bg-theme-primary hover:bg-theme-accent text-theme-button-text py-2 px-4 rounded-lg text-center transition-colors duration-300"
                     >
                       Purchase
