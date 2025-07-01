@@ -98,9 +98,9 @@ const WelcomeTab: React.FC = () => {
         <div className="bg-theme-card-bg rounded-lg shadow-md p-8 mb-8 hover:shadow-lg transition-shadow duration-300">
           <h3 className="text-2xl mb-4 text-theme-primary text-center">Our Story</h3>
           
-          <p className="mb-4 text-theme-text">We met in Lokoja where I was a 200L student, and he was working as an engineer at Dangote Ind. After a late class, I was returning home when I saw a ride dropping off a passenger—him. Just as I was about to get in, he delayed the driver. I thought he was paying for his ride, but he was trying to talk to me and get my contact.</p>
+          <p className="mb-4 text-theme-text">We met in Lokoja, where I was a 200L student and he was an engineer at Dangote. After a late class, I was heading home when I saw a ride dropping off a passenger—him. As I was about to get in, he delayed the driver. I thought he was paying, but he was trying to talk to me and get my contact.</p>
           
-          <p className="text-theme-text">I was tired and a little upset, but I gave him my number afterwards, and left on that same ride. That night marked the beginning of our journey—an unexpected moment that would lead to forever.</p>
+          <p className="text-theme-text">Tired and a bit annoyed, I still gave him my number and left on the same ride. That night marked the start of our journey—an unexpected moment that led to forever.</p>
         </div>
         
         <div className="bg-theme-card-bg rounded-lg shadow-md p-8 hover:shadow-lg transition-shadow duration-300">
