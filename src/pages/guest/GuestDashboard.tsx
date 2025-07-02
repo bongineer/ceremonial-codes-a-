@@ -19,9 +19,10 @@ const GuestDashboard: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const navRef = useRef<HTMLDivElement>(null);
-  const hasInitialScrolled = useRef(false);
-  const animationFrameId = useRef<number | null>(null);
-  const scrollAnimationInterval = useRef<number | null>(null);
+  const animationRef = useRef<number | null>(null);
+  const isUserInteracting = useRef(false);
+  const startTime = useRef<number>(0);
+  const direction = useRef<1 | -1>(1); // 1 for right, -1 for left
 
   const handleLogout = () => {
     logout();
@@ -40,79 +41,92 @@ const GuestDashboard: React.FC = () => {
     }
   }, [state.currentUser, navigate, location.pathname]);
 
-  // Initial smooth scroll animation on dashboard load and page changes
+  // Smooth auto-scroll animation
   useEffect(() => {
-    if (state.currentUser && state.currentUser !== 'ADMIN') {
-      const performSmoothScroll = () => {
-        if (navRef.current) {
-          const navElement = navRef.current;
-          const isScrollable = navElement.scrollWidth > navElement.clientWidth;
-          
-          if (isScrollable) {
-            // Clear any existing animation
-            if (scrollAnimationInterval.current) {
-              clearInterval(scrollAnimationInterval.current);
-              scrollAnimationInterval.current = null;
-            }
-            
-            // Get header boundaries
-            const headerLeft = 0;
-            const headerRight = navElement.scrollWidth - navElement.clientWidth;
-            let direction = 1; // 1 for right, -1 for left
-            let startTime = null;
-            
-            const animateScroll = (timestamp: number) => {
-              if (!startTime) startTime = timestamp;
-              const progress = timestamp - startTime;
-              const duration = 9000; // 9 seconds
-              
-              if (progress < duration) {
-                const currentScroll = navElement.scrollLeft;
-                const target = direction === 1 ? headerRight : headerLeft;
-                const distance = target - currentScroll;
-                
-                // Ease in/out function for smooth acceleration/deceleration
-                const easeInOut = (t: number) => t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t;
-                const progressRatio = Math.min(progress / (duration / 2), 1);
-                const scrollAmount = currentScroll + (distance * easeInOut(progressRatio) * 0.1);
-                
-                navElement.scrollLeft = scrollAmount;
-                
-                // Reverse direction when reaching boundaries
-                if ((direction === 1 && scrollAmount >= headerRight - 5) || 
-                    (direction === -1 && scrollAmount <= headerLeft + 5)) {
-                  direction *= -1;
-                  startTime = timestamp;
-                }
-                
-                animationFrameId.current = requestAnimationFrame(animateScroll);
-              } else {
-                // Animation complete
-                hasInitialScrolled.current = true;
-              }
-            };
-            
-            // Start the animation
-            animationFrameId.current = requestAnimationFrame(animateScroll);
-          }
-        }
-      };
+    if (!navRef.current) return;
 
-      performSmoothScroll();
-    }
+    const navElement = navRef.current;
+    const isScrollable = navElement.scrollWidth > navElement.clientWidth;
     
-    // Clean up animation on unmount
-    return () => {
-      if (animationFrameId.current) {
-        cancelAnimationFrame(animationFrameId.current);
-        animationFrameId.current = null;
+    if (!isScrollable) return;
+
+    const maxScrollLeft = navElement.scrollWidth - navElement.clientWidth;
+    
+    const animate = (timestamp: number) => {
+      if (isUserInteracting.current) {
+        // If user is interacting, pause animation but keep the reference
+        animationRef.current = requestAnimationFrame(animate);
+        return;
       }
-      if (scrollAnimationInterval.current) {
-        clearInterval(scrollAnimationInterval.current);
-        scrollAnimationInterval.current = null;
+
+      if (!startTime.current) {
+        startTime.current = timestamp;
       }
+
+      const elapsed = timestamp - startTime.current;
+      const duration = 4000; // 4 seconds
+      
+      // Calculate progress (0 to 1)
+      const progress = Math.min(elapsed / duration, 1);
+      
+      // Smooth easing function (ease-in-out)
+      const easeInOut = (t: number) => t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t;
+      const easedProgress = easeInOut(progress);
+      
+      // Calculate target position based on direction
+      const targetScroll = direction.current === 1 ? maxScrollLeft : 0;
+      const currentScroll = navElement.scrollLeft;
+      const startScroll = direction.current === 1 ? 0 : maxScrollLeft;
+      
+      // Interpolate between start and target
+      const newScrollLeft = startScroll + (targetScroll - startScroll) * easedProgress;
+      navElement.scrollLeft = newScrollLeft;
+      
+      // Check if animation is complete
+      if (progress >= 1) {
+        // Switch direction and reset timer
+        direction.current = direction.current === 1 ? -1 : 1;
+        startTime.current = timestamp;
+      }
+      
+      animationRef.current = requestAnimationFrame(animate);
     };
-  }, [state.currentUser, location.pathname]); // Run on user change and route change
+
+    // Start animation
+    animationRef.current = requestAnimationFrame(animate);
+
+    // Handle user interaction
+    const handleInteractionStart = () => {
+      isUserInteracting.current = true;
+    };
+
+    const handleInteractionEnd = () => {
+      // Reset animation after user stops interacting
+      setTimeout(() => {
+        isUserInteracting.current = false;
+        startTime.current = 0; // Reset timing
+      }, 1000); // Wait 1 second after user stops interacting
+    };
+
+    // Add event listeners for user interaction
+    navElement.addEventListener('touchstart', handleInteractionStart, { passive: true });
+    navElement.addEventListener('touchend', handleInteractionEnd, { passive: true });
+    navElement.addEventListener('mousedown', handleInteractionStart);
+    navElement.addEventListener('mouseup', handleInteractionEnd);
+    navElement.addEventListener('scroll', handleInteractionStart, { passive: true });
+
+    // Cleanup
+    return () => {
+      if (animationRef.current) {
+        cancelAnimationFrame(animationRef.current);
+      }
+      navElement.removeEventListener('touchstart', handleInteractionStart);
+      navElement.removeEventListener('touchend', handleInteractionEnd);
+      navElement.removeEventListener('mousedown', handleInteractionStart);
+      navElement.removeEventListener('mouseup', handleInteractionEnd);
+      navElement.removeEventListener('scroll', handleInteractionStart);
+    };
+  }, [state.currentUser, location.pathname]);
 
   if (!state.currentUser || state.currentUser === 'ADMIN') {
     return null;
@@ -145,58 +159,57 @@ const GuestDashboard: React.FC = () => {
         <div className="container mx-auto px-5">
           <div 
             ref={navRef}
-            className="flex overflow-x-auto py-4 no-scrollbar scroll-smooth"
+            className="flex overflow-x-auto py-4 no-scrollbar"
             style={{
-              scrollBehavior: 'smooth',
-              transition: 'scroll-left 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94)'
+              scrollBehavior: 'auto', // Let our animation handle the smoothness
             }}
           >
             <Link 
               to="/guest/welcome" 
-              className={`whitespace-nowrap px-4 py-2 mx-2 rounded-full transition-all duration-500 ${getActiveTab('welcome')}`}
+              className={`whitespace-nowrap px-4 py-2 mx-2 rounded-full transition-all duration-300 ${getActiveTab('welcome')}`}
             >
               Welcome
             </Link>
             <Link 
               to="/guest/gallery" 
-              className={`whitespace-nowrap px-4 py-2 mx-2 rounded-full transition-all duration-500 ${getActiveTab('gallery')}`}
+              className={`whitespace-nowrap px-4 py-2 mx-2 rounded-full transition-all duration-300 ${getActiveTab('gallery')}`}
             >
               Gallery
             </Link>
             <Link 
               to="/guest/wedding-party" 
-              className={`whitespace-nowrap px-4 py-2 mx-2 rounded-full transition-all duration-500 ${getActiveTab('wedding-party')}`}
+              className={`whitespace-nowrap px-4 py-2 mx-2 rounded-full transition-all duration-300 ${getActiveTab('wedding-party')}`}
             >
               Wedding Party
             </Link>
             <Link 
               to="/guest/menu" 
-              className={`whitespace-nowrap px-4 py-2 mx-2 rounded-full transition-all duration-500 ${getActiveTab('menu')}`}
+              className={`whitespace-nowrap px-4 py-2 mx-2 rounded-full transition-all duration-300 ${getActiveTab('menu')}`}
             >
               Food & Drinks
             </Link>
             <Link 
               to="/guest/asoebi" 
-              className={`whitespace-nowrap px-4 py-2 mx-2 rounded-full transition-all duration-500 ${getActiveTab('asoebi')}`}
+              className={`whitespace-nowrap px-4 py-2 mx-2 rounded-full transition-all duration-300 ${getActiveTab('asoebi')}`}
             >
               Asoebi
             </Link>
             <Link 
               to="/guest/registry" 
-              className={`whitespace-nowrap px-4 py-2 mx-2 rounded-full transition-all duration-500 ${getActiveTab('registry')}`}
+              className={`whitespace-nowrap px-4 py-2 mx-2 rounded-full transition-all duration-300 ${getActiveTab('registry')}`}
             >
               Registry
             </Link>
             {/* Contact page hidden but code preserved for future use */}
             {/* <Link 
               to="/guest/contact" 
-              className={`whitespace-nowrap px-4 py-2 mx-2 rounded-full transition-all duration-500 ${getActiveTab('contact')}`}
+              className={`whitespace-nowrap px-4 py-2 mx-2 rounded-full transition-all duration-300 ${getActiveTab('contact')}`}
             >
               Contact
             </Link> */}
             <button 
               onClick={handleLogout}
-              className="whitespace-nowrap px-4 py-2 mx-2 rounded-full bg-theme-card-bg text-theme-text hover:bg-gray-300 transition-all duration-500"
+              className="whitespace-nowrap px-4 py-2 mx-2 rounded-full bg-theme-card-bg text-theme-text hover:bg-gray-300 transition-all duration-300"
             >
               Logout
             </button>
