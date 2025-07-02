@@ -20,6 +20,13 @@ const GuestDashboard: React.FC = () => {
   const location = useLocation();
   const navRef = useRef<HTMLDivElement>(null);
   const hasInitialScrolled = useRef(false);
+  const animationFrameId = useRef<number | null>(null);
+  const scrollAnimationInterval = useRef<number | null>(null);
+
+  const handleLogout = () => {
+    logout();
+    navigate('/');
+  };
 
   useEffect(() => {
     // Redirect to login if not logged in or is admin
@@ -34,70 +41,78 @@ const GuestDashboard: React.FC = () => {
   }, [state.currentUser, navigate, location.pathname]);
 
   // Initial smooth scroll animation on dashboard load and page changes
-useEffect(() => {
-  if (state.currentUser && state.currentUser !== 'ADMIN') {
-    const performSmoothScroll = () => {
-      if (navRef.current) {
-        const navElement = navRef.current;
-        const isScrollable = navElement.scrollWidth > navElement.clientWidth;
-        
-        if (isScrollable) {
-          // Clear any existing animation
-          clearInterval(navElement.scrollAnimationInterval);
+  useEffect(() => {
+    if (state.currentUser && state.currentUser !== 'ADMIN') {
+      const performSmoothScroll = () => {
+        if (navRef.current) {
+          const navElement = navRef.current;
+          const isScrollable = navElement.scrollWidth > navElement.clientWidth;
           
-          // Get header boundaries
-          const headerLeft = 0;
-          const headerRight = navElement.scrollWidth - navElement.clientWidth;
-          let direction = 1; // 1 for right, -1 for left
-          let startTime = null;
-          
-          const animateScroll = (timestamp) => {
-            if (!startTime) startTime = timestamp;
-            const progress = timestamp - startTime;
-            const duration = 9000; // 9 seconds
-            
-            if (progress < duration) {
-              const currentScroll = navElement.scrollLeft;
-              const target = direction === 1 ? headerRight : headerLeft;
-              const distance = target - currentScroll;
-              
-              // Ease in/out function for smooth acceleration/deceleration
-              const easeInOut = (t) => t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t;
-              const progressRatio = Math.min(progress / (duration / 2), 1);
-              const scrollAmount = currentScroll + (distance * easeInOut(progressRatio) * 0.1);
-              
-              navElement.scrollLeft = scrollAmount;
-              
-              // Reverse direction when reaching boundaries
-              if ((direction === 1 && scrollAmount >= headerRight - 5) || 
-                  (direction === -1 && scrollAmount <= headerLeft + 5)) {
-                direction *= -1;
-                startTime = timestamp;
-              }
-              
-              requestAnimationFrame(animateScroll);
-            } else {
-              // Animation complete
-              hasInitialScrolled.current = true;
+          if (isScrollable) {
+            // Clear any existing animation
+            if (scrollAnimationInterval.current) {
+              clearInterval(scrollAnimationInterval.current);
+              scrollAnimationInterval.current = null;
             }
-          };
-          
-          // Start the animation
-          requestAnimationFrame(animateScroll);
+            
+            // Get header boundaries
+            const headerLeft = 0;
+            const headerRight = navElement.scrollWidth - navElement.clientWidth;
+            let direction = 1; // 1 for right, -1 for left
+            let startTime = null;
+            
+            const animateScroll = (timestamp: number) => {
+              if (!startTime) startTime = timestamp;
+              const progress = timestamp - startTime;
+              const duration = 9000; // 9 seconds
+              
+              if (progress < duration) {
+                const currentScroll = navElement.scrollLeft;
+                const target = direction === 1 ? headerRight : headerLeft;
+                const distance = target - currentScroll;
+                
+                // Ease in/out function for smooth acceleration/deceleration
+                const easeInOut = (t: number) => t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t;
+                const progressRatio = Math.min(progress / (duration / 2), 1);
+                const scrollAmount = currentScroll + (distance * easeInOut(progressRatio) * 0.1);
+                
+                navElement.scrollLeft = scrollAmount;
+                
+                // Reverse direction when reaching boundaries
+                if ((direction === 1 && scrollAmount >= headerRight - 5) || 
+                    (direction === -1 && scrollAmount <= headerLeft + 5)) {
+                  direction *= -1;
+                  startTime = timestamp;
+                }
+                
+                animationFrameId.current = requestAnimationFrame(animateScroll);
+              } else {
+                // Animation complete
+                hasInitialScrolled.current = true;
+              }
+            };
+            
+            // Start the animation
+            animationFrameId.current = requestAnimationFrame(animateScroll);
+          }
         }
-      }
-    };
+      };
 
-    performSmoothScroll();
+      performSmoothScroll();
+    }
     
     // Clean up animation on unmount
     return () => {
-      if (navRef.current) {
-        cancelAnimationFrame(navRef.current.animationFrameId);
+      if (animationFrameId.current) {
+        cancelAnimationFrame(animationFrameId.current);
+        animationFrameId.current = null;
+      }
+      if (scrollAnimationInterval.current) {
+        clearInterval(scrollAnimationInterval.current);
+        scrollAnimationInterval.current = null;
       }
     };
-  }
-}, [state.currentUser, location.pathname]); // Run on user change and route change
+  }, [state.currentUser, location.pathname]); // Run on user change and route change
 
   // Determine active tab
   const getActiveTab = (path: string) => {
