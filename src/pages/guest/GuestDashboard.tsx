@@ -33,63 +33,71 @@ const GuestDashboard: React.FC = () => {
     }
   }, [state.currentUser, navigate, location.pathname]);
 
-  // Initial gentle scroll animation on dashboard load
-  useEffect(() => {
-    if (state.currentUser && state.currentUser !== 'ADMIN' && !hasInitialScrolled.current) {
-      const performInitialScroll = () => {
-        if (navRef.current) {
-          const navElement = navRef.current;
-          const isScrollable = navElement.scrollWidth > navElement.clientWidth;
-          
-          if (isScrollable) {
-            // Very slow initial scroll to show there are more options
-            setTimeout(() => {
-              navElement.scrollTo({
-                left: 80, // Gentle scroll to show more content
-                behavior: 'smooth'
-              });
-            }, 1000);
-          }
-          hasInitialScrolled.current = true;
-        }
-      };
-
-      performInitialScroll();
-    }
-  }, [state.currentUser]);
-
-  // Smooth scroll to active tab when route changes
-  useEffect(() => {
-    if (navRef.current && hasInitialScrolled.current) {
-      const navElement = navRef.current;
-      const activeLink = navElement.querySelector('.nav-active');
-      
-      if (activeLink) {
-        const linkRect = activeLink.getBoundingClientRect();
-        const navRect = navElement.getBoundingClientRect();
-        const linkCenter = linkRect.left + linkRect.width / 2;
-        const navCenter = navRect.left + navRect.width / 2;
-        const scrollOffset = linkCenter - navCenter;
+  // Initial smooth scroll animation on dashboard load and page changes
+useEffect(() => {
+  if (state.currentUser && state.currentUser !== 'ADMIN') {
+    const performSmoothScroll = () => {
+      if (navRef.current) {
+        const navElement = navRef.current;
+        const isScrollable = navElement.scrollWidth > navElement.clientWidth;
         
-        // Smooth scroll to center the active link
-        setTimeout(() => {
-          navElement.scrollTo({
-            left: navElement.scrollLeft + scrollOffset,
-            behavior: 'smooth'
-          });
-        }, 300);
+        if (isScrollable) {
+          // Clear any existing animation
+          clearInterval(navElement.scrollAnimationInterval);
+          
+          // Get header boundaries
+          const headerLeft = 0;
+          const headerRight = navElement.scrollWidth - navElement.clientWidth;
+          let direction = 1; // 1 for right, -1 for left
+          let startTime = null;
+          
+          const animateScroll = (timestamp) => {
+            if (!startTime) startTime = timestamp;
+            const progress = timestamp - startTime;
+            const duration = 9000; // 9 seconds
+            
+            if (progress < duration) {
+              const currentScroll = navElement.scrollLeft;
+              const target = direction === 1 ? headerRight : headerLeft;
+              const distance = target - currentScroll;
+              
+              // Ease in/out function for smooth acceleration/deceleration
+              const easeInOut = (t) => t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t;
+              const progressRatio = Math.min(progress / (duration / 2), 1);
+              const scrollAmount = currentScroll + (distance * easeInOut(progressRatio) * 0.1);
+              
+              navElement.scrollLeft = scrollAmount;
+              
+              // Reverse direction when reaching boundaries
+              if ((direction === 1 && scrollAmount >= headerRight - 5) || 
+                  (direction === -1 && scrollAmount <= headerLeft + 5)) {
+                direction *= -1;
+                startTime = timestamp;
+              }
+              
+              requestAnimationFrame(animateScroll);
+            } else {
+              // Animation complete
+              hasInitialScrolled.current = true;
+            }
+          };
+          
+          // Start the animation
+          requestAnimationFrame(animateScroll);
+        }
       }
-    }
-  }, [location.pathname]);
+    };
 
-  const handleLogout = () => {
-    logout();
-    navigate('/');
-  };
-
-  if (!state.currentUser || state.currentUser === 'ADMIN') {
-    return null;
+    performSmoothScroll();
+    
+    // Clean up animation on unmount
+    return () => {
+      if (navRef.current) {
+        cancelAnimationFrame(navRef.current.animationFrameId);
+      }
+    };
   }
+}, [state.currentUser, location.pathname]); // Run on user change and route change
 
   // Determine active tab
   const getActiveTab = (path: string) => {
