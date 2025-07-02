@@ -8,7 +8,7 @@ import GalleryTab from './tabs/GalleryTab';
 import MenuTab from './tabs/MenuTab';
 import AsoebiTab from './tabs/AsoebiTab';
 import RegistryTab from './tabs/RegistryTab';
-import ContactTab from './tabs/ContactTab';
+// import ContactTab from './tabs/ContactTab';
 import WeddingPartyTab from './tabs/WeddingPartyTab';
 import CountdownTimer from '../../components/common/CountdownTimer';
 import CustomerCareFloat from '../../components/common/CustomerCareFloat';
@@ -114,6 +114,10 @@ const GuestDashboard: React.FC = () => {
     };
   }, [state.currentUser, location.pathname]); // Run on user change and route change
 
+  if (!state.currentUser || state.currentUser === 'ADMIN') {
+    return null;
+  }
+
   // Determine active tab
   const getActiveTab = (path: string) => {
     const currentPath = location.pathname;
@@ -183,12 +187,13 @@ const GuestDashboard: React.FC = () => {
             >
               Registry
             </Link>
-            <Link 
+            {/* Contact page hidden but code preserved for future use */}
+            {/* <Link 
               to="/guest/contact" 
               className={`whitespace-nowrap px-4 py-2 mx-2 rounded-full transition-all duration-500 ${getActiveTab('contact')}`}
             >
               Contact
-            </Link>
+            </Link> */}
             <button 
               onClick={handleLogout}
               className="whitespace-nowrap px-4 py-2 mx-2 rounded-full bg-theme-card-bg text-theme-text hover:bg-gray-300 transition-all duration-500"
@@ -207,7 +212,8 @@ const GuestDashboard: React.FC = () => {
           <Route path="/menu" element={<MenuTab />} />
           <Route path="/asoebi" element={<AsoebiTab />} />
           <Route path="/registry" element={<RegistryTab />} />
-          <Route path="/contact" element={<ContactTab />} />
+          {/* Contact route hidden but code preserved for future use */}
+          {/* <Route path="/contact" element={<ContactTab />} /> */}
         </Routes>
       </div>
       
