@@ -23,6 +23,8 @@ const GuestDashboard: React.FC = () => {
   const isUserInteracting = useRef(false);
   const startTime = useRef<number>(0);
   const direction = useRef<1 | -1>(1); // 1 for right, -1 for left
+  const animationStartScroll = useRef<number>(0);
+  const animationTargetScroll = useRef<number>(0);
 
   const handleLogout = () => {
     logout();
@@ -59,8 +61,19 @@ const GuestDashboard: React.FC = () => {
         return;
       }
 
+      // Initialize animation segment
       if (!startTime.current) {
         startTime.current = timestamp;
+        animationStartScroll.current = navElement.scrollLeft;
+        
+        // Set target based on current direction
+        if (direction.current === 1) {
+          // Moving right
+          animationTargetScroll.current = maxScrollLeft;
+        } else {
+          // Moving left
+          animationTargetScroll.current = 0;
+        }
       }
 
       const elapsed = timestamp - startTime.current;
@@ -73,20 +86,17 @@ const GuestDashboard: React.FC = () => {
       const easeInOut = (t: number) => t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t;
       const easedProgress = easeInOut(progress);
       
-      // Calculate target position based on direction
-      const targetScroll = direction.current === 1 ? maxScrollLeft : 0;
-      const currentScroll = navElement.scrollLeft;
-      const startScroll = direction.current === 1 ? 0 : maxScrollLeft;
+      // Interpolate between start and target scroll positions
+      const scrollDifference = animationTargetScroll.current - animationStartScroll.current;
+      const newScrollLeft = animationStartScroll.current + (scrollDifference * easedProgress);
       
-      // Interpolate between start and target
-      const newScrollLeft = startScroll + (targetScroll - startScroll) * easedProgress;
       navElement.scrollLeft = newScrollLeft;
       
-      // Check if animation is complete
+      // Check if animation segment is complete
       if (progress >= 1) {
-        // Switch direction and reset timer
+        // Switch direction and reset for next segment
         direction.current = direction.current === 1 ? -1 : 1;
-        startTime.current = timestamp;
+        startTime.current = 0; // This will trigger re-initialization on next frame
       }
       
       animationRef.current = requestAnimationFrame(animate);
@@ -104,7 +114,7 @@ const GuestDashboard: React.FC = () => {
       // Reset animation after user stops interacting
       setTimeout(() => {
         isUserInteracting.current = false;
-        startTime.current = 0; // Reset timing
+        startTime.current = 0; // Reset timing for smooth restart
       }, 1000); // Wait 1 second after user stops interacting
     };
 
