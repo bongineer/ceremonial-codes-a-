@@ -25,6 +25,7 @@ const GuestDashboard: React.FC = () => {
   const direction = useRef<1 | -1>(1); // 1 for right, -1 for left
   const animationStartScroll = useRef<number>(0);
   const animationTargetScroll = useRef<number>(0);
+  const pauseTimeout = useRef<NodeJS.Timeout | null>(null);
 
   const handleLogout = () => {
     logout();
@@ -43,20 +44,38 @@ const GuestDashboard: React.FC = () => {
     }
   }, [state.currentUser, navigate, location.pathname]);
 
-  // Smooth auto-scroll animation
+  // Auto-scroll animation for mobile/responsive mode only
   useEffect(() => {
     if (!navRef.current) return;
 
     const navElement = navRef.current;
-    const isScrollable = navElement.scrollWidth > navElement.clientWidth;
     
-    if (!isScrollable) return;
+    // Function to check if we're in mobile/responsive mode
+    const isMobileMode = () => {
+      return window.innerWidth < 768; // md breakpoint in Tailwind
+    };
+
+    // Function to check if content is scrollable
+    const isScrollable = () => {
+      return navElement.scrollWidth > navElement.clientWidth;
+    };
+
+    // Only run animation in mobile mode and if content is scrollable
+    if (!isMobileMode() || !isScrollable()) {
+      if (animationRef.current) {
+        cancelAnimationFrame(animationRef.current);
+        animationRef.current = null;
+      }
+      return;
+    }
 
     const maxScrollLeft = navElement.scrollWidth - navElement.clientWidth;
+    const animationDuration = 3000; // 3 seconds for each direction
+    const pauseDuration = 1000; // 1 second pause at each end
     
     const animate = (timestamp: number) => {
-      if (isUserInteracting.current) {
-        // If user is interacting, pause animation but keep the reference
+      // Skip animation if user is interacting or not in mobile mode
+      if (isUserInteracting.current || !isMobileMode() || !isScrollable()) {
         animationRef.current = requestAnimationFrame(animate);
         return;
       }
@@ -77,10 +96,9 @@ const GuestDashboard: React.FC = () => {
       }
 
       const elapsed = timestamp - startTime.current;
-      const duration = 4000; // 4 seconds
       
       // Calculate progress (0 to 1)
-      const progress = Math.min(elapsed / duration, 1);
+      const progress = Math.min(elapsed / animationDuration, 1);
       
       // Smooth easing function (ease-in-out)
       const easeInOut = (t: number) => t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t;
@@ -94,9 +112,14 @@ const GuestDashboard: React.FC = () => {
       
       // Check if animation segment is complete
       if (progress >= 1) {
-        // Switch direction and reset for next segment
-        direction.current = direction.current === 1 ? -1 : 1;
-        startTime.current = 0; // This will trigger re-initialization on next frame
+        // Pause at the end before switching direction
+        setTimeout(() => {
+          if (!isUserInteracting.current && isMobileMode()) {
+            // Switch direction and reset for next segment
+            direction.current = direction.current === 1 ? -1 : 1;
+            startTime.current = 0; // This will trigger re-initialization on next frame
+          }
+        }, pauseDuration);
       }
       
       animationRef.current = requestAnimationFrame(animate);
@@ -108,14 +131,29 @@ const GuestDashboard: React.FC = () => {
     // Handle user interaction
     const handleInteractionStart = () => {
       isUserInteracting.current = true;
+      if (pauseTimeout.current) {
+        clearTimeout(pauseTimeout.current);
+      }
     };
 
     const handleInteractionEnd = () => {
       // Reset animation after user stops interacting
-      setTimeout(() => {
+      pauseTimeout.current = setTimeout(() => {
         isUserInteracting.current = false;
         startTime.current = 0; // Reset timing for smooth restart
-      }, 1000); // Wait 1 second after user stops interacting
+      }, 2000); // Wait 2 seconds after user stops interacting
+    };
+
+    // Handle window resize to start/stop animation based on screen size
+    const handleResize = () => {
+      if (!isMobileMode() && animationRef.current) {
+        cancelAnimationFrame(animationRef.current);
+        animationRef.current = null;
+        isUserInteracting.current = false;
+        startTime.current = 0;
+      } else if (isMobileMode() && !animationRef.current && isScrollable()) {
+        animationRef.current = requestAnimationFrame(animate);
+      }
     };
 
     // Add event listeners for user interaction
@@ -124,17 +162,22 @@ const GuestDashboard: React.FC = () => {
     navElement.addEventListener('mousedown', handleInteractionStart);
     navElement.addEventListener('mouseup', handleInteractionEnd);
     navElement.addEventListener('scroll', handleInteractionStart, { passive: true });
+    window.addEventListener('resize', handleResize);
 
     // Cleanup
     return () => {
       if (animationRef.current) {
         cancelAnimationFrame(animationRef.current);
       }
+      if (pauseTimeout.current) {
+        clearTimeout(pauseTimeout.current);
+      }
       navElement.removeEventListener('touchstart', handleInteractionStart);
       navElement.removeEventListener('touchend', handleInteractionEnd);
       navElement.removeEventListener('mousedown', handleInteractionStart);
       navElement.removeEventListener('mouseup', handleInteractionEnd);
       navElement.removeEventListener('scroll', handleInteractionStart);
+      window.removeEventListener('resize', handleResize);
     };
   }, [state.currentUser, location.pathname]);
 
@@ -176,50 +219,50 @@ const GuestDashboard: React.FC = () => {
           >
             <Link 
               to="/guest/welcome" 
-              className={`whitespace-nowrap px-4 py-2 mx-2 rounded-full transition-all duration-300 ${getActiveTab('welcome')}`}
+              className={`whitespace-nowrap px-4 py-2 mx-2 rounded-full transition-all duration-300 flex-shrink-0 ${getActiveTab('welcome')}`}
             >
               Welcome
             </Link>
             <Link 
               to="/guest/gallery" 
-              className={`whitespace-nowrap px-4 py-2 mx-2 rounded-full transition-all duration-300 ${getActiveTab('gallery')}`}
+              className={`whitespace-nowrap px-4 py-2 mx-2 rounded-full transition-all duration-300 flex-shrink-0 ${getActiveTab('gallery')}`}
             >
               Gallery
             </Link>
             <Link 
               to="/guest/wedding-party" 
-              className={`whitespace-nowrap px-4 py-2 mx-2 rounded-full transition-all duration-300 ${getActiveTab('wedding-party')}`}
+              className={`whitespace-nowrap px-4 py-2 mx-2 rounded-full transition-all duration-300 flex-shrink-0 ${getActiveTab('wedding-party')}`}
             >
               Wedding Party
             </Link>
             <Link 
               to="/guest/menu" 
-              className={`whitespace-nowrap px-4 py-2 mx-2 rounded-full transition-all duration-300 ${getActiveTab('menu')}`}
+              className={`whitespace-nowrap px-4 py-2 mx-2 rounded-full transition-all duration-300 flex-shrink-0 ${getActiveTab('menu')}`}
             >
               Food & Drinks
             </Link>
             <Link 
               to="/guest/asoebi" 
-              className={`whitespace-nowrap px-4 py-2 mx-2 rounded-full transition-all duration-300 ${getActiveTab('asoebi')}`}
+              className={`whitespace-nowrap px-4 py-2 mx-2 rounded-full transition-all duration-300 flex-shrink-0 ${getActiveTab('asoebi')}`}
             >
               Asoebi
             </Link>
             <Link 
               to="/guest/registry" 
-              className={`whitespace-nowrap px-4 py-2 mx-2 rounded-full transition-all duration-300 ${getActiveTab('registry')}`}
+              className={`whitespace-nowrap px-4 py-2 mx-2 rounded-full transition-all duration-300 flex-shrink-0 ${getActiveTab('registry')}`}
             >
               Registry
             </Link>
             {/* Contact page hidden but code preserved for future use */}
             {/* <Link 
               to="/guest/contact" 
-              className={`whitespace-nowrap px-4 py-2 mx-2 rounded-full transition-all duration-300 ${getActiveTab('contact')}`}
+              className={`whitespace-nowrap px-4 py-2 mx-2 rounded-full transition-all duration-300 flex-shrink-0 ${getActiveTab('contact')}`}
             >
               Contact
             </Link> */}
             <button 
               onClick={handleLogout}
-              className="whitespace-nowrap px-4 py-2 mx-2 rounded-full bg-theme-card-bg text-theme-text hover:bg-gray-300 transition-all duration-300"
+              className="whitespace-nowrap px-4 py-2 mx-2 rounded-full bg-theme-card-bg text-theme-text hover:bg-gray-300 transition-all duration-300 flex-shrink-0"
             >
               Logout
             </button>
