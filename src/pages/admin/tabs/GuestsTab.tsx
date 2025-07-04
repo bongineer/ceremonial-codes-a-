@@ -436,7 +436,7 @@ const GuestsTab: React.FC = () => {
           </p>
         </div>
 
-        {/* Table Navigation Tabs with Drag and Drop */}
+        {/* Table Navigation Tabs with Drag and Drop - Updated for responsive layout */}
         <div className="mb-6">
           <h4 className="text-lg font-semibold mb-4 text-theme-text">Table Navigation</h4>
           <div className="bg-theme-secondary p-4 rounded-lg mb-4">
@@ -446,7 +446,8 @@ const GuestsTab: React.FC = () => {
             </p>
           </div>
           
-          <div className="flex flex-wrap gap-2 overflow-x-auto pb-2">
+          {/* Updated grid layout for responsive design - at least 4 per row */}
+          <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 gap-3">
             {tableOrder.map((originalTableNum, displayIndex) => {
               const displayTableNum = displayIndex + 1;
               const tableGuests = getGuestsByTable(originalTableNum);
@@ -463,7 +464,7 @@ const GuestsTab: React.FC = () => {
                   onDragLeave={handleDragLeave}
                   onDrop={(e) => handleDrop(e, originalTableNum)}
                   onClick={() => setSelectedTable(originalTableNum)}
-                  className={`flex-shrink-0 p-4 rounded-lg border-2 transition-all duration-200 cursor-pointer ${
+                  className={`p-3 rounded-lg border-2 transition-all duration-200 cursor-pointer ${
                     isSelected 
                       ? 'border-theme-primary bg-theme-primary text-theme-button-text shadow-lg' 
                       : dragOverTable === originalTableNum
@@ -471,23 +472,23 @@ const GuestsTab: React.FC = () => {
                       : 'border-gray-200 hover:border-theme-primary bg-theme-card-bg hover:bg-theme-secondary'
                   }`}
                 >
-                  <div className="text-center min-w-[120px]">
+                  <div className="text-center">
                     <div className="flex items-center justify-center mb-2">
-                      <GripVertical className="w-4 h-4 mr-1 opacity-50" />
-                      <Users className="w-5 h-5" />
+                      <GripVertical className="w-3 h-3 mr-1 opacity-50" />
+                      <Users className="w-4 h-4" />
                     </div>
-                    <div className="font-semibold text-sm">Table {displayTableNum}</div>
-                    <div className="text-xs opacity-75 mb-1">
+                    <div className="font-semibold text-xs mb-1">Table {displayTableNum}</div>
+                    <div className="text-xs opacity-75 mb-1 truncate">
                       {getTableName(originalTableNum)}
                     </div>
-                    <div className="text-xs opacity-75">
-                      {tableGuests.length}/{seatsPerTable} occupied
+                    <div className="text-xs opacity-75 mb-1">
+                      {tableGuests.length}/{seatsPerTable}
+                    </div>
+                    <div className="text-xs opacity-75 mb-1">
+                      {availableSeats.length} free
                     </div>
                     <div className="text-xs opacity-75">
-                      {availableSeats.length} available
-                    </div>
-                    <div className="text-xs opacity-75 mt-1">
-                      Seats {(originalTableNum - 1) * seatsPerTable + 1}-{originalTableNum * seatsPerTable}
+                      {(originalTableNum - 1) * seatsPerTable + 1}-{originalTableNum * seatsPerTable}
                     </div>
                   </div>
                 </div>
