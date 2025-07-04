@@ -163,48 +163,50 @@ const UsherDashboard: React.FC = () => {
             </p>
           </div>
 
-          {/* Table Navigation Tabs - Updated for responsive layout */}
+          {/* Table Navigation Tabs - Fixed responsive layout without horizontal scroll */}
           <div className="mb-6">
             <h4 className="text-lg font-semibold mb-4 text-theme-text">Table Navigation</h4>
             
-            {/* Updated grid layout for responsive design - at least 4 per row */}
-            <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 gap-3">
-              {Array.from({ length: totalTables }, (_, index) => {
-                const tableNumber = index + 1;
-                const tableGuests = getGuestsByTable(tableNumber);
-                const isSelected = selectedTable === tableNumber;
-                
-                return (
-                  <div
-                    key={tableNumber}
-                    onClick={() => setSelectedTable(tableNumber)}
-                    className={`p-3 rounded-lg border-2 transition-all duration-200 cursor-pointer ${
-                      isSelected 
-                        ? 'border-theme-primary bg-theme-primary text-theme-button-text shadow-lg' 
-                        : 'border-gray-200 hover:border-theme-primary bg-theme-card-bg hover:bg-theme-secondary'
-                    }`}
-                  >
-                    <div className="text-center">
-                      <div className="flex items-center justify-center mb-2">
-                        <Users className="w-4 h-4" />
-                      </div>
-                      <div className="font-semibold text-xs mb-1">Table {tableNumber}</div>
-                      <div className="text-xs opacity-75 mb-1 truncate">
-                        {getTableName(tableNumber)}
-                      </div>
-                      <div className="text-xs opacity-75 mb-1">
-                        {tableGuests.length}/{seatsPerTable}
-                      </div>
-                      <div className="text-xs opacity-75 mb-1">
-                        Arrived: {tableGuests.filter(([_, guest]) => guest.arrived).length}
-                      </div>
-                      <div className="text-xs opacity-75">
-                        {(tableNumber - 1) * seatsPerTable + 1}-{tableNumber * seatsPerTable}
+            {/* Fixed grid layout - no horizontal scrolling */}
+            <div className="w-full">
+              <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 gap-3">
+                {Array.from({ length: totalTables }, (_, index) => {
+                  const tableNumber = index + 1;
+                  const tableGuests = getGuestsByTable(tableNumber);
+                  const isSelected = selectedTable === tableNumber;
+                  
+                  return (
+                    <div
+                      key={tableNumber}
+                      onClick={() => setSelectedTable(tableNumber)}
+                      className={`p-3 rounded-lg border-2 transition-all duration-200 cursor-pointer ${
+                        isSelected 
+                          ? 'border-theme-primary bg-theme-primary text-theme-button-text shadow-lg' 
+                          : 'border-gray-200 hover:border-theme-primary bg-theme-card-bg hover:bg-theme-secondary'
+                      }`}
+                    >
+                      <div className="text-center">
+                        <div className="flex items-center justify-center mb-2">
+                          <Users className="w-4 h-4" />
+                        </div>
+                        <div className="font-semibold text-xs mb-1">Table {tableNumber}</div>
+                        <div className="text-xs opacity-75 mb-1 truncate">
+                          {getTableName(tableNumber)}
+                        </div>
+                        <div className="text-xs opacity-75 mb-1">
+                          {tableGuests.length}/{seatsPerTable}
+                        </div>
+                        <div className="text-xs opacity-75 mb-1">
+                          Arrived: {tableGuests.filter(([_, guest]) => guest.arrived).length}
+                        </div>
+                        <div className="text-xs opacity-75">
+                          {(tableNumber - 1) * seatsPerTable + 1}-{tableNumber * seatsPerTable}
+                        </div>
                       </div>
                     </div>
-                  </div>
-                );
-              })}
+                  );
+                })}
+              </div>
             </div>
           </div>
         </div>
@@ -240,7 +242,8 @@ const UsherDashboard: React.FC = () => {
               </div>
             </div>
             
-            <div className="overflow-x-auto">
+            {/* Responsive table with horizontal scroll only when necessary */}
+            <div className="w-full overflow-x-auto">
               <table className="min-w-full bg-theme-card-bg">
                 <thead>
                   <tr className="bg-theme-secondary">

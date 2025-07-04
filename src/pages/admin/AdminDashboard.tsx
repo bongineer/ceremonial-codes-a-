@@ -58,60 +58,65 @@ const AdminDashboard: React.FC = () => {
         </div>
       </header>
       
-      <div className="container mx-auto p-5">
-        <div className="mb-8 overflow-x-auto">
-          <div className="flex border-b border-gray-200 min-w-max">
-            <Link 
-              to="/admin/dashboard" 
-              className={`py-3 px-4 mr-2 transition-colors duration-200 ${getActiveTab('dashboard')}`}
-            >
-              Dashboard
-            </Link>
-            <Link 
-              to="/admin/photos" 
-              className={`py-3 px-4 mr-2 transition-colors duration-200 ${getActiveTab('photos')}`}
-            >
-              Photo Gallery
-            </Link>
-            <Link 
-              to="/admin/guests" 
-              className={`py-3 px-4 mr-2 transition-colors duration-200 ${getActiveTab('guests')}`}
-            >
-              Guest Management
-            </Link>
-            <Link 
-              to="/admin/menu" 
-              className={`py-3 px-4 mr-2 transition-colors duration-200 ${getActiveTab('menu')}`}
-            >
-              Menu Management
-            </Link>
-            <Link 
-              to="/admin/asoebi" 
-              className={`py-3 px-4 mr-2 transition-colors duration-200 ${getActiveTab('asoebi')}`}
-            >
-              Asoebi Management
-            </Link>
-            <Link 
-              to="/admin/registry" 
-              className={`py-3 px-4 mr-2 transition-colors duration-200 ${getActiveTab('registry')}`}
-            >
-              Registry & Payments
-            </Link>
-            <Link 
-              to="/admin/wedding-party" 
-              className={`py-3 px-4 mr-2 transition-colors duration-200 ${getActiveTab('wedding-party')}`}
-            >
-              Wedding Party
-            </Link>
-            <Link 
-              to="/admin/themes" 
-              className={`py-3 px-4 transition-colors duration-200 ${getActiveTab('themes')}`}
-            >
-              Themes
-            </Link>
+      {/* Make navigation sticky like guest dashboard */}
+      <nav className="bg-theme-card-bg shadow-md sticky top-0 z-50">
+        <div className="container mx-auto px-5">
+          <div className="overflow-x-auto">
+            <div className="flex border-b border-gray-200 min-w-max py-4">
+              <Link 
+                to="/admin/dashboard" 
+                className={`py-3 px-4 mr-2 transition-colors duration-200 whitespace-nowrap rounded-full ${getActiveTab('dashboard')}`}
+              >
+                Dashboard
+              </Link>
+              <Link 
+                to="/admin/photos" 
+                className={`py-3 px-4 mr-2 transition-colors duration-200 whitespace-nowrap rounded-full ${getActiveTab('photos')}`}
+              >
+                Photo Gallery
+              </Link>
+              <Link 
+                to="/admin/guests" 
+                className={`py-3 px-4 mr-2 transition-colors duration-200 whitespace-nowrap rounded-full ${getActiveTab('guests')}`}
+              >
+                Guest Management
+              </Link>
+              <Link 
+                to="/admin/menu" 
+                className={`py-3 px-4 mr-2 transition-colors duration-200 whitespace-nowrap rounded-full ${getActiveTab('menu')}`}
+              >
+                Menu Management
+              </Link>
+              <Link 
+                to="/admin/asoebi" 
+                className={`py-3 px-4 mr-2 transition-colors duration-200 whitespace-nowrap rounded-full ${getActiveTab('asoebi')}`}
+              >
+                Asoebi Management
+              </Link>
+              <Link 
+                to="/admin/registry" 
+                className={`py-3 px-4 mr-2 transition-colors duration-200 whitespace-nowrap rounded-full ${getActiveTab('registry')}`}
+              >
+                Registry & Payments
+              </Link>
+              <Link 
+                to="/admin/wedding-party" 
+                className={`py-3 px-4 mr-2 transition-colors duration-200 whitespace-nowrap rounded-full ${getActiveTab('wedding-party')}`}
+              >
+                Wedding Party
+              </Link>
+              <Link 
+                to="/admin/themes" 
+                className={`py-3 px-4 transition-colors duration-200 whitespace-nowrap rounded-full ${getActiveTab('themes')}`}
+              >
+                Themes
+              </Link>
+            </div>
           </div>
         </div>
-        
+      </nav>
+      
+      <div className="container mx-auto p-5">
         <div className="admin-content">
           <Routes>
             <Route path="/dashboard" element={<Dashboard />} />

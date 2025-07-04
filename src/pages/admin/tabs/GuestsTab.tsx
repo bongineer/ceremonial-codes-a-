@@ -436,7 +436,7 @@ const GuestsTab: React.FC = () => {
           </p>
         </div>
 
-        {/* Table Navigation Tabs with Drag and Drop - Updated for responsive layout */}
+        {/* Table Navigation Tabs - Fixed responsive layout without horizontal scroll */}
         <div className="mb-6">
           <h4 className="text-lg font-semibold mb-4 text-theme-text">Table Navigation</h4>
           <div className="bg-theme-secondary p-4 rounded-lg mb-4">
@@ -446,54 +446,56 @@ const GuestsTab: React.FC = () => {
             </p>
           </div>
           
-          {/* Updated grid layout for responsive design - at least 4 per row */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 gap-3">
-            {tableOrder.map((originalTableNum, displayIndex) => {
-              const displayTableNum = displayIndex + 1;
-              const tableGuests = getGuestsByTable(originalTableNum);
-              const availableSeats = getAvailableSeatsForTable(originalTableNum);
-              const isSelected = selectedTable === originalTableNum;
-              
-              return (
-                <div
-                  key={originalTableNum}
-                  draggable
-                  onDragStart={(e) => handleDragStart(e, originalTableNum)}
-                  onDragEnd={handleDragEnd}
-                  onDragOver={(e) => handleDragOver(e, originalTableNum)}
-                  onDragLeave={handleDragLeave}
-                  onDrop={(e) => handleDrop(e, originalTableNum)}
-                  onClick={() => setSelectedTable(originalTableNum)}
-                  className={`p-3 rounded-lg border-2 transition-all duration-200 cursor-pointer ${
-                    isSelected 
-                      ? 'border-theme-primary bg-theme-primary text-theme-button-text shadow-lg' 
-                      : dragOverTable === originalTableNum
-                      ? 'border-theme-accent bg-theme-accent text-theme-button-text'
-                      : 'border-gray-200 hover:border-theme-primary bg-theme-card-bg hover:bg-theme-secondary'
-                  }`}
-                >
-                  <div className="text-center">
-                    <div className="flex items-center justify-center mb-2">
-                      <GripVertical className="w-3 h-3 mr-1 opacity-50" />
-                      <Users className="w-4 h-4" />
-                    </div>
-                    <div className="font-semibold text-xs mb-1">Table {displayTableNum}</div>
-                    <div className="text-xs opacity-75 mb-1 truncate">
-                      {getTableName(originalTableNum)}
-                    </div>
-                    <div className="text-xs opacity-75 mb-1">
-                      {tableGuests.length}/{seatsPerTable}
-                    </div>
-                    <div className="text-xs opacity-75 mb-1">
-                      {availableSeats.length} free
-                    </div>
-                    <div className="text-xs opacity-75">
-                      {(originalTableNum - 1) * seatsPerTable + 1}-{originalTableNum * seatsPerTable}
+          {/* Fixed grid layout - no horizontal scrolling */}
+          <div className="w-full">
+            <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 gap-3">
+              {tableOrder.map((originalTableNum, displayIndex) => {
+                const displayTableNum = displayIndex + 1;
+                const tableGuests = getGuestsByTable(originalTableNum);
+                const availableSeats = getAvailableSeatsForTable(originalTableNum);
+                const isSelected = selectedTable === originalTableNum;
+                
+                return (
+                  <div
+                    key={originalTableNum}
+                    draggable
+                    onDragStart={(e) => handleDragStart(e, originalTableNum)}
+                    onDragEnd={handleDragEnd}
+                    onDragOver={(e) => handleDragOver(e, originalTableNum)}
+                    onDragLeave={handleDragLeave}
+                    onDrop={(e) => handleDrop(e, originalTableNum)}
+                    onClick={() => setSelectedTable(originalTableNum)}
+                    className={`p-3 rounded-lg border-2 transition-all duration-200 cursor-pointer ${
+                      isSelected 
+                        ? 'border-theme-primary bg-theme-primary text-theme-button-text shadow-lg' 
+                        : dragOverTable === originalTableNum
+                        ? 'border-theme-accent bg-theme-accent text-theme-button-text'
+                        : 'border-gray-200 hover:border-theme-primary bg-theme-card-bg hover:bg-theme-secondary'
+                    }`}
+                  >
+                    <div className="text-center">
+                      <div className="flex items-center justify-center mb-2">
+                        <GripVertical className="w-3 h-3 mr-1 opacity-50" />
+                        <Users className="w-4 h-4" />
+                      </div>
+                      <div className="font-semibold text-xs mb-1">Table {displayTableNum}</div>
+                      <div className="text-xs opacity-75 mb-1 truncate">
+                        {getTableName(originalTableNum)}
+                      </div>
+                      <div className="text-xs opacity-75 mb-1">
+                        {tableGuests.length}/{seatsPerTable}
+                      </div>
+                      <div className="text-xs opacity-75 mb-1">
+                        {availableSeats.length} free
+                      </div>
+                      <div className="text-xs opacity-75">
+                        {(originalTableNum - 1) * seatsPerTable + 1}-{originalTableNum * seatsPerTable}
+                      </div>
                     </div>
                   </div>
-                </div>
-              );
-            })}
+                );
+              })}
+            </div>
           </div>
         </div>
       </div>
@@ -536,7 +538,8 @@ const GuestsTab: React.FC = () => {
             </div>
           </div>
           
-          <div className="overflow-x-auto">
+          {/* Responsive table with horizontal scroll only when necessary */}
+          <div className="w-full overflow-x-auto">
             <table className="min-w-full bg-theme-card-bg">
               <thead>
                 <tr className="bg-theme-secondary">
