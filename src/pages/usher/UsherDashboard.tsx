@@ -122,7 +122,7 @@ const UsherDashboard: React.FC = () => {
   );
 
   return (
-    <div className="min-h-screen" style={{ background: 'var(--color-background)' }}>
+    <div className="min-h-screen overflow-x-hidden" style={{ background: 'var(--color-background)' }}>
       <header className="bg-theme-primary text-theme-text-inverse p-5 shadow-md">
         <div className="container mx-auto flex justify-between items-center">
           <h1 className="text-3xl font-dancing">Usher Dashboard</h1>
@@ -135,7 +135,7 @@ const UsherDashboard: React.FC = () => {
         </div>
       </header>
       
-      <div className="container mx-auto p-5">
+      <div className="container mx-auto p-5 overflow-x-hidden">
         {/* Header Controls */}
         <div className="bg-theme-card-bg p-6 rounded-lg shadow-md mb-8">
           <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between mb-6">
