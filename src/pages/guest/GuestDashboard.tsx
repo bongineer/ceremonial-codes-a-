@@ -22,10 +22,6 @@ const GuestDashboard: React.FC = () => {
   const animationRef = useRef<number | null>(null);
   const isUserInteracting = useRef(false);
   const startTime = useRef<number>(0);
-  const direction = useRef<1 | -1>(1); // 1 for right, -1 for left
-  const animationStartScroll = useRef<number>(0);
-  const animationTargetScroll = useRef<number>(0);
-  const pauseTimeout = useRef<NodeJS.Timeout | null>(null);
 
   const handleLogout = () => {
     logout();
@@ -44,82 +40,44 @@ const GuestDashboard: React.FC = () => {
     }
   }, [state.currentUser, navigate, location.pathname]);
 
-  // Auto-scroll animation for mobile/responsive mode only
+  // Continuous right-only auto-scroll animation
   useEffect(() => {
     if (!navRef.current) return;
 
     const navElement = navRef.current;
+    const isScrollable = navElement.scrollWidth > navElement.clientWidth;
     
-    // Function to check if we're in mobile/responsive mode
-    const isMobileMode = () => {
-      return window.innerWidth < 768; // md breakpoint in Tailwind
-    };
-
-    // Function to check if content is scrollable
-    const isScrollable = () => {
-      return navElement.scrollWidth > navElement.clientWidth;
-    };
-
-    // Only run animation in mobile mode and if content is scrollable
-    if (!isMobileMode() || !isScrollable()) {
-      if (animationRef.current) {
-        cancelAnimationFrame(animationRef.current);
-        animationRef.current = null;
-      }
-      return;
-    }
+    if (!isScrollable) return;
 
     const maxScrollLeft = navElement.scrollWidth - navElement.clientWidth;
-    const animationDuration = 3000; // 3 seconds for each direction
-    const pauseDuration = 1000; // 1 second pause at each end
+    const animationDuration = 4000; // 4 seconds for full scroll
     
     const animate = (timestamp: number) => {
-      // Skip animation if user is interacting or not in mobile mode
-      if (isUserInteracting.current || !isMobileMode() || !isScrollable()) {
+      // Skip animation if user is interacting
+      if (isUserInteracting.current) {
         animationRef.current = requestAnimationFrame(animate);
         return;
       }
 
-      // Initialize animation segment
+      // Initialize or reset animation
       if (!startTime.current) {
         startTime.current = timestamp;
-        animationStartScroll.current = navElement.scrollLeft;
-        
-        // Set target based on current direction
-        if (direction.current === 1) {
-          // Moving right
-          animationTargetScroll.current = maxScrollLeft;
-        } else {
-          // Moving left
-          animationTargetScroll.current = 0;
-        }
       }
 
       const elapsed = timestamp - startTime.current;
-      
-      // Calculate progress (0 to 1)
-      const progress = Math.min(elapsed / animationDuration, 1);
+      const progress = (elapsed % animationDuration) / animationDuration;
       
       // Smooth easing function (ease-in-out)
       const easeInOut = (t: number) => t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t;
       const easedProgress = easeInOut(progress);
       
-      // Interpolate between start and target scroll positions
-      const scrollDifference = animationTargetScroll.current - animationStartScroll.current;
-      const newScrollLeft = animationStartScroll.current + (scrollDifference * easedProgress);
-      
+      // Calculate scroll position (always moving right)
+      const newScrollLeft = easedProgress * maxScrollLeft;
       navElement.scrollLeft = newScrollLeft;
       
-      // Check if animation segment is complete
-      if (progress >= 1) {
-        // Pause at the end before switching direction
-        setTimeout(() => {
-          if (!isUserInteracting.current && isMobileMode()) {
-            // Switch direction and reset for next segment
-            direction.current = direction.current === 1 ? -1 : 1;
-            startTime.current = 0; // This will trigger re-initialization on next frame
-          }
-        }, pauseDuration);
+      // Reset when we complete a cycle
+      if (elapsed >= animationDuration) {
+        startTime.current = timestamp; // Reset for next cycle
       }
       
       animationRef.current = requestAnimationFrame(animate);
@@ -131,29 +89,14 @@ const GuestDashboard: React.FC = () => {
     // Handle user interaction
     const handleInteractionStart = () => {
       isUserInteracting.current = true;
-      if (pauseTimeout.current) {
-        clearTimeout(pauseTimeout.current);
-      }
     };
 
     const handleInteractionEnd = () => {
       // Reset animation after user stops interacting
-      pauseTimeout.current = setTimeout(() => {
+      setTimeout(() => {
         isUserInteracting.current = false;
         startTime.current = 0; // Reset timing for smooth restart
-      }, 2000); // Wait 2 seconds after user stops interacting
-    };
-
-    // Handle window resize to start/stop animation based on screen size
-    const handleResize = () => {
-      if (!isMobileMode() && animationRef.current) {
-        cancelAnimationFrame(animationRef.current);
-        animationRef.current = null;
-        isUserInteracting.current = false;
-        startTime.current = 0;
-      } else if (isMobileMode() && !animationRef.current && isScrollable()) {
-        animationRef.current = requestAnimationFrame(animate);
-      }
+      }, 1000); // Wait 1 second after user stops interacting
     };
 
     // Add event listeners for user interaction
@@ -162,22 +105,17 @@ const GuestDashboard: React.FC = () => {
     navElement.addEventListener('mousedown', handleInteractionStart);
     navElement.addEventListener('mouseup', handleInteractionEnd);
     navElement.addEventListener('scroll', handleInteractionStart, { passive: true });
-    window.addEventListener('resize', handleResize);
 
     // Cleanup
     return () => {
       if (animationRef.current) {
         cancelAnimationFrame(animationRef.current);
       }
-      if (pauseTimeout.current) {
-        clearTimeout(pauseTimeout.current);
-      }
       navElement.removeEventListener('touchstart', handleInteractionStart);
       navElement.removeEventListener('touchend', handleInteractionEnd);
       navElement.removeEventListener('mousedown', handleInteractionStart);
       navElement.removeEventListener('mouseup', handleInteractionEnd);
       navElement.removeEventListener('scroll', handleInteractionStart);
-      window.removeEventListener('resize', handleResize);
     };
   }, [state.currentUser, location.pathname]);
 
