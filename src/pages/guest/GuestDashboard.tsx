@@ -45,55 +45,83 @@ const GuestDashboard: React.FC = () => {
     if (!navRef.current) return;
 
     const navElement = navRef.current;
-    const isScrollable = navElement.scrollWidth > navElement.clientWidth;
     
-    if (!isScrollable) return;
-
-    const maxScrollLeft = navElement.scrollWidth - navElement.clientWidth;
-    const animationDuration = 4000; // 4 seconds for full scroll
-    
-    const animate = (timestamp: number) => {
-      // Skip animation if user is interacting
-      if (isUserInteracting.current) {
-        animationRef.current = requestAnimationFrame(animate);
+    // Force a delay to ensure DOM is fully rendered
+    const initializeScroll = () => {
+      const isScrollable = navElement.scrollWidth > navElement.clientWidth;
+      
+      console.log('Scroll Debug:', {
+        scrollWidth: navElement.scrollWidth,
+        clientWidth: navElement.clientWidth,
+        isScrollable,
+        children: navElement.children.length
+      });
+      
+      if (!isScrollable) {
+        console.log('Navigation is not scrollable - no animation needed');
         return;
       }
 
-      // Initialize or reset animation
-      if (!startTime.current) {
-        startTime.current = timestamp;
-      }
+      const maxScrollLeft = navElement.scrollWidth - navElement.clientWidth;
+      const animationDuration = 4000; // 4 seconds for full scroll
+      
+      console.log('Starting animation with maxScrollLeft:', maxScrollLeft);
+      
+      const animate = (timestamp: number) => {
+        // Skip animation if user is interacting
+        if (isUserInteracting.current) {
+          animationRef.current = requestAnimationFrame(animate);
+          return;
+        }
 
-      const elapsed = timestamp - startTime.current;
-      const progress = (elapsed % animationDuration) / animationDuration;
-      
-      // Smooth easing function (ease-in-out)
-      const easeInOut = (t: number) => t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t;
-      const easedProgress = easeInOut(progress);
-      
-      // Calculate scroll position (always moving right)
-      const newScrollLeft = easedProgress * maxScrollLeft;
-      navElement.scrollLeft = newScrollLeft;
-      
-      // Reset when we complete a cycle
-      if (elapsed >= animationDuration) {
-        startTime.current = timestamp; // Reset for next cycle
-      }
-      
+        // Initialize or reset animation
+        if (!startTime.current) {
+          startTime.current = timestamp;
+        }
+
+        const elapsed = timestamp - startTime.current;
+        const progress = (elapsed % animationDuration) / animationDuration;
+        
+        // Simple linear progress for testing
+        const newScrollLeft = progress * maxScrollLeft;
+        navElement.scrollLeft = newScrollLeft;
+        
+        // Debug log every second
+        if (Math.floor(elapsed / 1000) !== Math.floor((elapsed - 16) / 1000)) {
+          console.log('Animation progress:', {
+            elapsed: Math.floor(elapsed),
+            progress: progress.toFixed(2),
+            scrollLeft: newScrollLeft.toFixed(2),
+            currentScrollLeft: navElement.scrollLeft
+          });
+        }
+        
+        // Reset when we complete a cycle
+        if (elapsed >= animationDuration) {
+          startTime.current = timestamp; // Reset for next cycle
+          console.log('Animation cycle completed, restarting');
+        }
+        
+        animationRef.current = requestAnimationFrame(animate);
+      };
+
+      // Start animation
       animationRef.current = requestAnimationFrame(animate);
     };
 
-    // Start animation
-    animationRef.current = requestAnimationFrame(animate);
+    // Wait for DOM to be fully rendered
+    setTimeout(initializeScroll, 100);
 
     // Handle user interaction
     const handleInteractionStart = () => {
+      console.log('User interaction started - pausing animation');
       isUserInteracting.current = true;
     };
 
     const handleInteractionEnd = () => {
       // Reset animation after user stops interacting
       setTimeout(() => {
+        console.log('User interaction ended - resuming animation');
         isUserInteracting.current = false;
         startTime.current = 0; // Reset timing for smooth restart
       }, 1000); // Wait 1 second after user stops interacting
@@ -157,53 +185,63 @@ const GuestDashboard: React.FC = () => {
           >
             <Link 
               to="/guest/welcome" 
-              className={`whitespace-nowrap px-4 py-2 mx-2 rounded-full transition-all duration-300 flex-shrink-0 ${getActiveTab('welcome')}`}
+              className={`whitespace-nowrap px-6 py-2 mx-3 rounded-full transition-all duration-300 flex-shrink-0 ${getActiveTab('welcome')}`}
             >
               Welcome
             </Link>
             <Link 
               to="/guest/gallery" 
-              className={`whitespace-nowrap px-4 py-2 mx-2 rounded-full transition-all duration-300 flex-shrink-0 ${getActiveTab('gallery')}`}
+              className={`whitespace-nowrap px-6 py-2 mx-3 rounded-full transition-all duration-300 flex-shrink-0 ${getActiveTab('gallery')}`}
             >
-              Gallery
+              Photo Gallery
             </Link>
             <Link 
               to="/guest/wedding-party" 
-              className={`whitespace-nowrap px-4 py-2 mx-2 rounded-full transition-all duration-300 flex-shrink-0 ${getActiveTab('wedding-party')}`}
+              className={`whitespace-nowrap px-6 py-2 mx-3 rounded-full transition-all duration-300 flex-shrink-0 ${getActiveTab('wedding-party')}`}
             >
               Wedding Party
             </Link>
             <Link 
               to="/guest/menu" 
-              className={`whitespace-nowrap px-4 py-2 mx-2 rounded-full transition-all duration-300 flex-shrink-0 ${getActiveTab('menu')}`}
+              className={`whitespace-nowrap px-6 py-2 mx-3 rounded-full transition-all duration-300 flex-shrink-0 ${getActiveTab('menu')}`}
             >
-              Food & Drinks
+              Food & Drinks Menu
             </Link>
             <Link 
               to="/guest/asoebi" 
-              className={`whitespace-nowrap px-4 py-2 mx-2 rounded-full transition-all duration-300 flex-shrink-0 ${getActiveTab('asoebi')}`}
+              className={`whitespace-nowrap px-6 py-2 mx-3 rounded-full transition-all duration-300 flex-shrink-0 ${getActiveTab('asoebi')}`}
             >
-              Asoebi
+              Wedding Attire (Asoebi)
             </Link>
             <Link 
               to="/guest/registry" 
-              className={`whitespace-nowrap px-4 py-2 mx-2 rounded-full transition-all duration-300 flex-shrink-0 ${getActiveTab('registry')}`}
+              className={`whitespace-nowrap px-6 py-2 mx-3 rounded-full transition-all duration-300 flex-shrink-0 ${getActiveTab('registry')}`}
             >
-              Registry
+              Gift Registry
             </Link>
             {/* Contact page hidden but code preserved for future use */}
             {/* <Link 
               to="/guest/contact" 
-              className={`whitespace-nowrap px-4 py-2 mx-2 rounded-full transition-all duration-300 flex-shrink-0 ${getActiveTab('contact')}`}
+              className={`whitespace-nowrap px-6 py-2 mx-3 rounded-full transition-all duration-300 flex-shrink-0 ${getActiveTab('contact')}`}
             >
-              Contact
+              Contact Information
             </Link> */}
             <button 
               onClick={handleLogout}
-              className="whitespace-nowrap px-4 py-2 mx-2 rounded-full bg-theme-card-bg text-theme-text hover:bg-gray-300 transition-all duration-300 flex-shrink-0"
+              className="whitespace-nowrap px-6 py-2 mx-3 rounded-full bg-theme-card-bg text-theme-text hover:bg-gray-300 transition-all duration-300 flex-shrink-0"
             >
               Logout
             </button>
+            {/* Add some extra padding items to ensure scrollability */}
+            <div className="whitespace-nowrap px-6 py-2 mx-3 rounded-full flex-shrink-0 opacity-0 pointer-events-none">
+              Extra Space
+            </div>
+            <div className="whitespace-nowrap px-6 py-2 mx-3 rounded-full flex-shrink-0 opacity-0 pointer-events-none">
+              More Space
+            </div>
+            <div className="whitespace-nowrap px-6 py-2 mx-3 rounded-full flex-shrink-0 opacity-0 pointer-events-none">
+              Even More
+            </div>
           </div>
         </div>
       </nav>
