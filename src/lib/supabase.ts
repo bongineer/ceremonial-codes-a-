@@ -269,11 +269,14 @@ export interface Database {
         }
         Update: {
           name?: string
-          role?: string
-          image_url?: string
+      welcome_images: string[]
+      background_images: string[]
           bio?: string
-        }
-      }
+      welcome_images?: string[]
+      welcome_images?: string[]
+      background_images?: string[]
+      table_names?: Record<number, string> | null
+      table_names?: Record<number, string> | null
     }
   }
 }
