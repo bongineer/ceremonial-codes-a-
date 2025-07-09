@@ -44,8 +44,11 @@ export interface Database {
           welcome_images: any
           background_images: any
           theme: string
+          table_names: any
           created_at: string
           updated_at: string
+          reception_venue: string | null
+          reception_date: string | null
         }
         Insert: {
           couple_names: string
@@ -57,6 +60,9 @@ export interface Database {
           welcome_images?: any
           background_images?: any
           theme?: string
+          table_names?: any
+          reception_venue?: string | null
+          reception_date?: string | null
         }
         Update: {
           couple_names?: string
@@ -68,6 +74,9 @@ export interface Database {
           welcome_images?: any
           background_images?: any
           theme?: string
+          table_names?: any
+          reception_venue?: string | null
+          reception_date?: string | null
         }
       }
       guests: {
