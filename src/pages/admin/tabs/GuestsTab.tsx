@@ -14,8 +14,8 @@ const GuestsTab: React.FC = () => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   
   // Seating configuration state
-  const [totalGuests, setTotalGuests] = useState(state.settings.maxSeats.toString());
-  const [seatsPerTable, setSeatsPerTable] = useState(state.settings.seatsPerTable.toString());
+  const [totalGuests, setTotalGuests] = useState(state.settings.maxSeats);
+  const [seatsPerTable, setSeatsPerTable] = useState(state.settings.seatsPerTable);
   
   // Drag and drop state
   const [draggedTable, setDraggedTable] = useState<number | null>(null);
@@ -23,7 +23,7 @@ const GuestsTab: React.FC = () => {
   const [tableOrder, setTableOrder] = useState<number[]>([]);
   
   // Calculate total number of tables
-  const totalTables = Math.ceil(parseInt(totalGuests) || 300 / parseInt(seatsPerTable) || 10);
+  const totalTables = Math.ceil((totalGuests || 300) / (seatsPerTable || 10));
   
   // Initialize table order
   React.useEffect(() => {
@@ -34,7 +34,7 @@ const GuestsTab: React.FC = () => {
   
   // Calculate current guest count (excluding ADMIN)
   const currentGuestCount = Object.keys(state.guests).filter(code => code !== 'ADMIN').length;
-  const remainingCapacity = (parseInt(totalGuests) || 300) - currentGuestCount;
+  const remainingCapacity = (totalGuests || 300) - currentGuestCount;
   
   // Initialize table names with default values if not set
   React.useEffect(() => {
@@ -49,28 +49,24 @@ const GuestsTab: React.FC = () => {
 
   const handleSaveSeatingSettings = async () => {
     try {
-      // Validate inputs
-      const totalGuestsNum = parseInt(totalGuests);
-      const seatsPerTableNum = parseInt(seatsPerTable);
-      
-      if (!totalGuestsNum || totalGuestsNum < 1 || totalGuestsNum > 1000) {
+      if (!totalGuests || totalGuests < 1 || totalGuests > 1000) {
         toast.error('Please enter a valid number of guests (1-1000)');
         return;
       }
       
-      if (!seatsPerTableNum || seatsPerTableNum < 1 || seatsPerTableNum > 50) {
+      if (!seatsPerTable || seatsPerTable < 1 || seatsPerTable > 50) {
         toast.error('Please enter a valid number of seats per table (1-50)');
         return;
       }
       
       // First, update the settings
       await updateSettings({
-        maxSeats: totalGuestsNum,
-        seatsPerTable: seatsPerTableNum
+        maxSeats: totalGuests,
+        seatsPerTable: seatsPerTable
       });
       
       // Calculate how many guests we need
-      const targetGuestCount = totalGuestsNum;
+      const targetGuestCount = totalGuests;
       const currentGuestCount = Object.keys(state.guests).filter(code => code !== 'ADMIN').length;
       
       if (currentGuestCount < targetGuestCount) {
@@ -119,9 +115,8 @@ const GuestsTab: React.FC = () => {
   
   // Group guests by table (using original table numbers, not reordered)
   const getGuestsByTable = (originalTableNumber: number) => {
-    const seatsPerTableNum = parseInt(seatsPerTable) || 10;
-    const startSeat = (originalTableNumber - 1) * seatsPerTableNum + 1;
-    const endSeat = originalTableNumber * seatsPerTableNum;
+    const startSeat = (originalTableNumber - 1) * seatsPerTable + 1;
+    const endSeat = originalTableNumber * seatsPerTable;
     
     return filteredGuests.filter(([code, guest]) => {
       return guest.seatNumber && guest.seatNumber >= startSeat && guest.seatNumber <= endSeat;
@@ -220,7 +215,7 @@ const GuestsTab: React.FC = () => {
 
   const getTableNumber = (seatNumber: number | null): number | null => {
     if (!seatNumber) return null;
-    return Math.ceil(seatNumber / (parseInt(seatsPerTable) || 10));
+    return Math.ceil(seatNumber / seatsPerTable);
   };
 
   const getTableName = (tableNumber: number | null): string => {
@@ -229,9 +224,8 @@ const GuestsTab: React.FC = () => {
   };
 
   const getAvailableSeatsForTable = (tableNumber: number) => {
-    const seatsPerTableNum = parseInt(seatsPerTable) || 10;
-    const startSeat = (tableNumber - 1) * seatsPerTableNum + 1;
-    const endSeat = tableNumber * seatsPerTableNum;
+    const startSeat = (tableNumber - 1) * seatsPerTable + 1;
+    const endSeat = tableNumber * seatsPerTable;
     const availableSeats = [];
     
     for (let seat = startSeat; seat <= endSeat; seat++) {
@@ -249,9 +243,30 @@ const GuestsTab: React.FC = () => {
       ...state.settings.tableNames,
       [tableNumber]: newName
     };
-    updateSettings({ tableNames: updatedTableNames });
-    toast.success('Table name updated successfully');
+    
+    // Debounce the save operation
+    clearTimeout(tableNameTimeout.current);
+    tableNameTimeout.current = setTimeout(async () => {
+      try {
+        await updateSettings({ tableNames: updatedTableNames });
+        toast.success('Table name saved successfully');
+      } catch (error) {
+        toast.error('Failed to save table name');
+      }
+    }, 1000); // Save after 1 second of no typing
   };
+
+  // Add timeout ref for debouncing table name changes
+  const tableNameTimeout = useRef<NodeJS.Timeout | null>(null);
+  
+  // Cleanup timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (tableNameTimeout.current) {
+        clearTimeout(tableNameTimeout.current);
+      }
+    };
+  }, []);
 
   // Drag and Drop handlers
   const handleDragStart = (e: React.DragEvent, tableNumber: number) => {
@@ -367,10 +382,12 @@ const GuestsTab: React.FC = () => {
           <div>
             <label htmlFor="total-guests" className="block text-theme-text mb-2 font-medium">Total Number of Guests</label>
             <input 
-              type="text" 
+              type="number" 
               id="total-guests" 
+              min="1"
+              max="1000"
               value={totalGuests}
-              onChange={(e) => setTotalGuests(e.target.value)}
+              onChange={(e) => setTotalGuests(parseInt(e.target.value) || 300)}
               className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-theme-accent"
               placeholder="Enter total number of guests"
             />
@@ -379,10 +396,12 @@ const GuestsTab: React.FC = () => {
           <div>
             <label htmlFor="seats-per-table" className="block text-theme-text mb-2 font-medium">Seats Per Table</label>
             <input 
-              type="text" 
+              type="number" 
               id="seats-per-table" 
+              min="1"
+              max="50"
               value={seatsPerTable}
-              onChange={(e) => setSeatsPerTable(e.target.value)}
+              onChange={(e) => setSeatsPerTable(parseInt(e.target.value) || 10)}
               className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-theme-accent"
               placeholder="Enter seats per table"
             />
@@ -391,10 +410,10 @@ const GuestsTab: React.FC = () => {
 
         <div className="bg-theme-secondary p-4 rounded-lg mb-6">
           <p className="text-theme-text text-sm">
-            Current capacity: <span className="font-semibold">{currentGuestCount} guests</span> out of <span className="font-semibold">{parseInt(totalGuests) || 300} total seats</span>
+            Current capacity: <span className="font-semibold">{currentGuestCount} guests</span> out of <span className="font-semibold">{totalGuests} total seats</span>
           </p>
           <p className="text-theme-text text-sm">
-            Tables to be created: <span className="font-semibold">{totalTables} tables</span> with <span className="font-semibold">{parseInt(seatsPerTable) || 10} seats each</span>
+            Tables to be created: <span className="font-semibold">{totalTables} tables</span> with <span className="font-semibold">{seatsPerTable} seats each</span>
           </p>
         </div>
 
@@ -530,7 +549,7 @@ const GuestsTab: React.FC = () => {
                 type="text"
                 value={state.settings.tableNames?.[selectedTable] || `Table ${selectedTable}`}
                 onChange={(e) => handleTableNameChange(selectedTable, e.target.value)}
-                className="px-3 py-1 border rounded-lg focus:outline-none focus:ring-2 focus:ring-theme-accent text-sm"
+                className="px-3 py-1 border rounded-lg focus:outline-none focus:ring-2 focus:ring-theme-accent text-sm w-40"
                 placeholder="Enter table name"
               />
             </div>

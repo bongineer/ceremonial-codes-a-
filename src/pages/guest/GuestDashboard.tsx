@@ -50,83 +50,8 @@ const GuestDashboard: React.FC = () => {
 
     const navElement = navRef.current;
     
-    // Function to check if we're in mobile/responsive mode
-    const isMobileMode = () => {
-      return window.innerWidth < 768; // md breakpoint in Tailwind
-    };
-
-    // Function to check if content is scrollable
-    const isScrollable = () => {
-      return navElement.scrollWidth > navElement.clientWidth;
-    };
-
-    // Only run animation in mobile mode and if content is scrollable
-    if (!isMobileMode() || !isScrollable()) {
-      if (animationRef.current) {
-        cancelAnimationFrame(animationRef.current);
-        animationRef.current = null;
-      }
-      return;
-    }
-
-    const maxScrollLeft = navElement.scrollWidth - navElement.clientWidth;
-    const animationDuration = 3000; // 3 seconds for each direction
-    const pauseDuration = 1000; // 1 second pause at each end
-    
-    const animate = (timestamp: number) => {
-      // Skip animation if user is interacting or not in mobile mode
-      if (isUserInteracting.current || !isMobileMode() || !isScrollable()) {
-        animationRef.current = requestAnimationFrame(animate);
-        return;
-      }
-
-      // Initialize animation segment
-      if (!startTime.current) {
-        startTime.current = timestamp;
-        animationStartScroll.current = navElement.scrollLeft;
-        
-        // Set target based on current direction
-        if (direction.current === 1) {
-          // Moving right
-          animationTargetScroll.current = maxScrollLeft;
-        } else {
-          // Moving left
-          animationTargetScroll.current = 0;
-        }
-      }
-
-      const elapsed = timestamp - startTime.current;
-      
-      // Calculate progress (0 to 1)
-      const progress = Math.min(elapsed / animationDuration, 1);
-      
-      // Smooth easing function (ease-in-out)
-      const easeInOut = (t: number) => t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t;
-      const easedProgress = easeInOut(progress);
-      
-      // Interpolate between start and target scroll positions
-      const scrollDifference = animationTargetScroll.current - animationStartScroll.current;
-      const newScrollLeft = animationStartScroll.current + (scrollDifference * easedProgress);
-      
-      navElement.scrollLeft = newScrollLeft;
-      
-      // Check if animation segment is complete
-      if (progress >= 1) {
-        // Pause at the end before switching direction
-        setTimeout(() => {
-          if (!isUserInteracting.current && isMobileMode()) {
-            // Switch direction and reset for next segment
-            direction.current = direction.current === 1 ? -1 : 1;
-            startTime.current = 0; // This will trigger re-initialization on next frame
-          }
-        }, pauseDuration);
-      }
-      
-      animationRef.current = requestAnimationFrame(animate);
-    };
-
-    // Start animation
-    animationRef.current = requestAnimationFrame(animate);
+    // Disable auto-scroll animation completely to prevent app reloading
+    // The navigation will work fine with manual scrolling
 
     // Handle user interaction
     const handleInteractionStart = () => {
@@ -144,26 +69,6 @@ const GuestDashboard: React.FC = () => {
       }, 2000); // Wait 2 seconds after user stops interacting
     };
 
-    // Handle window resize to start/stop animation based on screen size
-    const handleResize = () => {
-      if (!isMobileMode() && animationRef.current) {
-        cancelAnimationFrame(animationRef.current);
-        animationRef.current = null;
-        isUserInteracting.current = false;
-        startTime.current = 0;
-      } else if (isMobileMode() && !animationRef.current && isScrollable()) {
-        animationRef.current = requestAnimationFrame(animate);
-      }
-    };
-
-    // Add event listeners for user interaction
-    navElement.addEventListener('touchstart', handleInteractionStart, { passive: true });
-    navElement.addEventListener('touchend', handleInteractionEnd, { passive: true });
-    navElement.addEventListener('mousedown', handleInteractionStart);
-    navElement.addEventListener('mouseup', handleInteractionEnd);
-    navElement.addEventListener('scroll', handleInteractionStart, { passive: true });
-    window.addEventListener('resize', handleResize);
-
     // Cleanup
     return () => {
       if (animationRef.current) {
@@ -172,12 +77,6 @@ const GuestDashboard: React.FC = () => {
       if (pauseTimeout.current) {
         clearTimeout(pauseTimeout.current);
       }
-      navElement.removeEventListener('touchstart', handleInteractionStart);
-      navElement.removeEventListener('touchend', handleInteractionEnd);
-      navElement.removeEventListener('mousedown', handleInteractionStart);
-      navElement.removeEventListener('mouseup', handleInteractionEnd);
-      navElement.removeEventListener('scroll', handleInteractionStart);
-      window.removeEventListener('resize', handleResize);
     };
   }, [state.currentUser, location.pathname]);
 
