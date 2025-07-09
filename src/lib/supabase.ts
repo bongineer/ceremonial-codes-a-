@@ -269,6 +269,8 @@ export interface Database {
         }
         Update: {
           name?: string
+        }
+      }
       welcome_images: string[]
       background_images: string[]
           bio?: string
