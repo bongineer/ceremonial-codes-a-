@@ -23,7 +23,7 @@ const GuestsTab: React.FC = () => {
   const [tableOrder, setTableOrder] = useState<number[]>([]);
   
   // Calculate total number of tables
-  const totalTables = Math.ceil((totalGuests || 300) / (seatsPerTable || 10));
+  const totalTables = Math.ceil(totalGuests / seatsPerTable);
   
   // Initialize table order
   React.useEffect(() => {
@@ -34,7 +34,7 @@ const GuestsTab: React.FC = () => {
   
   // Calculate current guest count (excluding ADMIN)
   const currentGuestCount = Object.keys(state.guests).filter(code => code !== 'ADMIN').length;
-  const remainingCapacity = (totalGuests || 300) - currentGuestCount;
+  const remainingCapacity = totalGuests - currentGuestCount;
   
   // Initialize table names with default values if not set
   React.useEffect(() => {
@@ -49,16 +49,6 @@ const GuestsTab: React.FC = () => {
 
   const handleSaveSeatingSettings = async () => {
     try {
-      if (!totalGuests || totalGuests < 1 || totalGuests > 1000) {
-        toast.error('Please enter a valid number of guests (1-1000)');
-        return;
-      }
-      
-      if (!seatsPerTable || seatsPerTable < 1 || seatsPerTable > 50) {
-        toast.error('Please enter a valid number of seats per table (1-50)');
-        return;
-      }
-      
       // First, update the settings
       await updateSettings({
         maxSeats: totalGuests,
@@ -243,30 +233,8 @@ const GuestsTab: React.FC = () => {
       ...state.settings.tableNames,
       [tableNumber]: newName
     };
-    
-    // Debounce the save operation
-    clearTimeout(tableNameTimeout.current);
-    tableNameTimeout.current = setTimeout(async () => {
-      try {
-        await updateSettings({ tableNames: updatedTableNames });
-        toast.success('Table name saved successfully');
-      } catch (error) {
-        toast.error('Failed to save table name');
-      }
-    }, 1000); // Save after 1 second of no typing
+    updateSettings({ tableNames: updatedTableNames });
   };
-
-  // Add timeout ref for debouncing table name changes
-  const tableNameTimeout = useRef<NodeJS.Timeout | null>(null);
-  
-  // Cleanup timeout on unmount
-  useEffect(() => {
-    return () => {
-      if (tableNameTimeout.current) {
-        clearTimeout(tableNameTimeout.current);
-      }
-    };
-  }, []);
 
   // Drag and Drop handlers
   const handleDragStart = (e: React.DragEvent, tableNumber: number) => {
@@ -384,12 +352,11 @@ const GuestsTab: React.FC = () => {
             <input 
               type="number" 
               id="total-guests" 
-              min="1"
-              max="1000"
+              min="1" 
+              max="500" 
               value={totalGuests}
               onChange={(e) => setTotalGuests(parseInt(e.target.value) || 300)}
               className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-theme-accent"
-              placeholder="Enter total number of guests"
             />
           </div>
           
@@ -398,12 +365,11 @@ const GuestsTab: React.FC = () => {
             <input 
               type="number" 
               id="seats-per-table" 
-              min="1"
-              max="50"
+              min="1" 
+              max="20" 
               value={seatsPerTable}
               onChange={(e) => setSeatsPerTable(parseInt(e.target.value) || 10)}
               className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-theme-accent"
-              placeholder="Enter seats per table"
             />
           </div>
         </div>
@@ -549,7 +515,7 @@ const GuestsTab: React.FC = () => {
                 type="text"
                 value={state.settings.tableNames?.[selectedTable] || `Table ${selectedTable}`}
                 onChange={(e) => handleTableNameChange(selectedTable, e.target.value)}
-                className="px-3 py-1 border rounded-lg focus:outline-none focus:ring-2 focus:ring-theme-accent text-sm w-40"
+                className="px-3 py-1 border rounded-lg focus:outline-none focus:ring-2 focus:ring-theme-accent text-sm"
                 placeholder="Enter table name"
               />
             </div>

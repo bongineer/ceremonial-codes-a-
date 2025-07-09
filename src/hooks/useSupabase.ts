@@ -43,8 +43,7 @@ export const useSupabase = () => {
         welcomeImage: settingsData.welcome_image,
         welcomeImages: settingsData.welcome_images || [],
         backgroundImages: settingsData.background_images || [],
-        theme: settingsData.theme || 'classic-rose',
-        tableNames: settingsData.table_names || {}
+        theme: settingsData.theme || 'classic-rose'
       };
     } catch (err) {
       console.error('Error fetching settings:', err);
@@ -78,8 +77,7 @@ export const useSupabase = () => {
             welcome_image: settings.welcomeImage || null,
             welcome_images: settings.welcomeImages || [],
             background_images: settings.backgroundImages || [],
-            theme: settings.theme || 'classic-rose',
-            table_names: settings.tableNames || {}
+            theme: settings.theme || 'classic-rose'
           });
         
         if (error) throw error;
@@ -100,7 +98,6 @@ export const useSupabase = () => {
         if (settings.welcomeImages !== undefined) updateData.welcome_images = settings.welcomeImages;
         if (settings.backgroundImages !== undefined) updateData.background_images = settings.backgroundImages;
         if (settings.theme !== undefined) updateData.theme = settings.theme;
-        if (settings.tableNames !== undefined) updateData.table_names = settings.tableNames;
         
         const { error } = await supabase
           .from('settings')
