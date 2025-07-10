@@ -259,6 +259,7 @@ export interface Database {
           role: string
           image_url: string
           bio: string
+          side: string
           created_at: string
         }
         Insert: {
@@ -266,12 +267,14 @@ export interface Database {
           role: string
           image_url: string
           bio?: string
+          side: string
         }
         Update: {
           name?: string
           role?: string
           image_url?: string
           bio?: string
+          side?: string
         }
       }
       table_names?: Record<number, string>

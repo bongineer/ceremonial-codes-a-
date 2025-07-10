@@ -21,7 +21,7 @@ const WeddingPartyTab: React.FC = () => {
       name: name.trim(),
       imageUrl: imageUrl.trim(),
       role: role.trim(),
-      side
+      side: side
     };
     
     addWeddingPartyMember(newMember);
@@ -30,6 +30,8 @@ const WeddingPartyTab: React.FC = () => {
     setName('');
     setImageUrl('');
     setRole('');
+    // Keep the same side selected for easier bulk entry
+    // setSide('bride'); // Don't reset side
     
     toast.success('Wedding party member added!');
   };

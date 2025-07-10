@@ -621,13 +621,12 @@ export const useSupabase = () => {
         role: member.role,
         imageUrl: member.image_url,
         bio: member.bio || '',
-        side: member.role.toLowerCase().includes('bride') || member.role.toLowerCase().includes('maid') ? 'bride' : 'groom'
-      }));
-    } catch (err) {
-      console.error('Error fetching wedding party:', err);
-      return [];
-    }
-  };
+        side: (member.side as 'bride' | 'groom') || 'groom'
+          }
+      )
+      )
+      };
+  }
 
   const addWeddingPartyMember = async (member: WeddingPartyMember): Promise<boolean> => {
     try {
