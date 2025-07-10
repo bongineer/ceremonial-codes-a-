@@ -14,8 +14,8 @@ const GuestsTab: React.FC = () => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   
   // Seating configuration state
-  const [totalGuests, setTotalGuests] = useState(state.settings.maxSeats);
-  const [seatsPerTable, setSeatsPerTable] = useState(state.settings.seatsPerTable);
+  const [totalGuests, setTotalGuests] = useState(state.settings.maxSeats.toString());
+  const [seatsPerTable, setSeatsPerTable] = useState(state.settings.seatsPerTable.toString());
   
   // Drag and drop state
   const [draggedTable, setDraggedTable] = useState<number | null>(null);
@@ -23,7 +23,7 @@ const GuestsTab: React.FC = () => {
   const [tableOrder, setTableOrder] = useState<number[]>([]);
   
   // Calculate total number of tables
-  const totalTables = Math.ceil(totalGuests / seatsPerTable);
+  const totalTables = Math.ceil(parseInt(totalGuests) / parseInt(seatsPerTable));
   
   // Initialize table order
   React.useEffect(() => {
@@ -34,7 +34,7 @@ const GuestsTab: React.FC = () => {
   
   // Calculate current guest count (excluding ADMIN)
   const currentGuestCount = Object.keys(state.guests).filter(code => code !== 'ADMIN').length;
-  const remainingCapacity = totalGuests - currentGuestCount;
+  const remainingCapacity = parseInt(totalGuests) - currentGuestCount;
   
   // Initialize table names with default values if not set
   React.useEffect(() => {
@@ -49,14 +49,17 @@ const GuestsTab: React.FC = () => {
 
   const handleSaveSeatingSettings = async () => {
     try {
+      const totalGuestsNum = parseInt(totalGuests) || 300;
+      const seatsPerTableNum = parseInt(seatsPerTable) || 10;
+      
       // First, update the settings
       await updateSettings({
-        maxSeats: totalGuests,
-        seatsPerTable: seatsPerTable
+        maxSeats: totalGuestsNum,
+        seatsPerTable: seatsPerTableNum
       });
       
       // Calculate how many guests we need
-      const targetGuestCount = totalGuests;
+      const targetGuestCount = totalGuestsNum;
       const currentGuestCount = Object.keys(state.guests).filter(code => code !== 'ADMIN').length;
       
       if (currentGuestCount < targetGuestCount) {
@@ -105,8 +108,9 @@ const GuestsTab: React.FC = () => {
   
   // Group guests by table (using original table numbers, not reordered)
   const getGuestsByTable = (originalTableNumber: number) => {
-    const startSeat = (originalTableNumber - 1) * seatsPerTable + 1;
-    const endSeat = originalTableNumber * seatsPerTable;
+    const seatsPerTableNum = parseInt(seatsPerTable);
+    const startSeat = (originalTableNumber - 1) * seatsPerTableNum + 1;
+    const endSeat = originalTableNumber * seatsPerTableNum;
     
     return filteredGuests.filter(([code, guest]) => {
       return guest.seatNumber && guest.seatNumber >= startSeat && guest.seatNumber <= endSeat;
@@ -205,7 +209,7 @@ const GuestsTab: React.FC = () => {
 
   const getTableNumber = (seatNumber: number | null): number | null => {
     if (!seatNumber) return null;
-    return Math.ceil(seatNumber / seatsPerTable);
+    return Math.ceil(seatNumber / parseInt(seatsPerTable));
   };
 
   const getTableName = (tableNumber: number | null): string => {
@@ -214,8 +218,9 @@ const GuestsTab: React.FC = () => {
   };
 
   const getAvailableSeatsForTable = (tableNumber: number) => {
-    const startSeat = (tableNumber - 1) * seatsPerTable + 1;
-    const endSeat = tableNumber * seatsPerTable;
+    const seatsPerTableNum = parseInt(seatsPerTable);
+    const startSeat = (tableNumber - 1) * seatsPerTableNum + 1;
+    const endSeat = tableNumber * seatsPerTableNum;
     const availableSeats = [];
     
     for (let seat = startSeat; seat <= endSeat; seat++) {
@@ -228,12 +233,12 @@ const GuestsTab: React.FC = () => {
     return availableSeats;
   };
 
-  const handleTableNameChange = (tableNumber: number, newName: string) => {
+  const handleTableNameChange = async (tableNumber: number, newName: string) => {
     const updatedTableNames = {
       ...state.settings.tableNames,
       [tableNumber]: newName
     };
-    updateSettings({ tableNames: updatedTableNames });
+    await updateSettings({ tableNames: updatedTableNames });
   };
 
   // Drag and Drop handlers
@@ -355,7 +360,7 @@ const GuestsTab: React.FC = () => {
               min="1" 
               max="500" 
               value={totalGuests}
-              onChange={(e) => setTotalGuests(parseInt(e.target.value) || 300)}
+              onChange={(e) => setTotalGuests(e.target.value)}
               className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-theme-accent"
             />
           </div>
@@ -368,7 +373,7 @@ const GuestsTab: React.FC = () => {
               min="1" 
               max="20" 
               value={seatsPerTable}
-              onChange={(e) => setSeatsPerTable(parseInt(e.target.value) || 10)}
+              onChange={(e) => setSeatsPerTable(e.target.value)}
               className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-theme-accent"
             />
           </div>
@@ -376,10 +381,10 @@ const GuestsTab: React.FC = () => {
 
         <div className="bg-theme-secondary p-4 rounded-lg mb-6">
           <p className="text-theme-text text-sm">
-            Current capacity: <span className="font-semibold">{currentGuestCount} guests</span> out of <span className="font-semibold">{totalGuests} total seats</span>
+            Current capacity: <span className="font-semibold">{currentGuestCount} guests</span> out of <span className="font-semibold">{parseInt(totalGuests) || 0} total seats</span>
           </p>
           <p className="text-theme-text text-sm">
-            Tables to be created: <span className="font-semibold">{totalTables} tables</span> with <span className="font-semibold">{seatsPerTable} seats each</span>
+            Tables to be created: <span className="font-semibold">{totalTables} tables</span> with <span className="font-semibold">{parseInt(seatsPerTable) || 0} seats each</span>
           </p>
         </div>
 
@@ -454,6 +459,7 @@ const GuestsTab: React.FC = () => {
                 const tableGuests = getGuestsByTable(originalTableNum);
                 const availableSeats = getAvailableSeatsForTable(originalTableNum);
                 const isSelected = selectedTable === originalTableNum;
+                const seatsPerTableNum = parseInt(seatsPerTable);
                 
                 return (
                   <div
@@ -483,13 +489,13 @@ const GuestsTab: React.FC = () => {
                         {getTableName(originalTableNum)}
                       </div>
                       <div className="text-xs opacity-75 mb-1">
-                        {tableGuests.length}/{seatsPerTable}
+                        {tableGuests.length}/{seatsPerTableNum}
                       </div>
                       <div className="text-xs opacity-75 mb-1">
                         {availableSeats.length} free
                       </div>
                       <div className="text-xs opacity-75">
-                        {(originalTableNum - 1) * seatsPerTable + 1}-{originalTableNum * seatsPerTable}
+                        {(originalTableNum - 1) * seatsPerTableNum + 1}-{originalTableNum * seatsPerTableNum}
                       </div>
                     </div>
                   </div>
@@ -506,7 +512,7 @@ const GuestsTab: React.FC = () => {
           <div className="flex items-center justify-between mb-4">
             <h4 className="text-lg font-semibold text-theme-primary flex items-center gap-2">
               <Users className="w-5 h-5" />
-              Table {tableOrder.indexOf(selectedTable) + 1} - Seats {(selectedTable - 1) * seatsPerTable + 1} to {selectedTable * seatsPerTable}
+              Table {tableOrder.indexOf(selectedTable) + 1} - Seats {(selectedTable - 1) * parseInt(seatsPerTable) + 1} to {selectedTable * parseInt(seatsPerTable)}
             </h4>
             
             <div className="flex items-center gap-2">
@@ -515,6 +521,7 @@ const GuestsTab: React.FC = () => {
                 type="text"
                 value={state.settings.tableNames?.[selectedTable] || `Table ${selectedTable}`}
                 onChange={(e) => handleTableNameChange(selectedTable, e.target.value)}
+                onSelect={(e) => e.currentTarget.select()}
                 className="px-3 py-1 border rounded-lg focus:outline-none focus:ring-2 focus:ring-theme-accent text-sm"
                 placeholder="Enter table name"
               />
@@ -530,7 +537,7 @@ const GuestsTab: React.FC = () => {
                 <span className="font-semibold text-theme-text">Available:</span> {getAvailableSeatsForTable(selectedTable).length}
               </div>
               <div>
-                <span className="font-semibold text-theme-text">Capacity:</span> {seatsPerTable}
+                <span className="font-semibold text-theme-text">Capacity:</span> {parseInt(seatsPerTable)}
               </div>
               <div>
                 <span className="font-semibold text-theme-text">Available Seats:</span> {getAvailableSeatsForTable(selectedTable).join(', ') || 'None'}
