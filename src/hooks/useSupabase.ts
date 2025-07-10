@@ -622,11 +622,12 @@ export const useSupabase = () => {
         imageUrl: member.image_url,
         bio: member.bio || '',
         side: (member.side as 'bride' | 'groom') || 'groom'
-          }
-      )
-      )
-      };
-  }
+       }));
+    } catch (err) {
+      console.error('Error fetching wedding party:', err);
+      return [];
+    }
+  };
 
   const addWeddingPartyMember = async (member: WeddingPartyMember): Promise<boolean> => {
     try {
