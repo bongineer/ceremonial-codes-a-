@@ -274,6 +274,8 @@ export interface Database {
           bio?: string
         }
       }
+      table_names?: Record<number, string>
+      table_names?: Record<number, string>
     }
   }
 }
