@@ -537,6 +537,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     if (isSupabaseReady) {
       const success = await supabase.updateSettings(newSettings);
       if (success) {
+        // Refresh data to ensure we have the latest from database
+        await refreshData();
         setState(prev => {
           const updatedSettings = {
             ...prev.settings,
@@ -559,6 +561,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
             settings: updatedSettings
           };
         });
+      } else {
+        console.error('Failed to update settings in Supabase');
       }
     } else {
       setState(prev => {

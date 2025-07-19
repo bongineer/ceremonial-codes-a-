@@ -238,7 +238,14 @@ const GuestsTab: React.FC = () => {
       ...state.settings.tableNames,
       [tableNumber]: newName
     };
-    await updateSettings({ tableNames: updatedTableNames });
+    
+    try {
+      await updateSettings({ tableNames: updatedTableNames });
+      toast.success('Table name saved successfully!');
+    } catch (error) {
+      console.error('Error saving table name:', error);
+      toast.error('Failed to save table name');
+    }
   };
 
   // Drag and Drop handlers
