@@ -24,7 +24,9 @@ const GuestsTab: React.FC = () => {
   
   // Table name editing state
   const [editingTableNames, setEditingTableNames] = useState<Record<number, string>>({});
+  const [editingTableNotes, setEditingTableNotes] = useState<Record<number, string>>({});
   const [saveTimeouts, setSaveTimeouts] = useState<Record<number, NodeJS.Timeout>>({});
+  const [notesSaveTimeouts, setNotesSaveTimeouts] = useState<Record<number, NodeJS.Timeout>>({});
   
   // Calculate total number of tables
   const totalTables = Math.ceil(parseInt(totalGuests) / parseInt(seatsPerTable));
@@ -42,14 +44,18 @@ const GuestsTab: React.FC = () => {
   
   // Initialize table names with default values if not set
   React.useEffect(() => {
-    if (!state.settings.tableNames) {
+    if (!state.settings.tableNames || !state.settings.tableNotes) {
       const defaultNames: Record<number, string> = {};
+      const defaultNotes: Record<number, string> = {};
       for (let i = 1; i <= totalTables; i++) {
         defaultNames[i] = `Table ${i}`;
+        defaultNotes[i] = '';
       }
-      updateSettings({ tableNames: defaultNames });
+      updateSettings({ 
+        tableNames: state.settings.tableNames || defaultNames,
+        tableNotes: state.settings.tableNotes || defaultNotes
+      });
     }
-  }, [totalTables, state.settings.tableNames, updateSettings]);
 
   const handleSaveSeatingSettings = async () => {
     try {
@@ -121,6 +127,63 @@ const GuestsTab: React.FC = () => {
     });
   };
   
+  const handleTableNoteChange = async (tableNumber: number, newNote: string) => {
+    // Update local editing state immediately for responsive UI
+    setEditingTableNotes(prev => ({
+      ...prev,
+      [tableNumber]: newNote
+    }));
+    
+    // Clear existing timeout for this table
+    if (notesSaveTimeouts[tableNumber]) {
+      clearTimeout(notesSaveTimeouts[tableNumber]);
+    }
+    
+    // Set new timeout to save after user stops typing
+    const timeoutId = setTimeout(async () => {
+      const updatedTableNotes = {
+        ...state.settings.tableNotes,
+        [tableNumber]: newNote.trim()
+      };
+      
+      try {
+        await updateSettings({ tableNotes: updatedTableNotes });
+        
+        // Clear the editing state for this table after successful save
+        setEditingTableNotes(prev => {
+          const updated = { ...prev };
+          delete updated[tableNumber];
+          return updated;
+        });
+        
+        // Clear the timeout reference
+        setNotesSaveTimeouts(prev => {
+          const updated = { ...prev };
+          delete updated[tableNumber];
+          return updated;
+        });
+        
+        toast.success('Table note saved successfully!');
+      } catch (error) {
+        console.error('Error saving table note:', error);
+        toast.error('Failed to save table note');
+        
+        // Revert local state on error
+        setEditingTableNotes(prev => {
+          const updated = { ...prev };
+          delete updated[tableNumber];
+          return updated;
+        });
+      }
+    }, 1000); // Save 1 second after user stops typing
+    
+    // Store timeout reference
+    setNotesSaveTimeouts(prev => ({
+      ...prev,
+      [tableNumber]: timeoutId
+    }));
+  };
+
   // Get unassigned guests
   const getUnassignedGuests = () => {
     return filteredGuests.filter(([code, guest]) => !guest.seatNumber);
@@ -302,19 +365,31 @@ const GuestsTab: React.FC = () => {
     return state.settings.tableNames?.[tableNumber] || `Table ${tableNumber}`;
   };
 
+  // Get current table note (either from editing state or saved state)
+  const getCurrentTableNote = (tableNumber: number): string => {
+    if (editingTableNotes[tableNumber] !== undefined) {
+      return editingTableNotes[tableNumber];
+    }
+    return state.settings.tableNotes?.[tableNumber] || '';
+  };
+
   // Clear editing state when component unmounts or table count changes
   React.useEffect(() => {
     return () => {
       // Clear all timeouts on unmount
       Object.values(saveTimeouts).forEach(timeout => clearTimeout(timeout));
+      Object.values(notesSaveTimeouts).forEach(timeout => clearTimeout(timeout));
     };
-  }, [saveTimeouts]);
+  }, [saveTimeouts, notesSaveTimeouts]);
 
   // Reset editing state when total tables change
   React.useEffect(() => {
     setEditingTableNames({});
+    setEditingTableNotes({});
     Object.values(saveTimeouts).forEach(timeout => clearTimeout(timeout));
+    Object.values(notesSaveTimeouts).forEach(timeout => clearTimeout(timeout));
     setSaveTimeouts({});
+    setNotesSaveTimeouts({});
   }, [totalTables]);
 
   const handleTableNameChange_OLD = async (tableNumber: number, newName: string) => {
@@ -671,6 +746,31 @@ const GuestsTab: React.FC = () => {
             </table>
           </div>
         </div>
+        
+        {/* Table Notes Section */}
+        {selectedTable && (
+          <div className="bg-theme-card-bg p-6 rounded-lg shadow-md">
+            <h4 className="text-lg font-semibold text-theme-primary mb-4 flex items-center gap-2">
+              📝 Table {tableOrder.indexOf(selectedTable) + 1} Notes
+            </h4>
+            
+            <div className="bg-white border-2 border-gray-200 rounded-lg p-4 min-h-[120px]">
+              <label className="block text-sm font-medium text-theme-text mb-2">
+                Add notes for this table (e.g., "Only children will be assigned to this table", "VIP guests only", etc.)
+              </label>
+              <textarea
+                value={getCurrentTableNote(selectedTable)}
+                onChange={(e) => handleTableNoteChange(selectedTable, e.target.value)}
+                onFocus={(e) => e.target.select()}
+                className="w-full h-20 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-theme-accent resize-none"
+                placeholder="Enter any special notes or instructions for this table..."
+              />
+              <div className="text-xs text-gray-500 mt-2">
+                Notes are automatically saved as you type and will be visible to ushers.
+              </div>
+            </div>
+          </div>
+        )}
       )}
     </div>
   );

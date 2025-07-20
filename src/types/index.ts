@@ -13,6 +13,7 @@ export interface Settings {
   guestPhotosLink?: string;
   theme: string;
   tableNames?: Record<number, string>;
+  tableNotes?: Record<number, string>;
 }
 
 export interface Guest {

@@ -57,6 +57,11 @@ const UsherDashboard: React.FC = () => {
     return state.settings.tableNames?.[tableNumber] || `Table ${tableNumber}`;
   };
 
+  const getTableNote = (tableNumber: number | null): string => {
+    if (!tableNumber) return '';
+    return state.settings.tableNotes?.[tableNumber] || '';
+  };
+
   // Handle editable toggles for usher-specific actions
   const handleUpdateGuest = (code: string, field: keyof Guest, value: any) => {
     updateGuestDetails(code, { [field]: value });
@@ -243,6 +248,16 @@ const UsherDashboard: React.FC = () => {
             </div>
             
             {/* Responsive table with horizontal scroll only when necessary */}
+            {/* Table Notes Section - Only show if there are notes */}
+            {getTableNote(selectedTable) && (
+              <div className="mb-4 p-4 bg-yellow-50 border-l-4 border-yellow-400 rounded-lg">
+                <h5 className="text-sm font-semibold text-yellow-800 mb-2 flex items-center gap-2">
+                  📝 Table Notes
+                </h5>
+                <p className="text-sm text-yellow-700">{getTableNote(selectedTable)}</p>
+              </div>
+            )}
+            
             <div className="w-full overflow-x-auto">
               <table className="min-w-full bg-theme-card-bg">
                 <thead>
