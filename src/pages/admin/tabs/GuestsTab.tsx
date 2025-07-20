@@ -600,16 +600,14 @@ const GuestsTab: React.FC = () => {
       {/* Table-specific view - Always show the selected table (default: Table 3) */}
       {selectedTable && (
         <div className="bg-theme-card-bg p-6 rounded-lg shadow-md mb-8">
-          {/* Table heading - moved above for better responsive layout */}
-          <div className="mb-4">
-            <h4 className="text-lg font-semibold text-theme-primary flex items-center gap-2 mb-3">
+          <div className="flex items-center justify-between mb-4">
+            <h4 className="text-lg font-semibold text-theme-primary flex items-center gap-2">
               <Users className="w-5 h-5" />
               Table {tableOrder.indexOf(selectedTable) + 1} - Seats {(selectedTable - 1) * parseInt(seatsPerTable) + 1} to {selectedTable * parseInt(seatsPerTable)}
             </h4>
             
-            {/* Table name input container */}
-            <div className="flex flex-col sm:flex-row sm:items-center gap-2">
-              <label className="text-sm font-medium text-theme-text whitespace-nowrap">Table Name:</label>
+            <div className="flex items-center gap-2">
+              <label className="text-sm font-medium text-theme-text">Table Name:</label>
               <input
                 type="text"
                 value={getCurrentTableName(selectedTable)}
@@ -620,7 +618,7 @@ const GuestsTab: React.FC = () => {
                     e.currentTarget.blur();
                   }
                 }}
-                className="px-3 py-1 border rounded-lg focus:outline-none focus:ring-2 focus:ring-theme-accent text-sm w-full sm:w-auto"
+                className="px-3 py-1 border rounded-lg focus:outline-none focus:ring-2 focus:ring-theme-accent text-sm"
                 placeholder="Enter table name"
               />
             </div>
