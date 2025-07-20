@@ -22,6 +22,10 @@ const GuestsTab: React.FC = () => {
   const [dragOverTable, setDragOverTable] = useState<number | null>(null);
   const [tableOrder, setTableOrder] = useState<number[]>([]);
   
+  // Table name editing state
+  const [editingTableNames, setEditingTableNames] = useState<Record<number, string>>({});
+  const [saveTimeouts, setSaveTimeouts] = useState<Record<number, NodeJS.Timeout>>({});
+  
   // Calculate total number of tables
   const totalTables = Math.ceil(parseInt(totalGuests) / parseInt(seatsPerTable));
   
@@ -234,6 +238,86 @@ const GuestsTab: React.FC = () => {
   };
 
   const handleTableNameChange = async (tableNumber: number, newName: string) => {
+    // Update local editing state immediately for responsive UI
+    setEditingTableNames(prev => ({
+      ...prev,
+      [tableNumber]: newName
+    }));
+    
+    // Clear existing timeout for this table
+    if (saveTimeouts[tableNumber]) {
+      clearTimeout(saveTimeouts[tableNumber]);
+    }
+    
+    // Set new timeout to save after user stops typing
+    const timeoutId = setTimeout(async () => {
+      const updatedTableNames = {
+        ...state.settings.tableNames,
+        [tableNumber]: newName.trim()
+      };
+      
+      try {
+        await updateSettings({ tableNames: updatedTableNames });
+        
+        // Clear the editing state for this table after successful save
+        setEditingTableNames(prev => {
+          const updated = { ...prev };
+          delete updated[tableNumber];
+          return updated;
+        });
+        
+        // Clear the timeout reference
+        setSaveTimeouts(prev => {
+          const updated = { ...prev };
+          delete updated[tableNumber];
+          return updated;
+        });
+        
+        toast.success('Table name saved successfully!');
+      } catch (error) {
+        console.error('Error saving table name:', error);
+        toast.error('Failed to save table name');
+        
+        // Revert local state on error
+        setEditingTableNames(prev => {
+          const updated = { ...prev };
+          delete updated[tableNumber];
+          return updated;
+        });
+      }
+    }, 1000); // Save 1 second after user stops typing
+    
+    // Store timeout reference
+    setSaveTimeouts(prev => ({
+      ...prev,
+      [tableNumber]: timeoutId
+    }));
+  };
+
+  // Get current table name (either from editing state or saved state)
+  const getCurrentTableName = (tableNumber: number): string => {
+    if (editingTableNames[tableNumber] !== undefined) {
+      return editingTableNames[tableNumber];
+    }
+    return state.settings.tableNames?.[tableNumber] || `Table ${tableNumber}`;
+  };
+
+  // Clear editing state when component unmounts or table count changes
+  React.useEffect(() => {
+    return () => {
+      // Clear all timeouts on unmount
+      Object.values(saveTimeouts).forEach(timeout => clearTimeout(timeout));
+    };
+  }, [saveTimeouts]);
+
+  // Reset editing state when total tables change
+  React.useEffect(() => {
+    setEditingTableNames({});
+    Object.values(saveTimeouts).forEach(timeout => clearTimeout(timeout));
+    setSaveTimeouts({});
+  }, [totalTables]);
+
+  const handleTableNameChange_OLD = async (tableNumber: number, newName: string) => {
     const updatedTableNames = {
       ...state.settings.tableNames,
       [tableNumber]: newName
@@ -493,7 +577,7 @@ const GuestsTab: React.FC = () => {
                       </div>
                       <div className="font-semibold text-xs mb-1">Table {displayTableNum}</div>
                       <div className="text-xs opacity-75 mb-1 truncate">
-                        {getTableName(originalTableNum)}
+                        {getCurrentTableName(originalTableNum)}
                       </div>
                       <div className="text-xs opacity-75 mb-1">
                         {tableGuests.length}/{seatsPerTableNum}
@@ -526,9 +610,14 @@ const GuestsTab: React.FC = () => {
               <label className="text-sm font-medium text-theme-text">Table Name:</label>
               <input
                 type="text"
-                value={state.settings.tableNames?.[selectedTable] || `Table ${selectedTable}`}
+                value={getCurrentTableName(selectedTable)}
                 onChange={(e) => handleTableNameChange(selectedTable, e.target.value)}
-                onSelect={(e) => e.currentTarget.select()}
+                onFocus={(e) => e.target.select()}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    e.currentTarget.blur();
+                  }
+                }}
                 className="px-3 py-1 border rounded-lg focus:outline-none focus:ring-2 focus:ring-theme-accent text-sm"
                 placeholder="Enter table name"
               />
