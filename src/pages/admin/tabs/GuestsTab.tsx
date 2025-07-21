@@ -27,7 +27,7 @@ export default function GuestsTab() {
   const [saveMessage, setSaveMessage] = useState<string>('');
   const [noteMessage, setNoteMessage] = useState<string>('');
 
-  const tableCount = settings.tableCount || 3;
+  const totalTables = Math.ceil((settings.maxSeats || 30) / (settings.seatsPerTable || 10));
   const seatsPerTable = settings.seatsPerTable || 10;
   const tableNames = settings.tableNames || {};
   const tableNotes = settings.tableNotes || {};
@@ -37,14 +37,14 @@ export default function GuestsTab() {
     const initialTableNames: { [key: number]: string } = {};
     const initialNotes: { [key: number]: string } = {};
     
-    for (let i = 1; i <= tableCount; i++) {
+    for (let i = 1; i <= totalTables; i++) {
       initialTableNames[i] = tableNames[i] || `Table ${i}`;
       initialNotes[i] = tableNotes[i] || '';
     }
     
     setEditingTableNames(initialTableNames);
     setEditingNotes(initialNotes);
-  }, [tableCount, tableNames, tableNotes]);
+  }, [totalTables, tableNames, tableNotes]);
 
   // Cleanup timeouts on unmount
   useEffect(() => {
@@ -138,7 +138,7 @@ export default function GuestsTab() {
         <div className="mb-6">
           <h3 className="text-lg font-semibold text-gray-900 mb-3">Select Table</h3>
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
-            {Array.from({ length: tableCount }, (_, i) => i + 1).map((tableNumber) => (
+            {Array.from({ length: totalTables }, (_, i) => i + 1).map((tableNumber) => (
               <button
                 key={tableNumber}
                 onClick={() => setSelectedTable(tableNumber)}
