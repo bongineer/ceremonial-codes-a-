@@ -26,6 +26,10 @@ const GuestsTab: React.FC = () => {
   const [editingTableNames, setEditingTableNames] = useState<Record<number, string>>({});
   const [saveTimeouts, setSaveTimeouts] = useState<Record<number, NodeJS.Timeout>>({});
   
+  // Table notes editing state
+  const [editingTableNotes, setEditingTableNotes] = useState<Record<number, string>>({});
+  const [notesSaveTimeouts, setNotesSaveTimeouts] = useState<Record<number, NodeJS.Timeout>>({});
+  
   // Calculate total number of tables
   const totalTables = Math.ceil(parseInt(totalGuests) / parseInt(seatsPerTable));
   
@@ -48,6 +52,13 @@ const GuestsTab: React.FC = () => {
         defaultNames[i] = `Table ${i}`;
       }
       updateSettings({ tableNames: defaultNames });
+    }
+    if (!state.settings.tableNotes) {
+      const defaultNotes: Record<number, string> = {};
+      for (let i = 1; i <= totalTables; i++) {
+        defaultNotes[i] = '';
+      }
+      updateSettings({ tableNotes: defaultNotes });
     }
   }, [totalTables, state.settings.tableNames, updateSettings]);
 
@@ -302,19 +313,95 @@ const GuestsTab: React.FC = () => {
     return state.settings.tableNames?.[tableNumber] || `Table ${tableNumber}`;
   };
 
+  // Get current table note (either from editing state or saved state)
+  const getCurrentTableNote = (tableNumber: number): string => {
+    if (editingTableNotes[tableNumber] !== undefined) {
+      return editingTableNotes[tableNumber];
+    }
+    return state.settings.tableNotes?.[tableNumber] || '';
+  };
+
+  const handleTableNoteChange = async (tableNumber: number, newNote: string) => {
+    // Limit to 150 words
+    const wordCount = newNote.trim().split(/\s+/).filter(word => word.length > 0).length;
+    if (wordCount > 150) {
+      toast.error('Note cannot exceed 150 words');
+      return;
+    }
+
+    // Update local editing state immediately for responsive UI
+    setEditingTableNotes(prev => ({
+      ...prev,
+      [tableNumber]: newNote
+    }));
+    
+    // Clear existing timeout for this table
+    if (notesSaveTimeouts[tableNumber]) {
+      clearTimeout(notesSaveTimeouts[tableNumber]);
+    }
+    
+    // Set new timeout to save after user stops typing
+    const timeoutId = setTimeout(async () => {
+      const updatedTableNotes = {
+        ...state.settings.tableNotes,
+        [tableNumber]: newNote.trim()
+      };
+      
+      try {
+        await updateSettings({ tableNotes: updatedTableNotes });
+        
+        // Clear the editing state for this table after successful save
+        setEditingTableNotes(prev => {
+          const updated = { ...prev };
+          delete updated[tableNumber];
+          return updated;
+        });
+        
+        // Clear the timeout reference
+        setNotesSaveTimeouts(prev => {
+          const updated = { ...prev };
+          delete updated[tableNumber];
+          return updated;
+        });
+        
+        toast.success('Table note saved successfully!');
+      } catch (error) {
+        console.error('Error saving table note:', error);
+        toast.error('Failed to save table note');
+        
+        // Revert local state on error
+        setEditingTableNotes(prev => {
+          const updated = { ...prev };
+          delete updated[tableNumber];
+          return updated;
+        });
+      }
+    }, 1000); // Save 1 second after user stops typing
+    
+    // Store timeout reference
+    setNotesSaveTimeouts(prev => ({
+      ...prev,
+      [tableNumber]: timeoutId
+    }));
+  };
+
   // Clear editing state when component unmounts or table count changes
   React.useEffect(() => {
     return () => {
       // Clear all timeouts on unmount
       Object.values(saveTimeouts).forEach(timeout => clearTimeout(timeout));
+      Object.values(notesSaveTimeouts).forEach(timeout => clearTimeout(timeout));
     };
-  }, [saveTimeouts]);
+  }, [saveTimeouts, notesSaveTimeouts]);
 
   // Reset editing state when total tables change
   React.useEffect(() => {
     setEditingTableNames({});
     Object.values(saveTimeouts).forEach(timeout => clearTimeout(timeout));
     setSaveTimeouts({});
+    setEditingTableNotes({});
+    Object.values(notesSaveTimeouts).forEach(timeout => clearTimeout(timeout));
+    setNotesSaveTimeouts({});
   }, [totalTables]);
 
   const handleTableNameChange_OLD = async (tableNumber: number, newName: string) => {
@@ -669,6 +756,35 @@ const GuestsTab: React.FC = () => {
                 )}
               </tbody>
             </table>
+          </div>
+        </div>
+      )}
+
+      {/* Table Notes Card */}
+      {selectedTable && (
+        <div className="bg-theme-card-bg p-6 rounded-lg shadow-md">
+          <div className="flex items-center justify-between mb-4">
+            <h4 className="text-lg font-semibold text-theme-primary flex items-center gap-2">
+              <Users className="w-5 h-5" />
+              Table {tableOrder.indexOf(selectedTable) + 1} Notes - Seats {(selectedTable - 1) * parseInt(seatsPerTable) + 1} to {selectedTable * parseInt(seatsPerTable)}
+            </h4>
+          </div>
+          
+          <div className="mb-4">
+            <label className="block text-sm font-medium text-theme-text mb-2">
+              Notes for {getCurrentTableName(selectedTable)} (Max 150 words)
+            </label>
+            <textarea
+              value={getCurrentTableNote(selectedTable)}
+              onChange={(e) => handleTableNoteChange(selectedTable, e.target.value)}
+              onFocus={(e) => e.target.select()}
+              className="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-theme-accent resize-none"
+              placeholder="Add notes for this table (e.g., special dietary requirements, VIP guests, seating arrangements, etc.)"
+              rows={4}
+            />
+            <div className="mt-2 text-sm text-theme-text opacity-75">
+              Word count: {getCurrentTableNote(selectedTable).trim().split(/\s+/).filter(word => word.length > 0).length}/150
+            </div>
           </div>
         </div>
       )}

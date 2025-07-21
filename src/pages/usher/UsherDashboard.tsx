@@ -273,6 +273,23 @@ const UsherDashboard: React.FC = () => {
             </div>
           </div>
         )}
+
+        {/* Table Notes Card - Read Only */}
+        {selectedTable && state.settings.tableNotes?.[selectedTable] && (
+          <div className="bg-theme-card-bg p-6 rounded-lg shadow-md mt-8">
+            <div className="flex items-center justify-between mb-4">
+              <h4 className="text-lg font-semibold text-theme-primary flex items-center gap-2">
+                <Users className="w-5 h-5" />
+                Table {selectedTable} Notes - Seats {(selectedTable - 1) * seatsPerTable + 1} to {selectedTable * seatsPerTable}
+              </h4>
+            </div>
+            
+            <div className="bg-theme-secondary p-4 rounded-lg">
+              <h5 className="font-medium text-theme-text mb-2">Notes for {getTableName(selectedTable)}:</h5>
+              <p className="text-theme-text whitespace-pre-wrap">{state.settings.tableNotes[selectedTable]}</p>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

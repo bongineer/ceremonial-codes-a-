@@ -29,7 +29,8 @@ const defaultSettings: Settings = {
   welcomeImage: "https://images.unsplash.com/photo-1511285560929-80b456fea0bc?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80",
   welcomeImages: [],
   backgroundImages: [],
-  theme: "classic-rose"
+  theme: "classic-rose",
+  tableNotes: {}
 };
 
 const defaultPaymentDetails: PaymentDetails = {
