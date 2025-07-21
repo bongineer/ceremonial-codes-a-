@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useAppContext } from '../../../context/AppContext';
+import { defaultSettings } from '../../../context/AppContext';
 import { useSupabase } from '../../../hooks/useSupabase';
 import { User, Edit3, Save, X, StickyNote } from 'lucide-react';
 
@@ -17,7 +18,8 @@ interface Guest {
 }
 
 export default function GuestsTab() {
-  const { settings, updateSettings } = useAppContext();
+  const { state, updateSettings } = useAppContext();
+  const settings = state.settings || defaultSettings;
   const { updateSettings: updateSupabaseSettings } = useSupabase();
   const [selectedTable, setSelectedTable] = useState<number>(1);
   const [editingTableNames, setEditingTableNames] = useState<{ [key: number]: string }>({});

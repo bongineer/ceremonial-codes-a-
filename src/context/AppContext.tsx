@@ -18,7 +18,7 @@ import {
 } from '../types';
 import { toast } from 'react-toastify';
 
-const defaultSettings: Settings = {
+export const defaultSettings: Settings = {
   coupleNames: "Bonaventure & Joy",
   eventDate: "2024-06-15T11:00",
   venue: "Grand Ballroom, Royal Hotel",
