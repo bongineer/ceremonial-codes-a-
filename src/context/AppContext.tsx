@@ -246,7 +246,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           },
           seats,
           accessCodes: Object.keys(guests || { 'ADMIN': {}, 'USHER': {} }),
-          currentUser: null,
+          currentUser: prev.currentUser,
           weddingParty: weddingParty || [],
           currentTheme
         });
@@ -563,7 +563,10 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         
         // Only refresh data if it's not a table names update (to avoid overwriting local state)
         if (!newSettings.tableNames) {
-          await refreshData();
+          // Don't refresh data for table names/notes updates to avoid logout
+          if (!newSettings.tableNotes) {
+            await refreshData();
+          }
         }
       } else {
         console.error('Failed to update settings in Supabase');
