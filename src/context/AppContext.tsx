@@ -246,7 +246,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           },
           seats,
           accessCodes: Object.keys(guests || { 'ADMIN': {}, 'USHER': {} }),
-          currentUser: prev.currentUser,
+          currentUser: state.currentUser,
           weddingParty: weddingParty || [],
           currentTheme
         });
