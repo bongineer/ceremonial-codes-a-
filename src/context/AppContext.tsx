@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import { useRef } from 'react';
 import { useSupabase } from '../hooks/useSupabase';
 import { isSupabaseReady } from '../lib/supabase';
 import { applyTheme, getThemeById } from '../utils/themes';
@@ -119,6 +120,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [state, setState] = useState<AppState>(initialState);
   const supabase = useSupabase();
 
+  // Real-time subscriptions cleanup functions
+  const subscriptionsRef = useRef<(() => void)[]>([]);
   // Auto-assign seats function - assigns seats serially and maintains them
   const autoAssignAllSeats = () => {
     setState(prev => {
@@ -283,6 +286,86 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     refreshData();
   }, []);
 
+  // Set up real-time subscriptions when Supabase is ready
+  useEffect(() => {
+    if (!isSupabaseReady) return;
+
+    // Clear existing subscriptions
+    subscriptionsRef.current.forEach(cleanup => cleanup());
+    subscriptionsRef.current = [];
+
+    // Subscribe to guests changes
+    const guestsCleanup = supabase.subscribeToGuestsChanges((updatedGuests) => {
+      setState(prev => ({
+        ...prev,
+        guests: updatedGuests,
+        // Update seats based on updated guests
+        seats: (() => {
+          const updatedSeats: Record<number, Seat> = {};
+          for (let i = 1; i <= prev.settings.maxSeats; i++) {
+            const guestCode = Object.keys(updatedGuests).find(code => updatedGuests[code].seatNumber === i);
+            updatedSeats[i] = {
+              taken: !!guestCode,
+              guestCode: guestCode || null
+            };
+          }
+          return updatedSeats;
+        })()
+      }));
+    });
+
+    // Subscribe to food menu changes
+    const foodMenuCleanup = supabase.subscribeToFoodMenuChanges((updatedFoodMenu) => {
+      setState(prev => ({
+        ...prev,
+        foodMenu: updatedFoodMenu
+      }));
+    });
+
+    // Subscribe to drink menu changes
+    const drinkMenuCleanup = supabase.subscribeToDrinkMenuChanges((updatedDrinkMenu) => {
+      setState(prev => ({
+        ...prev,
+        drinkMenu: updatedDrinkMenu
+      }));
+    });
+
+    // Subscribe to settings changes
+    const settingsCleanup = supabase.subscribeToSettingsChanges((updatedSettings) => {
+      if (updatedSettings) {
+        setState(prev => {
+          // Apply theme if it changed
+          if (updatedSettings.theme !== prev.settings.theme) {
+            const newTheme = getThemeById(updatedSettings.theme || 'classic-rose');
+            applyTheme(newTheme);
+            return {
+              ...prev,
+              settings: updatedSettings,
+              currentTheme: newTheme
+            };
+          }
+          
+          return {
+            ...prev,
+            settings: updatedSettings
+          };
+        });
+      }
+    });
+
+    // Store cleanup functions
+    subscriptionsRef.current = [
+      guestsCleanup,
+      foodMenuCleanup,
+      drinkMenuCleanup,
+      settingsCleanup
+    ];
+
+    // Cleanup on unmount
+    return () => {
+      subscriptionsRef.current.forEach(cleanup => cleanup());
+    };
+  }, [isSupabaseReady, supabase]);
   // Add theme application effect here
   useEffect(() => {
     const themeId = state.settings.theme || 'classic-rose';

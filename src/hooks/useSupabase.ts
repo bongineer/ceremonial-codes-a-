@@ -678,6 +678,72 @@ export const useSupabase = () => {
     }
   };
 
+  // Real-time subscriptions
+  const subscribeToGuestsChanges = (callback: (guests: Record<string, Guest>) => void) => {
+    const subscription = supabase
+      .channel('guests-changes')
+      .on('postgres_changes', 
+        { event: '*', schema: 'public', table: 'guests' },
+        async () => {
+          // Fetch updated guests data when any change occurs
+          const updatedGuests = await getGuests();
+          callback(updatedGuests);
+        }
+      )
+  const subscribeToFoodMenuChanges = (callback: (foodMenu: FoodItem[]) => void) => {
+    const subscription = supabase
+      .channel('food-menu-changes')
+      .on('postgres_changes', 
+        { event: '*', schema: 'public', table: 'food_menu' },
+        async () => {
+          // Fetch updated food menu data when any change occurs
+          const updatedFoodMenu = await getFoodMenu();
+          callback(updatedFoodMenu);
+        }
+      )
+      .subscribe();
+      .subscribe();
+    return () => {
+      supabase.removeChannel(subscription);
+    };
+  };
+
+  const subscribeToDrinkMenuChanges = (callback: (drinkMenu: DrinkItem[]) => void) => {
+    const subscription = supabase
+      .channel('drink-menu-changes')
+      .on('postgres_changes', 
+        { event: '*', schema: 'public', table: 'drink_menu' },
+        async () => {
+          // Fetch updated drink menu data when any change occurs
+          const updatedDrinkMenu = await getDrinkMenu();
+          callback(updatedDrinkMenu);
+        }
+      )
+      .subscribe();
+    return () => {
+    return () => {
+      supabase.removeChannel(subscription);
+    };
+  };
+      supabase.removeChannel(subscription);
+  const subscribeToSettingsChanges = (callback: (settings: Settings | null) => void) => {
+    const subscription = supabase
+      .channel('settings-changes')
+      .on('postgres_changes', 
+        { event: '*', schema: 'public', table: 'settings' },
+        async () => {
+          // Fetch updated settings data when any change occurs
+          const updatedSettings = await getSettings();
+          callback(updatedSettings);
+        }
+      )
+      .subscribe();
+    };
+    return () => {
+      supabase.removeChannel(subscription);
+    };
+  };
+  };
   return {
     loading,
     error,
@@ -716,6 +782,11 @@ export const useSupabase = () => {
     // Wedding Party
     getWeddingParty,
     addWeddingPartyMember,
-    removeWeddingPartyMember
+    removeWeddingPartyMember,
+    // Real-time subscriptions
+    subscribeToGuestsChanges,
+    subscribeToFoodMenuChanges,
+    subscribeToDrinkMenuChanges,
+    subscribeToSettingsChanges
   };
 };
