@@ -687,29 +687,23 @@ const GuestsTab: React.FC = () => {
       {/* Table-specific view - Always show the selected table (default: Table 3) */}
       {selectedTable && (
         <div className="bg-theme-card-bg p-6 rounded-lg shadow-md mb-8">
-          <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-4">
-            <h4 className="text-lg font-semibold text-theme-primary flex items-center gap-2 mb-2 md:mb-0">
-              <Users className="w-5 h-5" />
-              Table {tableOrder.indexOf(selectedTable) + 1} - Seats {(selectedTable - 1) * parseInt(seatsPerTable) + 1} to {selectedTable * parseInt(seatsPerTable)}
-            </h4>
-            
-            <div className="flex items-center gap-2 mt-2 md:mt-0">
-              <label className="text-sm font-medium text-theme-text">Table Name:</label>
-              <input
-                type="text"
-                value={getCurrentTableName(selectedTable)}
-                onChange={(e) => handleTableNameChange(selectedTable, e.target.value)}
-                onFocus={(e) => e.target.select()}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter') {
-                    e.currentTarget.blur();
-                  }
-                }}
-                className="px-3 py-1 border rounded-lg focus:outline-none focus:ring-2 focus:ring-theme-accent text-sm"
-                placeholder="Enter table name"
-              />
-            </div>
-          </div>
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4">
+      <h4 className="text-lg font-semibold text-theme-primary flex items-center gap-2">
+        <Users className="w-5 h-5" />
+        Table {tableOrder.indexOf(selectedTable) + 1} - Seats {(selectedTable - 1) * parseInt(seatsPerTable) + 1} to {selectedTable * parseInt(seatsPerTable)}
+      </h4>
+      
+      <div className="flex flex-col xs:flex-row items-start xs:items-center gap-2 w-full sm:w-auto">
+        <label className="text-sm font-medium text-theme-text whitespace-nowrap">Table Name:</label>
+        <input
+          type="text"
+          value={getCurrentTableName(selectedTable)}
+          onChange={(e) => handleTableNameChange(selectedTable, e.target.value)}
+          className="w-full xs:w-48 px-3 py-1 border rounded-lg focus:outline-none focus:ring-2 focus:ring-theme-accent text-sm"
+          placeholder="Enter table name"
+        />
+      </div>
+    </div>
           
           <div className="mb-4 p-3 bg-theme-secondary rounded-lg">
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
