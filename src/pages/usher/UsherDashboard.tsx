@@ -214,16 +214,21 @@ const UsherDashboard: React.FC = () => {
         {/* Table-specific view - Always show the selected table (default: Table 3) */}
         {selectedTable && (
           <div className="bg-theme-card-bg p-6 rounded-lg shadow-md">
-            <div className="flex items-center justify-between mb-4">
-              <h4 className="text-lg font-semibold text-theme-primary flex items-center gap-2 mb-2 md:mb-0">
-                <Users className="w-5 h-5" />
-                Table {selectedTable} - {getTableName(selectedTable)}
-              </h4>
-              
-              <div className="text-sm text-theme-text">
-                Seats {(selectedTable - 1) * seatsPerTable + 1} to {selectedTable * seatsPerTable}
-              </div>
-            </div> {/* This div needs the flex-col md:flex-row classes */}
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4">
+  <div>
+    <h4 className="text-lg font-semibold text-theme-primary flex items-center gap-2">
+      <Users className="w-5 h-5" />
+      Table {selectedTable} - Seats {(selectedTable - 1) * seatsPerTable + 1} to {selectedTable * seatsPerTable}
+    </h4>
+    <div className="mt-2 text-sm font-medium text-theme-text">
+      {getTableName(selectedTable)}
+    </div>
+  </div>
+  
+  <div className="text-sm text-theme-text opacity-75">
+    {getGuestsByTable(selectedTable).length}/{seatsPerTable} guests
+  </div>
+</div>{/* This div needs the flex-col md:flex-row classes */}
             
             <div className="mb-4 p-3 bg-theme-secondary rounded-lg">
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
