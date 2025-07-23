@@ -228,7 +228,7 @@ const UsherDashboard: React.FC = () => {
   <div className="text-sm text-theme-text opacity-75">
     {getGuestsByTable(selectedTable).length}/{seatsPerTable} guests
   </div>
-</div>{/* This div needs the flex-col md:flex-row classes */}
+</div>
             
             <div className="mb-4 p-3 bg-theme-secondary rounded-lg">
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
