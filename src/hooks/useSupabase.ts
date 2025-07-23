@@ -702,7 +702,6 @@ export const useSupabase = () => {
         }
       )
       .subscribe();
-      .subscribe();
     return () => {
       supabase.removeChannel(subscription);
     };
