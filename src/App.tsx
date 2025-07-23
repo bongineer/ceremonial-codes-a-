@@ -48,9 +48,9 @@ function App() {
       <ToastContainer 
         position="bottom-right"
         newestOnTop={false}
-        limit={2}
+        limit={3}
         hideProgressBar={true}
-        autoClose={3000}
+        autoClose={1000}
         closeOnClick={true}
         pauseOnHover={true}
         draggable={true}
