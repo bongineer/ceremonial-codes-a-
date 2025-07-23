@@ -724,7 +724,12 @@ export const useSupabase = () => {
           callback(updatedDrinkMenu);
         }
       )
+      .subscribe();
+    return () => {
       supabase.removeChannel(subscription);
+    };
+  };
+
   const subscribeToSettingsChanges = (callback: (settings: Settings | null) => void) => {
     const subscription = supabase
       .channel('settings-changes')
@@ -735,9 +740,8 @@ export const useSupabase = () => {
           const updatedSettings = await getSettings();
           callback(updatedSettings);
         }
+      )
       .subscribe();
-      .subscribe();
-    };
     return () => {
       supabase.removeChannel(subscription);
     };
