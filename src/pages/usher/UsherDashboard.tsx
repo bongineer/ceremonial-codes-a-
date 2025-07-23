@@ -226,7 +226,7 @@ const UsherDashboard: React.FC = () => {
   </div>
   
   <div className="text-sm text-theme-text opacity-75">
-    {getGuestsByTable(selectedTable).length}/{seatsPerTable} guests
+    Seats {(selectedTable - 1) * seatsPerTable + 1} to {selectedTable * seatsPerTable}
   </div>
 </div>
             
