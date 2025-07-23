@@ -45,7 +45,18 @@ function App() {
           <Route path="/usher" element={<UsherDashboard />} />
         </Routes>
       </Router>
-      <ToastContainer position="bottom-right" />
+      <ToastContainer 
+        position="bottom-right"
+        newestOnTop={false}
+        limit={3}
+        hideProgressBar={true}
+        autoClose={3000}
+        closeOnClick={true}
+        pauseOnHover={true}
+        draggable={true}
+        theme="light"
+        style={{ zIndex: 9999 }}
+      />
     </AppProvider>
   );
 }
