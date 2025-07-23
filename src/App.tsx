@@ -49,7 +49,6 @@ function App() {
         position="bottom-right"
         newestOnTop={false}
         limit={2}
-        hideProgressBar={true}
         autoClose={3000}
         closeOnClick={true}
         pauseOnHover={true}
