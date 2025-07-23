@@ -282,7 +282,7 @@ const UsherDashboard: React.FC = () => {
             <div className="flex items-center justify-between mb-4">
               <h4 className="text-lg font-semibold text-theme-primary flex items-center gap-2">
                 <Users className="w-5 h-5" />
-                Table {selectedTable} Notes - Seats {(selectedTable - 1) * seatsPerTable + 1} to {selectedTable * seatsPerTable}
+                Table {selectedTable} Notes - {getTableName(selectedTable)}
               </h4>
             </div>
             
