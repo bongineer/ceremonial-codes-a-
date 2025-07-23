@@ -690,6 +690,12 @@ export const useSupabase = () => {
           callback(updatedGuests);
         }
       )
+      .subscribe();
+    return () => {
+      supabase.removeChannel(subscription);
+    };
+  };
+
   const subscribeToFoodMenuChanges = (callback: (foodMenu: FoodItem[]) => void) => {
     const subscription = supabase
       .channel('food-menu-changes')
@@ -718,12 +724,6 @@ export const useSupabase = () => {
           callback(updatedDrinkMenu);
         }
       )
-      .subscribe();
-    return () => {
-    return () => {
-      supabase.removeChannel(subscription);
-    };
-  };
       supabase.removeChannel(subscription);
   const subscribeToSettingsChanges = (callback: (settings: Settings | null) => void) => {
     const subscription = supabase
@@ -735,14 +735,14 @@ export const useSupabase = () => {
           const updatedSettings = await getSettings();
           callback(updatedSettings);
         }
-      )
+      .subscribe();
       .subscribe();
     };
     return () => {
       supabase.removeChannel(subscription);
     };
   };
-  };
+
   return {
     loading,
     error,
