@@ -687,13 +687,13 @@ const GuestsTab: React.FC = () => {
       {/* Table-specific view - Always show the selected table (default: Table 3) */}
       {selectedTable && (
         <div className="bg-theme-card-bg p-6 rounded-lg shadow-md mb-8">
-          <div className="flex items-center justify-between mb-4">
-            <h4 className="text-lg font-semibold text-theme-primary flex items-center gap-2">
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-4">
+            <h4 className="text-lg font-semibold text-theme-primary flex items-center gap-2 mb-2 md:mb-0">
               <Users className="w-5 h-5" />
               Table {tableOrder.indexOf(selectedTable) + 1} - Seats {(selectedTable - 1) * parseInt(seatsPerTable) + 1} to {selectedTable * parseInt(seatsPerTable)}
             </h4>
             
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 mt-2 md:mt-0">
               <label className="text-sm font-medium text-theme-text">Table Name:</label>
               <input
                 type="text"
