@@ -123,14 +123,16 @@ const GuestsTab: React.FC = () => {
   
   // Group guests by table (using original table numbers, not reordered)
   const getGuestsByTable = (originalTableNumber: number) => {
-    const seatsPerTableNum = parseInt(seatsPerTable);
-    const startSeat = (originalTableNumber - 1) * seatsPerTableNum + 1;
-    const endSeat = originalTableNumber * seatsPerTableNum;
-    
-    return filteredGuests.filter(([code, guest]) => {
+  const seatsPerTableNum = parseInt(seatsPerTable);
+  const startSeat = (originalTableNumber - 1) * seatsPerTableNum + 1;
+  const endSeat = originalTableNumber * seatsPerTableNum;
+  
+  return filteredGuests
+    .filter(([code, guest]) => {
       return guest.seatNumber && guest.seatNumber >= startSeat && guest.seatNumber <= endSeat;
-    });
-  };
+    })
+    .sort((a, b) => (a[1].seatNumber || 0) - (b[1].seatNumber || 0));
+};
   
   // Get unassigned guests
   const getUnassignedGuests = () => {
