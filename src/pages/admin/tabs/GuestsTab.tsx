@@ -521,7 +521,7 @@ const GuestsTab: React.FC = () => {
   );
   
   return (
-    <div className="mx-auto max-w-[calc(100vw-32px)] px-2"> {/* Constrain overall width */}
+    <div>
       {/* Seating Configuration Section */}
       <div className="bg-theme-card-bg p-6 rounded-lg shadow-md mb-8">
         <h3 className="text-xl font-semibold mb-6 text-theme-primary flex items-center gap-2">
@@ -685,11 +685,9 @@ const GuestsTab: React.FC = () => {
       </div>
 
       {/* Table-specific view - Always show the selected table (default: Table 3) */}
-      selectedTable && (
-        <div className="bg-theme-card-bg rounded-lg shadow-md mb-8 overflow-hidden">
-          <div className="p-6">
-            {/* Table header - unchanged */}
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4">
+      {selectedTable && (
+        <div className="bg-theme-card-bg p-6 rounded-lg shadow-md mb-8">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4">
       <h4 className="text-lg font-semibold text-theme-primary flex items-center gap-2">
         <Users className="w-5 h-5" />
         Table {tableOrder.indexOf(selectedTable) + 1} - Seats {(selectedTable - 1) * parseInt(seatsPerTable) + 1} to {selectedTable * parseInt(seatsPerTable)}
@@ -706,7 +704,7 @@ const GuestsTab: React.FC = () => {
         />
       </div>
     </div>
-       {/* Table stats */}   
+          
           <div className="mb-4 p-3 bg-theme-secondary rounded-lg">
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
               <div>
@@ -725,35 +723,33 @@ const GuestsTab: React.FC = () => {
           </div>
           
           {/* Responsive table with horizontal scroll only when necessary */}
-          <div className="w-full overflow-x-auto pb-2">
-            <div className="min-w-[1024px]"> {/* Minimum width to show all columns */}
-              <table className="w-full bg-theme-card-bg">
-                <thead>
-                  <tr className="bg-theme-secondary">
-                    <th className="py-3 px-4 border-b border-gray-200 text-left text-xs font-semibold text-theme-text uppercase w-[120px]">Code</th>
-                    <th className="py-3 px-4 border-b border-gray-200 text-left text-xs font-semibold text-theme-text uppercase min-w-[150px]">Name</th>
-                    <th className="py-3 px-4 border-b border-gray-200 text-left text-xs font-semibold text-theme-text uppercase w-[100px]">Category</th>
-                    <th className="py-3 px-4 border-b border-gray-200 text-left text-xs font-semibold text-theme-text uppercase w-[120px]">Seat</th>
-                    <th className="py-3 px-4 border-b border-gray-200 text-left text-xs font-semibold text-theme-text uppercase w-[80px]">Arrived</th>
-                    <th className="py-3 px-4 border-b border-gray-200 text-left text-xs font-semibold text-theme-text uppercase min-w-[120px]">Food</th>
-                    <th className="py-3 px-4 border-b border-gray-200 text-left text-xs font-semibold text-theme-text uppercase w-[100px]">Meal Served</th>
-                    <th className="py-3 px-4 border-b border-gray-200 text-left text-xs font-semibold text-theme-text uppercase min-w-[120px]">Drink</th>
-                    <th className="py-3 px-4 border-b border-gray-200 text-left text-xs font-semibold text-theme-text uppercase w-[100px]">Drink Served</th>
+          <div className="w-full overflow-x-auto">
+            <table className="min-w-full bg-theme-card-bg">
+              <thead>
+                <tr className="bg-theme-secondary">
+                  <th className="py-3 px-4 border-b border-gray-200 text-left text-xs font-semibold text-theme-text uppercase">Code</th>
+                  <th className="py-3 px-4 border-b border-gray-200 text-left text-xs font-semibold text-theme-text uppercase">Name</th>
+                  <th className="py-3 px-4 border-b border-gray-200 text-left text-xs font-semibold text-theme-text uppercase">Category</th>
+                  <th className="py-3 px-4 border-b border-gray-200 text-left text-xs font-semibold text-theme-text uppercase">Seat Assignment</th>
+                  <th className="py-3 px-4 border-b border-gray-200 text-left text-xs font-semibold text-theme-text uppercase">Arrived</th>
+                  <th className="py-3 px-4 border-b border-gray-200 text-left text-xs font-semibold text-theme-text uppercase">Food</th>
+                  <th className="py-3 px-4 border-b border-gray-200 text-left text-xs font-semibold text-theme-text uppercase">Meal Served</th>
+                  <th className="py-3 px-4 border-b border-gray-200 text-left text-xs font-semibold text-theme-text uppercase">Drink</th>
+                  <th className="py-3 px-4 border-b border-gray-200 text-left text-xs font-semibold text-theme-text uppercase">Drink Served</th>
+                </tr>
+              </thead>
+              <tbody>
+                {getGuestsByTable(selectedTable).map(([code, guest]) => renderGuestRow(code, guest, true))}
+                
+                {getGuestsByTable(selectedTable).length === 0 && (
+                  <tr>
+                    <td colSpan={9} className="py-8 text-center text-theme-text">
+                      No guests assigned to this table yet. Click "Save Settings & Auto-Create/Assign Guests" above to automatically assign guests.
+                    </td>
                   </tr>
-                </thead>
-                <tbody>
-                  {getGuestsByTable(selectedTable).map(([code, guest]) => renderGuestRow(code, guest, true))}
-                  
-                  {getGuestsByTable(selectedTable).length === 0 && (
-                    <tr>
-                      <td colSpan={9} className="py-8 text-center text-theme-text">
-                        No guests assigned to this table yet.
-                      </td>
-                    </tr>
-                  )}
-                </tbody>
-              </table>
-            </div>
+                )}
+              </tbody>
+            </table>
           </div>
         </div>
       )}
