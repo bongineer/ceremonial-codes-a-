@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef } from 'react';
 import { toast } from 'react-toastify';
 import { useAppContext } from '../../../context/AppContext';
 import EditableCell from '../../../components/common/EditableCell';
@@ -7,14 +7,10 @@ import { Guest } from '../../../types';
 import { Upload, Users, Settings, GripVertical } from 'lucide-react';
 
 const GuestsTab: React.FC = () => {
-  // Get context functions and state
   const { state, updateGuestDetails, generateAccessCodes, assignSeat, updateSettings, autoAssignAllSeats } = useAppContext();
   
-  // Search and filter state
   const [searchTerm, setSearchTerm] = useState('');
-  const [selectedTable, setSelectedTable] = useState<number | null>(3);
-  
-  // File upload ref
+  const [selectedTable, setSelectedTable] = useState<number | null>(3); // Default to table 3
   const fileInputRef = useRef<HTMLInputElement>(null);
   
   // Seating configuration state
@@ -26,28 +22,30 @@ const GuestsTab: React.FC = () => {
   const [dragOverTable, setDragOverTable] = useState<number | null>(null);
   const [tableOrder, setTableOrder] = useState<number[]>([]);
   
-  // Table name/notes editing state
+  // Table name editing state
   const [editingTableNames, setEditingTableNames] = useState<Record<number, string>>({});
   const [saveTimeouts, setSaveTimeouts] = useState<Record<number, NodeJS.Timeout>>({});
+  
+  // Table notes editing state
   const [editingTableNotes, setEditingTableNotes] = useState<Record<number, string>>({});
   const [notesSaveTimeouts, setNotesSaveTimeouts] = useState<Record<number, NodeJS.Timeout>>({});
-
-  // Calculate total tables needed
-const totalTables = Math.ceil(parseInt(totalGuests) / parseInt(seatsPerTable));
-
-// Initialize table order
-useEffect(() => {
-  if (tableOrder.length !== totalTables) {
-    setTableOrder(Array.from({ length: totalTables }, (_, i) => i + 1));
-  }
-}, [totalTables, tableOrder.length]);
-
-  // Calculate guest counts
+  
+  // Calculate total number of tables
+  const totalTables = Math.ceil(parseInt(totalGuests) / parseInt(seatsPerTable));
+  
+  // Initialize table order
+  React.useEffect(() => {
+    if (tableOrder.length !== totalTables) {
+      setTableOrder(Array.from({ length: totalTables }, (_, i) => i + 1));
+    }
+  }, [totalTables, tableOrder.length]);
+  
+  // Calculate current guest count (excluding ADMIN)
   const currentGuestCount = Object.keys(state.guests).filter(code => code !== 'ADMIN').length;
   const remainingCapacity = parseInt(totalGuests) - currentGuestCount;
-
-  // Initialize table names and notes if not set
-  useEffect(() => {
+  
+  // Initialize table names with default values if not set
+  React.useEffect(() => {
     if (!state.settings.tableNames) {
       const defaultNames: Record<number, string> = {};
       for (let i = 1; i <= totalTables; i++) {
@@ -64,77 +62,86 @@ useEffect(() => {
     }
   }, [totalTables, state.settings.tableNames, updateSettings]);
 
-  // Save seating configuration
   const handleSaveSeatingSettings = async () => {
     try {
       const totalGuestsNum = parseInt(totalGuests) || 300;
       const seatsPerTableNum = parseInt(seatsPerTable) || 10;
       
+      // First, update the settings
       await updateSettings({
         maxSeats: totalGuestsNum,
         seatsPerTable: seatsPerTableNum
       });
       
+      // Calculate how many guests we need
       const targetGuestCount = totalGuestsNum;
       const currentGuestCount = Object.keys(state.guests).filter(code => code !== 'ADMIN').length;
       
       if (currentGuestCount < targetGuestCount) {
+        // Need to create more guests
         const guestsToCreate = targetGuestCount - currentGuestCount;
-        generateAccessCodes(guestsToCreate);
+        console.log(`Creating ${guestsToCreate} new guests`);
         
+        // Generate new access codes and create guests
+        const newCodes = generateAccessCodes(guestsToCreate);
+        
+        // Wait a moment for guests to be created, then auto-assign all seats
         setTimeout(() => {
           autoAssignAllSeats();
-          toast.success(`Created ${guestsToCreate} new guests and assigned seats!`);
+          toast.success(`Created ${guestsToCreate} new guests and assigned all seats automatically!`);
         }, 1000);
+        
       } else if (currentGuestCount > targetGuestCount) {
-        toast.warning('Reducing guest count - excess guests will need manual removal');
+        // Need to remove excess guests (this would require additional logic)
+        toast.warning('Reducing guest count - excess guests will need to be manually removed');
         setTimeout(() => {
           autoAssignAllSeats();
         }, 1000);
       } else {
+        // Same number of guests, just reassign seats
         setTimeout(() => {
           autoAssignAllSeats();
-          toast.success('Seating settings saved and guests reassigned!');
+          toast.success('Seating settings saved and all guests auto-assigned to seats!');
         }, 1000);
       }
+      
     } catch (error) {
       console.error('Error saving seating settings:', error);
       toast.error('Failed to save seating settings');
     }
   };
-
+  
   // Filter guests based on search term
   const filteredGuests = Object.entries(state.guests)
     .filter(([code, guest]) => {
       if (code === 'ADMIN') return false;
+      
       const lowerSearchTerm = searchTerm.toLowerCase();
       return code.toLowerCase().includes(lowerSearchTerm) || 
              guest.name.toLowerCase().includes(lowerSearchTerm);
     });
-
-  // Group guests by table
-  const getGuestsByTable = (tableNumber: number) => {
+  
+  // Group guests by table (using original table numbers, not reordered)
+  const getGuestsByTable = (originalTableNumber: number) => {
     const seatsPerTableNum = parseInt(seatsPerTable);
-    const startSeat = (tableNumber - 1) * seatsPerTableNum + 1;
-    const endSeat = tableNumber * seatsPerTableNum;
+    const startSeat = (originalTableNumber - 1) * seatsPerTableNum + 1;
+    const endSeat = originalTableNumber * seatsPerTableNum;
     
     return filteredGuests.filter(([code, guest]) => {
       return guest.seatNumber && guest.seatNumber >= startSeat && guest.seatNumber <= endSeat;
     });
   };
-
+  
   // Get unassigned guests
   const getUnassignedGuests = () => {
     return filteredGuests.filter(([code, guest]) => !guest.seatNumber);
   };
-
-  // Update guest details
+  
   const handleUpdateGuest = (code: string, field: keyof Guest, value: any) => {
     updateGuestDetails(code, { [field]: value });
     toast.success(`Guest ${field} updated`);
   };
 
-  // Assign seat to guest
   const handleAssignSeat = (guestCode: string, seatNumber: number) => {
     const success = assignSeat(guestCode, seatNumber);
     if (success) {
@@ -144,7 +151,6 @@ useEffect(() => {
     }
   };
 
-  // Handle CSV file upload
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
@@ -192,6 +198,7 @@ useEffect(() => {
 
       const newCodes = generateAccessCodes(guestsToAdd.length);
       
+      // Update guest names and categories after codes are generated
       setTimeout(() => {
         guestsToAdd.forEach((guestData, index) => {
           const code = newCodes[index];
@@ -204,7 +211,7 @@ useEffect(() => {
           });
         });
 
-        toast.success(`Successfully uploaded ${guestsToAdd.length} guests!`);
+        toast.success(`Successfully uploaded ${guestsToAdd.length} guests with automatic seat assignment!`);
       }, 500);
     };
     
@@ -215,7 +222,6 @@ useEffect(() => {
     }
   };
 
-  // Helper functions for table info
   const getTableNumber = (seatNumber: number | null): number | null => {
     if (!seatNumber) return null;
     return Math.ceil(seatNumber / parseInt(seatsPerTable));
@@ -242,14 +248,19 @@ useEffect(() => {
     return availableSeats;
   };
 
-  // Table name editing with debounce
   const handleTableNameChange = async (tableNumber: number, newName: string) => {
-    setEditingTableNames(prev => ({ ...prev, [tableNumber]: newName }));
+    // Update local editing state immediately for responsive UI
+    setEditingTableNames(prev => ({
+      ...prev,
+      [tableNumber]: newName
+    }));
     
+    // Clear existing timeout for this table
     if (saveTimeouts[tableNumber]) {
       clearTimeout(saveTimeouts[tableNumber]);
     }
     
+    // Set new timeout to save after user stops typing
     const timeoutId = setTimeout(async () => {
       const updatedTableNames = {
         ...state.settings.tableNames,
@@ -258,48 +269,78 @@ useEffect(() => {
       
       try {
         await updateSettings({ tableNames: updatedTableNames });
+        
+        // Clear the editing state for this table after successful save
         setEditingTableNames(prev => {
           const updated = { ...prev };
           delete updated[tableNumber];
           return updated;
         });
+        
+        // Clear the timeout reference
         setSaveTimeouts(prev => {
           const updated = { ...prev };
           delete updated[tableNumber];
           return updated;
         });
-        toast.success('Table name saved!');
+        
+        toast.success('Table name saved successfully!');
       } catch (error) {
         console.error('Error saving table name:', error);
         toast.error('Failed to save table name');
+        
+        // Revert local state on error
         setEditingTableNames(prev => {
           const updated = { ...prev };
           delete updated[tableNumber];
           return updated;
         });
       }
-    }, 1000);
+    }, 1000); // Save 1 second after user stops typing
     
+    // Store timeout reference
     setSaveTimeouts(prev => ({
       ...prev,
       [tableNumber]: timeoutId
     }));
   };
 
-  // Table notes editing with debounce
+  // Get current table name (either from editing state or saved state)
+  const getCurrentTableName = (tableNumber: number): string => {
+    if (editingTableNames[tableNumber] !== undefined) {
+      return editingTableNames[tableNumber];
+    }
+    return state.settings.tableNames?.[tableNumber] || `Table ${tableNumber}`;
+  };
+
+  // Get current table note (either from editing state or saved state)
+  const getCurrentTableNote = (tableNumber: number): string => {
+    if (editingTableNotes[tableNumber] !== undefined) {
+      return editingTableNotes[tableNumber];
+    }
+    return state.settings.tableNotes?.[tableNumber] || '';
+  };
+
   const handleTableNoteChange = async (tableNumber: number, newNote: string) => {
+    // Limit to 150 words
     const wordCount = newNote.trim().split(/\s+/).filter(word => word.length > 0).length;
     if (wordCount > 150) {
       toast.error('Note cannot exceed 150 words');
       return;
     }
 
-    setEditingTableNotes(prev => ({ ...prev, [tableNumber]: newNote }));
+    // Update local editing state immediately for responsive UI
+    setEditingTableNotes(prev => ({
+      ...prev,
+      [tableNumber]: newNote
+    }));
     
+    // Clear existing timeout for this table
     if (notesSaveTimeouts[tableNumber]) {
       clearTimeout(notesSaveTimeouts[tableNumber]);
     }
     
+    // Set new timeout to save after user stops typing
     const timeoutId = setTimeout(async () => {
       const updatedTableNotes = {
         ...state.settings.tableNotes,
@@ -308,38 +349,81 @@ useEffect(() => {
       
       try {
         await updateSettings({ tableNotes: updatedTableNotes });
+        
+        // Clear the editing state for this table after successful save
         setEditingTableNotes(prev => {
           const updated = { ...prev };
           delete updated[tableNumber];
           return updated;
         });
+        
+        // Clear the timeout reference
         setNotesSaveTimeouts(prev => {
           const updated = { ...prev };
           delete updated[tableNumber];
           return updated;
         });
-        toast.success('Table note saved!');
+        
+        toast.success('Table note saved successfully!');
       } catch (error) {
         console.error('Error saving table note:', error);
         toast.error('Failed to save table note');
+        
+        // Revert local state on error
         setEditingTableNotes(prev => {
           const updated = { ...prev };
           delete updated[tableNumber];
           return updated;
         });
       }
-    }, 1000);
+    }, 1000); // Save 1 second after user stops typing
     
+    // Store timeout reference
     setNotesSaveTimeouts(prev => ({
       ...prev,
       [tableNumber]: timeoutId
     }));
   };
 
-  // Drag and drop handlers
+  // Clear editing state when component unmounts or table count changes
+  React.useEffect(() => {
+    return () => {
+      // Clear all timeouts on unmount
+      Object.values(saveTimeouts).forEach(timeout => clearTimeout(timeout));
+      Object.values(notesSaveTimeouts).forEach(timeout => clearTimeout(timeout));
+    };
+  }, [saveTimeouts, notesSaveTimeouts]);
+
+  // Reset editing state when total tables change
+  React.useEffect(() => {
+    setEditingTableNames({});
+    Object.values(saveTimeouts).forEach(timeout => clearTimeout(timeout));
+    setSaveTimeouts({});
+    setEditingTableNotes({});
+    Object.values(notesSaveTimeouts).forEach(timeout => clearTimeout(timeout));
+    setNotesSaveTimeouts({});
+  }, [totalTables]);
+
+  const handleTableNameChange_OLD = async (tableNumber: number, newName: string) => {
+    const updatedTableNames = {
+      ...state.settings.tableNames,
+      [tableNumber]: newName
+    };
+    
+    try {
+      await updateSettings({ tableNames: updatedTableNames });
+      toast.success('Table name saved successfully!');
+    } catch (error) {
+      console.error('Error saving table name:', error);
+      toast.error('Failed to save table name');
+    }
+  };
+
+  // Drag and Drop handlers
   const handleDragStart = (e: React.DragEvent, tableNumber: number) => {
     setDraggedTable(tableNumber);
     e.dataTransfer.effectAllowed = 'move';
+    e.dataTransfer.setData('text/html', e.currentTarget.outerHTML);
     e.currentTarget.style.opacity = '0.5';
   };
 
@@ -351,6 +435,7 @@ useEffect(() => {
 
   const handleDragOver = (e: React.DragEvent, tableNumber: number) => {
     e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
     setDragOverTable(tableNumber);
   };
 
@@ -365,19 +450,21 @@ useEffect(() => {
       return;
     }
 
+    // Reorder the tables
     const newOrder = [...tableOrder];
     const draggedIndex = newOrder.indexOf(draggedTable);
     const dropIndex = newOrder.indexOf(dropTableNumber);
     
+    // Remove dragged table and insert at new position
     newOrder.splice(draggedIndex, 1);
     newOrder.splice(dropIndex, 0, draggedTable);
     
     setTableOrder(newOrder);
     setDragOverTable(null);
-    toast.success('Table order updated!');
+    
+    toast.success('Table order updated! Note: This only changes display order, not seat assignments.');
   };
 
-  // Render guest row
   const renderGuestRow = (code: string, guest: Guest, showSeatAssignment = false) => (
     <tr key={code} className="hover:bg-gray-50">
       <td className="py-3 px-4 border-b border-gray-200">
@@ -432,42 +519,9 @@ useEffect(() => {
       </td>
     </tr>
   );
-
-  // Get current table name/note (editing or saved)
-  const getCurrentTableName = (tableNumber: number): string => {
-    if (editingTableNames[tableNumber] !== undefined) {
-      return editingTableNames[tableNumber];
-    }
-    return state.settings.tableNames?.[tableNumber] || `Table ${tableNumber}`;
-  };
-
-  const getCurrentTableNote = (tableNumber: number): string => {
-    if (editingTableNotes[tableNumber] !== undefined) {
-      return editingTableNotes[tableNumber];
-    }
-    return state.settings.tableNotes?.[tableNumber] || '';
-  };
-
-  // Clean up timeouts on unmount
-  useEffect(() => {
-    return () => {
-      Object.values(saveTimeouts).forEach(timeout => clearTimeout(timeout));
-      Object.values(notesSaveTimeouts).forEach(timeout => clearTimeout(timeout));
-    };
-  }, [saveTimeouts, notesSaveTimeouts]);
-
-  // Reset editing state when tables change
-  useEffect(() => {
-    setEditingTableNames({});
-    Object.values(saveTimeouts).forEach(timeout => clearTimeout(timeout));
-    setSaveTimeouts({});
-    setEditingTableNotes({});
-    Object.values(notesSaveTimeouts).forEach(timeout => clearTimeout(timeout));
-    setNotesSaveTimeouts({});
-  }, [totalTables]);
-
+  
   return (
-    <div className="mx-auto max-w-[calc(100vw-32px)] px-2">
+    <div>
       {/* Seating Configuration Section */}
       <div className="bg-theme-card-bg p-6 rounded-lg shadow-md mb-8">
         <h3 className="text-xl font-semibold mb-6 text-theme-primary flex items-center gap-2">
@@ -477,7 +531,7 @@ useEffect(() => {
         
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
           <div>
-            <label htmlFor="total-guests" className="block text-theme-text mb-2 font-medium">Total Guests</label>
+            <label htmlFor="total-guests" className="block text-theme-text mb-2 font-medium">Total Number of Guests</label>
             <input 
               type="number" 
               id="total-guests" 
@@ -517,14 +571,14 @@ useEffect(() => {
           className="bg-theme-primary text-theme-button-text py-3 px-8 rounded-lg hover:bg-theme-accent transition duration-300 flex items-center gap-2 font-medium"
         >
           <Settings className="w-5 h-5" />
-          Save Settings & Auto-Assign Guests
+          Save Settings & Auto-Create/Assign Guests
         </button>
       </div>
 
-      {/* Guest Management Section */}
+      {/* Header Controls */}
       <div className="bg-theme-card-bg p-6 rounded-lg shadow-md mb-8">
         <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between mb-6">
-          <h3 className="text-xl font-semibold mb-4 lg:mb-0 text-theme-primary">Guest Management</h3>
+          <h3 className="text-xl font-semibold mb-4 lg:mb-0 text-theme-primary">Guest Management by Tables</h3>
           
           <div className="flex flex-col sm:flex-row gap-4">
             <input 
@@ -556,7 +610,7 @@ useEffect(() => {
         
         <div className="mb-4 p-4 bg-theme-secondary rounded-lg">
           <p className="text-sm text-theme-text mb-2">
-            <strong>CSV Upload Format:</strong> Columns: "name" (required), "category" (optional: VVIP, premium, family)
+            <strong>CSV Upload Format:</strong> Your CSV file should have columns: "name" (required), "category" (optional: VVIP, premium, family)
           </p>
           <p className="text-sm text-theme-text">
             Example: name,category<br/>
@@ -565,15 +619,17 @@ useEffect(() => {
           </p>
         </div>
 
-        {/* Table Navigation */}
+        {/* Table Navigation Tabs - Fixed responsive layout without horizontal scroll */}
         <div className="mb-6">
           <h4 className="text-lg font-semibold mb-4 text-theme-text">Table Navigation</h4>
           <div className="bg-theme-secondary p-4 rounded-lg mb-4">
             <p className="text-sm text-theme-text mb-2">
-              <strong>Tip:</strong> Drag and drop tables to rearrange display order.
+              <strong>💡 Tip:</strong> You can drag and drop the table tabs below to rearrange their display order. 
+              This changes how tables are numbered and displayed, but doesn't affect actual seat assignments.
             </p>
           </div>
           
+          {/* Fixed grid layout - no horizontal scrolling */}
           <div className="w-full">
             <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 gap-3">
               {tableOrder.map((originalTableNum, displayIndex) => {
@@ -628,87 +684,83 @@ useEffect(() => {
         </div>
       </div>
 
-      {/* Selected Table View */}
+      {/* Table-specific view - Always show the selected table (default: Table 3) */}
       {selectedTable && (
-        <div className="bg-theme-card-bg rounded-lg shadow-md mb-8 overflow-hidden">
-          <div className="p-6">
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4">
-              <h4 className="text-lg font-semibold text-theme-primary flex items-center gap-2">
-                <Users className="w-5 h-5" />
-                Table {tableOrder.indexOf(selectedTable) + 1} - Seats {(selectedTable - 1) * parseInt(seatsPerTable) + 1} to {selectedTable * parseInt(seatsPerTable)}
-              </h4>
-              
-              <div className="flex flex-col xs:flex-row items-start xs:items-center gap-2 w-full sm:w-auto">
-                <label className="text-sm font-medium text-theme-text whitespace-nowrap">Table Name:</label>
-                <input
-                  type="text"
-                  value={getCurrentTableName(selectedTable)}
-                  onChange={(e) => handleTableNameChange(selectedTable, e.target.value)}
-                  className="w-full xs:w-48 px-3 py-1 border rounded-lg focus:outline-none focus:ring-2 focus:ring-theme-accent text-sm"
-                  placeholder="Enter table name"
-                />
+        <div className="bg-theme-card-bg p-6 rounded-lg shadow-md mb-8">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4">
+      <h4 className="text-lg font-semibold text-theme-primary flex items-center gap-2">
+        <Users className="w-5 h-5" />
+        Table {tableOrder.indexOf(selectedTable) + 1} - Seats {(selectedTable - 1) * parseInt(seatsPerTable) + 1} to {selectedTable * parseInt(seatsPerTable)}
+      </h4>
+      
+      <div className="flex flex-col xs:flex-row items-start xs:items-center gap-2 w-full sm:w-auto">
+        <label className="text-sm font-medium text-theme-text whitespace-nowrap">Table Name:</label>
+        <input
+          type="text"
+          value={getCurrentTableName(selectedTable)}
+          onChange={(e) => handleTableNameChange(selectedTable, e.target.value)}
+          className="w-full xs:w-48 px-3 py-1 border rounded-lg focus:outline-none focus:ring-2 focus:ring-theme-accent text-sm"
+          placeholder="Enter table name"
+        />
+      </div>
+    </div>
+          
+          <div className="mb-4 p-3 bg-theme-secondary rounded-lg">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+              <div>
+                <span className="font-semibold text-theme-text">Occupied:</span> {getGuestsByTable(selectedTable).length}
               </div>
-            </div>
-            
-            <div className="mb-4 p-3 bg-theme-secondary rounded-lg">
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-                <div>
-                  <span className="font-semibold text-theme-text">Occupied:</span> {getGuestsByTable(selectedTable).length}
-                </div>
-                <div>
-                  <span className="font-semibold text-theme-text">Available:</span> {getAvailableSeatsForTable(selectedTable).length}
-                </div>
-                <div>
-                  <span className="font-semibold text-theme-text">Capacity:</span> {parseInt(seatsPerTable)}
-                </div>
-                <div>
-                  <span className="font-semibold text-theme-text">Available Seats:</span> {getAvailableSeatsForTable(selectedTable).join(', ') || 'None'}
-                </div>
+              <div>
+                <span className="font-semibold text-theme-text">Available:</span> {getAvailableSeatsForTable(selectedTable).length}
+              </div>
+              <div>
+                <span className="font-semibold text-theme-text">Capacity:</span> {parseInt(seatsPerTable)}
+              </div>
+              <div>
+                <span className="font-semibold text-theme-text">Available Seats:</span> {getAvailableSeatsForTable(selectedTable).join(', ') || 'None'}
               </div>
             </div>
           </div>
-
-          {/* Guest Table */}
-          <div className="w-full overflow-x-auto pb-2">
-            <div className="min-w-[1024px]">
-              <table className="w-full bg-theme-card-bg">
-                <thead>
-                  <tr className="bg-theme-secondary">
-                    <th className="py-3 px-4 border-b border-gray-200 text-left text-xs font-semibold text-theme-text uppercase w-[120px]">Code</th>
-                    <th className="py-3 px-4 border-b border-gray-200 text-left text-xs font-semibold text-theme-text uppercase min-w-[150px]">Name</th>
-                    <th className="py-3 px-4 border-b border-gray-200 text-left text-xs font-semibold text-theme-text uppercase w-[100px]">Category</th>
-                    <th className="py-3 px-4 border-b border-gray-200 text-left text-xs font-semibold text-theme-text uppercase w-[120px]">Seat</th>
-                    <th className="py-3 px-4 border-b border-gray-200 text-left text-xs font-semibold text-theme-text uppercase w-[80px]">Arrived</th>
-                    <th className="py-3 px-4 border-b border-gray-200 text-left text-xs font-semibold text-theme-text uppercase min-w-[120px]">Food</th>
-                    <th className="py-3 px-4 border-b border-gray-200 text-left text-xs font-semibold text-theme-text uppercase w-[100px]">Meal Served</th>
-                    <th className="py-3 px-4 border-b border-gray-200 text-left text-xs font-semibold text-theme-text uppercase min-w-[120px]">Drink</th>
-                    <th className="py-3 px-4 border-b border-gray-200 text-left text-xs font-semibold text-theme-text uppercase w-[100px]">Drink Served</th>
+          
+          {/* Responsive table with horizontal scroll only when necessary */}
+          <div className="w-full overflow-x-auto">
+            <table className="min-w-full bg-theme-card-bg">
+              <thead>
+                <tr className="bg-theme-secondary">
+                  <th className="py-3 px-4 border-b border-gray-200 text-left text-xs font-semibold text-theme-text uppercase">Code</th>
+                  <th className="py-3 px-4 border-b border-gray-200 text-left text-xs font-semibold text-theme-text uppercase">Name</th>
+                  <th className="py-3 px-4 border-b border-gray-200 text-left text-xs font-semibold text-theme-text uppercase">Category</th>
+                  <th className="py-3 px-4 border-b border-gray-200 text-left text-xs font-semibold text-theme-text uppercase">Seat Assignment</th>
+                  <th className="py-3 px-4 border-b border-gray-200 text-left text-xs font-semibold text-theme-text uppercase">Arrived</th>
+                  <th className="py-3 px-4 border-b border-gray-200 text-left text-xs font-semibold text-theme-text uppercase">Food</th>
+                  <th className="py-3 px-4 border-b border-gray-200 text-left text-xs font-semibold text-theme-text uppercase">Meal Served</th>
+                  <th className="py-3 px-4 border-b border-gray-200 text-left text-xs font-semibold text-theme-text uppercase">Drink</th>
+                  <th className="py-3 px-4 border-b border-gray-200 text-left text-xs font-semibold text-theme-text uppercase">Drink Served</th>
+                </tr>
+              </thead>
+              <tbody>
+                {getGuestsByTable(selectedTable).map(([code, guest]) => renderGuestRow(code, guest, true))}
+                
+                {getGuestsByTable(selectedTable).length === 0 && (
+                  <tr>
+                    <td colSpan={9} className="py-8 text-center text-theme-text">
+                      No guests assigned to this table yet. Click "Save Settings & Auto-Create/Assign Guests" above to automatically assign guests.
+                    </td>
                   </tr>
-                </thead>
-                <tbody>
-                  {getGuestsByTable(selectedTable).map(([code, guest]) => renderGuestRow(code, guest, true))}
-                  
-                  {getGuestsByTable(selectedTable).length === 0 && (
-                    <tr>
-                      <td colSpan={9} className="py-8 text-center text-theme-text">
-                        No guests assigned to this table yet.
-                      </td>
-                    </tr>
-                  )}
-                </tbody>
-              </table>
-            </div>
+                )}
+              </tbody>
+            </table>
           </div>
         </div>
       )}
 
-      {/* Table Notes */}
+      {/* Table Notes Card */}
       {selectedTable && (
         <div className="bg-theme-card-bg p-6 rounded-lg shadow-md">
           <div className="flex items-center justify-between mb-4">
             <h4 className="text-lg font-semibold text-theme-primary flex items-center gap-2">
               <Users className="w-5 h-5" />
-              Table {tableOrder.indexOf(selectedTable) + 1} Notes
+              Table {tableOrder.indexOf(selectedTable) + 1} Notes - Seats {(selectedTable - 1) * parseInt(seatsPerTable) + 1} to {selectedTable * parseInt(seatsPerTable)}
             </h4>
           </div>
           
@@ -721,7 +773,7 @@ useEffect(() => {
               onChange={(e) => handleTableNoteChange(selectedTable, e.target.value)}
               onFocus={(e) => e.target.select()}
               className="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-theme-accent resize-none"
-              placeholder="Add notes for this table..."
+              placeholder="Add notes for this table (e.g., special dietary requirements, VIP guests, seating arrangements, etc.)"
               rows={4}
             />
             <div className="mt-2 text-sm text-theme-text opacity-75">
@@ -734,4 +786,4 @@ useEffect(() => {
   );
 };
 
-export default GuestsTab;
+export default GuestsTab;.
