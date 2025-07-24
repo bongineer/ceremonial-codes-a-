@@ -44,13 +44,15 @@ const UsherDashboard: React.FC = () => {
 
   // Group guests by table
   const getGuestsByTable = (tableNumber: number) => {
-    const startSeat = (tableNumber - 1) * seatsPerTable + 1;
-    const endSeat = tableNumber * seatsPerTable;
-    
-    return filteredGuests.filter(([code, guest]) => {
+  const startSeat = (tableNumber - 1) * seatsPerTable + 1;
+  const endSeat = tableNumber * seatsPerTable;
+  
+  return filteredGuests
+    .filter(([code, guest]) => {
       return guest.seatNumber && guest.seatNumber >= startSeat && guest.seatNumber <= endSeat;
-    });
-  };
+    })
+    .sort((a, b) => (a[1].seatNumber || 0) - (b[1].seatNumber || 0));
+};
 
   const getTableName = (tableNumber: number | null): string => {
     if (!tableNumber) return '';
