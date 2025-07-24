@@ -786,4 +786,4 @@ const GuestsTab: React.FC = () => {
   );
 };
 
-export default GuestsTab;.
+export default GuestsTab;
