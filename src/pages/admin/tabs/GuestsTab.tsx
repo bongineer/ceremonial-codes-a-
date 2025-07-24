@@ -33,14 +33,14 @@ const GuestsTab: React.FC = () => {
   const [notesSaveTimeouts, setNotesSaveTimeouts] = useState<Record<number, NodeJS.Timeout>>({});
 
   // Calculate total tables needed
-  const totalTables = Math.ceil(parseInt(totalGuests) / parseInt(seatsPerTable);
-  
-  // Initialize table order
-  useEffect(() => {
-    if (tableOrder.length !== totalTables) {
-      setTableOrder(Array.from({ length: totalTables }, (_, i) => i + 1));
-    }
-  }, [totalTables, tableOrder.length]);
+const totalTables = Math.ceil(parseInt(totalGuests) / parseInt(seatsPerTable));
+
+// Initialize table order
+useEffect(() => {
+  if (tableOrder.length !== totalTables) {
+    setTableOrder(Array.from({ length: totalTables }, (_, i) => i + 1));
+  }
+}, [totalTables, tableOrder.length]);
 
   // Calculate guest counts
   const currentGuestCount = Object.keys(state.guests).filter(code => code !== 'ADMIN').length;
