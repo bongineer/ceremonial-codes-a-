@@ -16,6 +16,16 @@ const UsherDashboard: React.FC = () => {
   const seatsPerTable = state.settings.seatsPerTable;
   const totalTables = Math.ceil(state.settings.maxSeats / seatsPerTable);
 
+
+  useEffect(() => {
+  const interval = setInterval(() => {
+    // Call your function to refresh dashboard data here.
+    // For example: fetchLatestGuests() or updateStateFromServer()
+  }, 60000); // 60,000ms = 1 minute
+
+  return () => clearInterval(interval);
+  }, []);
+  
   useEffect(() => {
     // Redirect to login if not logged in or not usher
     if (!state.currentUser || state.currentUser !== 'USHER') {
