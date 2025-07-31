@@ -32,28 +32,16 @@ const UsherDashboard: React.FC = () => {
     return null;
   }
 
-  // Filter guests based on search term (across ALL tables)
-const filteredGuests = Object.entries(state.guests)
-  .filter(([code, guest]) => {
-    if (code === 'ADMIN' || code === 'USHER') return false;
-    
-    const lowerSearchTerm = searchTerm.toLowerCase();
-    return code.toLowerCase().includes(lowerSearchTerm) || 
-           guest.name.toLowerCase().includes(lowerSearchTerm);
-  });
+  // Filter guests based on search term
+  const filteredGuests = Object.entries(state.guests)
+    .filter(([code, guest]) => {
+      if (code === 'ADMIN' || code === 'USHER') return false;
+      
+      const lowerSearchTerm = searchTerm.toLowerCase();
+      return code.toLowerCase().includes(lowerSearchTerm) || 
+             guest.name.toLowerCase().includes(lowerSearchTerm);
+    });
 
-// Then get only the guests for the selected table from the filtered results
-const getGuestsByTable = (tableNumber: number) => {
-  if (!tableNumber) return [];
-  
-  const startSeat = (tableNumber - 1) * seatsPerTable + 1;
-  const endSeat = tableNumber * seatsPerTable;
-  
-  return filteredGuests.filter(([code, guest]) => {
-    return guest.seatNumber && guest.seatNumber >= startSeat && guest.seatNumber <= endSeat;
-  });
-};
-  
   // Group guests by table
   const getGuestsByTable = (tableNumber: number) => {
     const startSeat = (tableNumber - 1) * seatsPerTable + 1;
