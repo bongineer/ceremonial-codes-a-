@@ -2,18 +2,16 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAppContext } from '../../context/AppContext';
 import { toast } from 'react-toastify';
-import { Users, RefreshCw } from 'lucide-react';
+import { Users } from 'lucide-react';
 import EditableToggle from '../../components/common/EditableToggle';
 import { Guest } from '../../types';
 
 const UsherDashboard: React.FC = () => {
-  const { state, logout, updateGuestDetails, refreshGuests } = useAppContext();
+  const { state, logout, updateGuestDetails } = useAppContext();
   const navigate = useNavigate();
   
   const [selectedTable, setSelectedTable] = useState<number | null>(3); // Default to table 3
   const [searchTerm, setSearchTerm] = useState('');
-  const [lastRefresh, setLastRefresh] = useState<string>('');
-  const [isRefreshing, setIsRefreshing] = useState<boolean>(false);
   
   const seatsPerTable = state.settings.seatsPerTable;
   const totalTables = Math.ceil(state.settings.maxSeats / seatsPerTable);
@@ -25,38 +23,14 @@ const UsherDashboard: React.FC = () => {
     }
   }, [state.currentUser, navigate]);
 
-  // Auto-refresh effect
-  useEffect(() => {
-    const handleRefresh = async () => {
-      setIsRefreshing(true);
-      try {
-        await refreshGuests();
-        setLastRefresh(new Date().toLocaleTimeString());
-      } catch (error) {
-        toast.error('Failed to refresh data');
-      } finally {
-        setIsRefreshing(false);
-      }
-    };
-
-    // Initial load
-    handleRefresh();
-
-    // Set up interval (refresh every 30 seconds)
-    const intervalId = setInterval(handleRefresh, 30000);
-
-    return () => clearInterval(intervalId);
-  }, [refreshGuests]);
-
   const handleLogout = () => {
     logout();
     navigate('/');
   };
 
-  const getTableName = (tableNumber: number | null): string => {
-    if (!tableNumber) return '';
-    return state.settings.tableNames?.[tableNumber] || `Table ${tableNumber}`;
-  };
+  if (state.currentUser !== 'USHER') {
+    return null;
+  }
 
   // Filter guests based on search term
   const filteredGuests = Object.entries(state.guests)
@@ -70,14 +44,19 @@ const UsherDashboard: React.FC = () => {
 
   // Group guests by table
   const getGuestsByTable = (tableNumber: number) => {
-    const startSeat = (tableNumber - 1) * seatsPerTable + 1;
-    const endSeat = tableNumber * seatsPerTable;
-    
-    return filteredGuests
-      .filter(([code, guest]) => {
-        return guest.seatNumber && guest.seatNumber >= startSeat && guest.seatNumber <= endSeat;
-      })
-      .sort((a, b) => (a[1].seatNumber || 0) - (b[1].seatNumber || 0));
+  const startSeat = (tableNumber - 1) * seatsPerTable + 1;
+  const endSeat = tableNumber * seatsPerTable;
+  
+  return filteredGuests
+    .filter(([code, guest]) => {
+      return guest.seatNumber && guest.seatNumber >= startSeat && guest.seatNumber <= endSeat;
+    })
+    .sort((a, b) => (a[1].seatNumber || 0) - (b[1].seatNumber || 0));
+};
+
+  const getTableName = (tableNumber: number | null): string => {
+    if (!tableNumber) return '';
+    return state.settings.tableNames?.[tableNumber] || Table ${tableNumber};
   };
 
   // Handle editable toggles for usher-specific actions
@@ -144,10 +123,6 @@ const UsherDashboard: React.FC = () => {
     </tr>
   );
 
-  if (state.currentUser !== 'USHER') {
-    return null;
-  }
-
   return (
     <div className="min-h-screen overflow-x-hidden" style={{ background: 'var(--color-background)' }}>
       <header className="bg-theme-primary text-theme-text-inverse p-5 shadow-md">
@@ -168,7 +143,7 @@ const UsherDashboard: React.FC = () => {
           <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between mb-6">
             <h3 className="text-xl font-semibold mb-4 lg:mb-0 text-theme-primary">Guest Service Management</h3>
             
-            <div className="flex flex-col sm:flex-row gap-4 items-center">
+            <div className="flex flex-col sm:flex-row gap-4">
               <input 
                 type="text" 
                 value={searchTerm}
@@ -176,21 +151,6 @@ const UsherDashboard: React.FC = () => {
                 className="px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-theme-accent" 
                 placeholder="Search guests..."
               />
-              <div className="flex items-center text-sm text-gray-500">
-                <button 
-                  onClick={() => {
-                    setIsRefreshing(true);
-                    refreshGuests().finally(() => setIsRefreshing(false));
-                    setLastRefresh(new Date().toLocaleTimeString());
-                  }}
-                  disabled={isRefreshing}
-                  className="p-2 text-theme-primary hover:text-theme-accent disabled:opacity-50"
-                  title="Refresh now"
-                >
-                  <RefreshCw className={`w-4 h-4 ${isRefreshing ? 'animate-spin' : ''}`} />
-                </button>
-                <span className="ml-1">{lastRefresh ? `Updated ${lastRefresh}` : 'Loading...'}</span>
-              </div>
             </div>
           </div>
           
@@ -205,10 +165,11 @@ const UsherDashboard: React.FC = () => {
             </p>
           </div>
 
-          {/* Table Navigation Tabs */}
+          {/* Table Navigation Tabs - Fixed responsive layout without horizontal scroll */}
           <div className="mb-6">
             <h4 className="text-lg font-semibold mb-4 text-theme-text">Table Navigation</h4>
             
+            {/* Fixed grid layout - no horizontal scrolling */}
             <div className="w-full">
               <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 gap-3">
                 {Array.from({ length: totalTables }, (_, index) => {
@@ -252,21 +213,21 @@ const UsherDashboard: React.FC = () => {
           </div>
         </div>
 
-        {/* Table-specific view */}
+        {/* Table-specific view - Always show the selected table (default: Table 3) */}
         {selectedTable && (
           <div className="bg-theme-card-bg p-6 rounded-lg shadow-md">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4">
-              <div>
-                <h4 className="text-lg font-semibold text-theme-primary flex items-center gap-2">
-                  <Users className="w-5 h-5" />
-                  Table {selectedTable} - {getTableName(selectedTable)}
-                </h4>
-              </div>
-              
-              <div className="text-sm text-theme-text opacity-75">
-                Seats {(selectedTable - 1) * seatsPerTable + 1} to {selectedTable * seatsPerTable}
-              </div>
-            </div>
+  <div>
+    <h4 className="text-lg font-semibold text-theme-primary flex items-center gap-2">
+      <Users className="w-5 h-5" />
+      Table {selectedTable} - {getTableName(selectedTable)}
+    </h4>
+  </div>
+  
+  <div className="text-sm text-theme-text opacity-75">
+    Seats {(selectedTable - 1) * seatsPerTable + 1} to {selectedTable * seatsPerTable}
+  </div>
+</div>
             
             <div className="mb-4 p-3 bg-theme-secondary rounded-lg">
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
@@ -285,7 +246,7 @@ const UsherDashboard: React.FC = () => {
               </div>
             </div>
             
-            {/* Responsive table */}
+            {/* Responsive table with horizontal scroll only when necessary */}
             <div className="w-full overflow-x-auto">
               <table className="min-w-full bg-theme-card-bg">
                 <thead>
@@ -317,7 +278,7 @@ const UsherDashboard: React.FC = () => {
           </div>
         )}
 
-        {/* Table Notes Card */}
+        {/* Table Notes Card - Read Only */}
         {selectedTable && state.settings.tableNotes?.[selectedTable] && (
           <div className="bg-theme-card-bg p-6 rounded-lg shadow-md mt-8">
             <div className="flex items-center justify-between mb-4">
