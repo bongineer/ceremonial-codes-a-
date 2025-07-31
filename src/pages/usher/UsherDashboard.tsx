@@ -53,9 +53,10 @@ const UsherDashboard: React.FC = () => {
     navigate('/');
   };
 
-  if (state.currentUser !== 'USHER') {
-    return null;
-  }
+  const getTableName = (tableNumber: number | null): string => {
+    if (!tableNumber) return '';
+    return state.settings.tableNames?.[tableNumber] || `Table ${tableNumber}`;
+  };
 
   // Filter guests based on search term
   const filteredGuests = Object.entries(state.guests)
@@ -77,11 +78,6 @@ const UsherDashboard: React.FC = () => {
         return guest.seatNumber && guest.seatNumber >= startSeat && guest.seatNumber <= endSeat;
       })
       .sort((a, b) => (a[1].seatNumber || 0) - (b[1].seatNumber || 0));
-  };
-
-  const getTableName = (tableNumber: number | null): string => {
-    if (!tableNumber) return '';
-    return state.settings.tableNames?.[tableNumber] || Table ${tableNumber};
   };
 
   // Handle editable toggles for usher-specific actions
@@ -148,6 +144,10 @@ const UsherDashboard: React.FC = () => {
     </tr>
   );
 
+  if (state.currentUser !== 'USHER') {
+    return null;
+  }
+
   return (
     <div className="min-h-screen overflow-x-hidden" style={{ background: 'var(--color-background)' }}>
       <header className="bg-theme-primary text-theme-text-inverse p-5 shadow-md">
@@ -187,9 +187,9 @@ const UsherDashboard: React.FC = () => {
                   className="p-2 text-theme-primary hover:text-theme-accent disabled:opacity-50"
                   title="Refresh now"
                 >
-                  <RefreshCw className={w-4 h-4 ${isRefreshing ? 'animate-spin' : ''}} />
+                  <RefreshCw className={`w-4 h-4 ${isRefreshing ? 'animate-spin' : ''}`} />
                 </button>
-                <span className="ml-1">{lastRefresh ? Updated ${lastRefresh} : 'Loading...'}</span>
+                <span className="ml-1">{lastRefresh ? `Updated ${lastRefresh}` : 'Loading...'}</span>
               </div>
             </div>
           </div>
@@ -338,4 +338,4 @@ const UsherDashboard: React.FC = () => {
   );
 };
 
-export default UsherDashboard;
+export default UsherDashboard;
