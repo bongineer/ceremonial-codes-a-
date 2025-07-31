@@ -19,7 +19,7 @@ const WeddingPartyTab: React.FC = () => {
         </div>
         
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
-          {/* Groom's Side - Left Column */}
+          {/* Groom's Side - Right Column */}
           <div>
             <h3 className="text-2xl font-semibold mb-8 text-theme-primary text-center">Groomsmen</h3>
             <div className="space-y-8">
@@ -49,7 +49,7 @@ const WeddingPartyTab: React.FC = () => {
             </div>
           </div>
           
-          {/* Bride's Side - Right Column */}
+          {/* Bride's Side - Left Column */}
           <div>
             <h3 className="text-2xl font-semibold mb-8 text-theme-primary text-center">Bridesmaids</h3>
             <div className="space-y-8">
