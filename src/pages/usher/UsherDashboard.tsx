@@ -299,4 +299,4 @@ const UsherDashboard: React.FC = () => {
   );
 };
 
-export default UsherDashboard;.
+export default UsherDashboard;
