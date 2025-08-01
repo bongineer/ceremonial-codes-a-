@@ -54,7 +54,7 @@ const LoginScreen: React.FC = () => {
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-cover bg-center bg-no-repeat p-5"
-         style={{ backgroundImage: "linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3)), url('https://lh3.googleusercontent.com/pw/AP1GczPRrvBKnajZta5MrdJi2UB977YEmq0foAycAM9HFczxvScbu7cCeBaUeH5PtAnBxLFkWvXXfK3iM4Xl64nP-pZCekLzofUJ6WCXrljmv-BEj52fq6I3S_68EabSQT7W8KGaksizZ8qZ5Q-NrrY0OvdU=w1080-h1574-s-no-gm?authuser=0')" }}>
+         style={{ backgroundImage: "linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3)), url('https://lh3.googleusercontent.com/pw/AP1GczM6Z86kGOuqXAqjRYH0-yjV-xSWQxCL6juzjKZ70Nnf4lwB9zetYbQ7Pu1bQdXm0HpKxZEuF1puettcbnBjT2asTyf8uLOJQ-xBXloOPKDpucDOLxtYLEmc2gAS8M6b5okWcTKurErkoXwcFJqNEDMJ=w1080-h1373-s-no-gm?authuser=0')" }}>
       <div className="bg-theme-card-bg rounded-lg shadow-xl p-8 w-full max-w-md animate-fade-in-down">
         <h1 className="text-5xl text-center mb-4 text-theme-primary font-dancing animate-fade-in">
           {state.settings.coupleNames}
