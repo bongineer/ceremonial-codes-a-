@@ -44,19 +44,19 @@ const UsherDashboard: React.FC = () => {
 
   // Group guests by table
   const getGuestsByTable = (tableNumber: number) => {
-  if (!tableNumber) return [];
-  
   const startSeat = (tableNumber - 1) * seatsPerTable + 1;
   const endSeat = tableNumber * seatsPerTable;
   
-  return filteredGuests.filter(([code, guest]) => {
-    return guest.seatNumber && guest.seatNumber >= startSeat && guest.seatNumber <= endSeat;
-  });
+  return filteredGuests
+    .filter(([code, guest]) => {
+      return guest.seatNumber && guest.seatNumber >= startSeat && guest.seatNumber <= endSeat;
+    })
+    .sort((a, b) => (a[1].seatNumber || 0) - (b[1].seatNumber || 0));
 };
 
   const getTableName = (tableNumber: number | null): string => {
     if (!tableNumber) return '';
-    return state.settings.tableNames?.[tableNumber] || `Table ${tableNumber}`;
+    return state.settings.tableNames?.[tableNumber] || Table ${tableNumber};
   };
 
   // Handle editable toggles for usher-specific actions
@@ -160,7 +160,7 @@ const UsherDashboard: React.FC = () => {
             </p>
             <p className="text-sm text-theme-text">
               ✅ <strong>Arrived:</strong> Check when guest arrives at venue<br/>
-              🍽️ <strong>Meal Served:</strong> Check when guest has been served their meal<br/>
+              🍽 <strong>Meal Served:</strong> Check when guest has been served their meal<br/>
               🥤 <strong>Drink Served:</strong> Check when guest has been served their drink
             </p>
           </div>
@@ -216,16 +216,18 @@ const UsherDashboard: React.FC = () => {
         {/* Table-specific view - Always show the selected table (default: Table 3) */}
         {selectedTable && (
           <div className="bg-theme-card-bg p-6 rounded-lg shadow-md">
-            <div className="flex items-center justify-between mb-4">
-              <h4 className="text-lg font-semibold text-theme-primary flex items-center gap-2">
-                <Users className="w-5 h-5" />
-                Table {selectedTable} - {getTableName(selectedTable)}
-              </h4>
-              
-              <div className="text-sm text-theme-text">
-                Seats {(selectedTable - 1) * seatsPerTable + 1} to {selectedTable * seatsPerTable}
-              </div>
-            </div>
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4">
+  <div>
+    <h4 className="text-lg font-semibold text-theme-primary flex items-center gap-2">
+      <Users className="w-5 h-5" />
+      Table {selectedTable} - {getTableName(selectedTable)}
+    </h4>
+  </div>
+  
+  <div className="text-sm text-theme-text opacity-75">
+    Seats {(selectedTable - 1) * seatsPerTable + 1} to {selectedTable * seatsPerTable}
+  </div>
+</div>
             
             <div className="mb-4 p-3 bg-theme-secondary rounded-lg">
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
@@ -272,6 +274,23 @@ const UsherDashboard: React.FC = () => {
                   )}
                 </tbody>
               </table>
+            </div>
+          </div>
+        )}
+
+        {/* Table Notes Card - Read Only */}
+        {selectedTable && state.settings.tableNotes?.[selectedTable] && (
+          <div className="bg-theme-card-bg p-6 rounded-lg shadow-md mt-8">
+            <div className="flex items-center justify-between mb-4">
+              <h4 className="text-lg font-semibold text-theme-primary flex items-center gap-2">
+                <Users className="w-5 h-5" />
+                Table {selectedTable} Notes - {getTableName(selectedTable)}
+              </h4>
+            </div>
+            
+            <div className="bg-theme-secondary p-4 rounded-lg">
+              <h5 className="font-medium text-theme-text mb-2">Notes for {getTableName(selectedTable)}:</h5>
+              <p className="text-theme-text whitespace-pre-wrap">{state.settings.tableNotes[selectedTable]}</p>
             </div>
           </div>
         )}
