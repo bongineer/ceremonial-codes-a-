@@ -56,7 +56,7 @@ const UsherDashboard: React.FC = () => {
 
   const getTableName = (tableNumber: number | null): string => {
     if (!tableNumber) return '';
-    return state.settings.tableNames?.[tableNumber] || Table ${tableNumber};
+    return state.settings.tableNames?.[tableNumber] || `Table ${tableNumber}`;
   };
 
   // Handle editable toggles for usher-specific actions
