@@ -19,18 +19,24 @@ export const useSupabase = () => {
   // Settings
   const getSettings = async (): Promise<Settings | null> => {
     try {
+      console.log('Attempting to fetch settings from Supabase...')
       const { data, error } = await supabase
         .from('settings')
         .select('*')
         .order('created_at', { ascending: false })
         .limit(1);
       
-      if (error) throw error;
+      if (error) {
+        console.error('Supabase settings error:', error)
+        throw error;
+      }
       
       if (!data || data.length === 0) {
+        console.log('No settings found in database')
         return null;
       }
       
+      console.log('Settings fetched successfully:', data[0])
       const settingsData = data[0];
       return {
         coupleNames: settingsData.couple_names,
@@ -47,6 +53,7 @@ export const useSupabase = () => {
       };
     } catch (err) {
       console.error('Error fetching settings:', err);
+      console.error('Error details:', err instanceof Error ? err.message : 'Unknown error');
       return null;
     }
   };
