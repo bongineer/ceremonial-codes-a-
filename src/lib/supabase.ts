@@ -13,6 +13,8 @@ const isSupabaseConfigured = supabaseUrl &&
 if (!isSupabaseConfigured) {
   console.warn('⚠️ Supabase not configured. Using local storage fallback mode.')
   console.warn('To enable database features, please set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY environment variables.')
+  console.warn('Current URL:', supabaseUrl)
+  console.warn('Current Key:', supabaseKey ? 'Set' : 'Not set')
 }
 
 // Use fallback values for development if environment variables are not set
@@ -23,7 +25,24 @@ const defaultKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.placeholder'
 const finalUrl = isSupabaseConfigured ? supabaseUrl : defaultUrl
 const finalKey = isSupabaseConfigured ? supabaseKey : defaultKey
 
-export const supabase = createClient(finalUrl, finalKey)
+export const supabase = createClient(finalUrl, finalKey, {
+  auth: {
+    persistSession: false
+  },
+  global: {
+    fetch: (url, options = {}) => {
+      return fetch(url, {
+        ...options,
+        headers: {
+          ...options.headers,
+        }
+      }).catch(error => {
+        console.error('Supabase fetch error:', error)
+        throw error
+      })
+    }
+  }
+})
 
 // Export configuration status for use in components
 export const isSupabaseReady = isSupabaseConfigured
